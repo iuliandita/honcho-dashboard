@@ -1,11 +1,17 @@
 import { Hono } from 'hono';
 
+/**
+ * Narrowed fetch signature: the proxy only ever calls with a `Request` object, so test stubs
+ * can safely accept just `Request` rather than the full `RequestInfo | URL` overload set.
+ */
+export type FetchLike = (input: Request) => Response | Promise<Response>;
+
 export interface ProxyConfig {
   apiBase: string;
   adminToken: string;
   timeoutMs: number;
   /** Inject for testing; defaults to global fetch in production. */
-  fetch?: typeof fetch;
+  fetch?: FetchLike;
 }
 
 interface ProxyErrorBody {
