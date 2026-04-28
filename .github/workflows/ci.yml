@@ -19,6 +19,12 @@ jobs:
         with:
           bun-version: latest
 
+      - name: Cache Bun dependencies
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-bun-node-modules-${{ hashFiles('bun.lock') }}
+
       - name: Install
         run: bun install --frozen-lockfile
 
@@ -49,6 +55,12 @@ jobs:
         with:
           bun-version: latest
 
+      - name: Cache Bun dependencies
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-bun-node-modules-${{ hashFiles('bun.lock') }}
+
       - name: Install
         run: bun install --frozen-lockfile
 
@@ -56,6 +68,12 @@ jobs:
         run: |
           bun run codegen
           git diff --exit-code src/lib/honcho/types.ts
+
+      - name: Cache Playwright browsers
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ hashFiles('bun.lock') }}
 
       - name: Install Playwright browsers
         run: bun run test:e2e:install

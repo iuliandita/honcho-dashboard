@@ -35,7 +35,7 @@ describe('createApp', () => {
     expect(stub.requests[0]?.authorization).toBe('Bearer test-token');
   });
 
-  it('reads env vars when no overrides given', () => {
+  it('reads env vars when no overrides given', async () => {
     const original = { ...process.env };
     process.env.HONCHO_API_BASE = 'http://env.test';
     process.env.HONCHO_ADMIN_TOKEN = 'env-token';
@@ -43,7 +43,9 @@ describe('createApp', () => {
 
     try {
       const app = createApp();
-      expect(app).toBeDefined();
+      const config = await app.request('/api/runtime-config');
+      expect(config.status).toBe(200);
+      expect(await config.json()).toEqual({ workspaceId: 'env-ws', version: '1.0.0' });
     } finally {
       process.env = original;
     }

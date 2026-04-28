@@ -27,6 +27,7 @@ test.describe('profile flow', () => {
   test('strips inline scripts from rendered markdown', async ({ page }) => {
     await page.goto(`${dashboard.url}/peers/peer-1/profile`);
 
+    await expect(page.getByText('prefers oat milk')).toBeVisible();
     const html = await page.locator('.md').innerHTML();
     expect(html).not.toMatch(/<script[\s>]/);
     expect(html).not.toContain('javascript:');

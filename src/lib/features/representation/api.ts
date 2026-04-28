@@ -25,6 +25,7 @@ function cleanContent(line: string): string {
 }
 
 function normalizeRepresentation(raw: components['schemas']['RepresentationResponse']): RepresentationResponse {
+  if (typeof raw.representation !== 'string') return { items: [], topics: [] };
   const representation = raw.representation.trim();
   if (!representation) return { items: [], topics: [] };
 

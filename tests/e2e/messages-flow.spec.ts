@@ -29,15 +29,19 @@ test.describe('messages flow', () => {
     await page.goto(`${dashboard.url}/peers/peer-1/sessions/sess-1`);
     await expect(page.getByText('message body 0').first()).toBeVisible();
 
-    await page.evaluate(() => {
-      const list = document.querySelector('[role="log"]');
-      if (!list) return;
-      const el = list as HTMLElement;
-      el.scrollTop = el.scrollHeight;
-      el.dispatchEvent(new Event('scroll'));
-      el.scrollTop = 0;
-      el.dispatchEvent(new Event('scroll'));
+    const log = page.getByRole('log');
+    await log.evaluate((el) => {
+      el.scrollTo({ top: el.scrollHeight });
     });
+    await expect.poll(() => log.evaluate((el) => el.scrollTop)).toBeGreaterThan(0);
+
+    const page2 = page.waitForResponse(
+      (res) => res.url().includes('/messages/list') && res.url().includes('page=2') && res.status() === 200,
+    );
+    await log.evaluate((el) => {
+      el.scrollTo({ top: 0 });
+    });
+    await page2;
 
     await expect(page.getByText('message body 50').first()).toBeVisible({ timeout: 5_000 });
     await expect(page.getByText('message body 99').first()).toBeVisible();
@@ -49,5 +53,6 @@ test.describe('messages flow', () => {
 
     const res = await request.get(`${dashboard.url}/api/runtime-config`);
     expect(res.status()).toBe(200);
+    expect(await res.json()).toEqual({ workspaceId: 'ws-alpha', version: '0.1.0-test' });
   });
 });

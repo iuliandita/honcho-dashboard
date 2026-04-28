@@ -15,6 +15,19 @@ function makeStreamingResponse(chunks: string[], headers: Record<string, string>
   });
 }
 
+function makeByteStreamingResponse(chunks: Uint8Array[], headers: Record<string, string> = {}): Response {
+  const body = new ReadableStream<Uint8Array>({
+    start(controller) {
+      for (const c of chunks) controller.enqueue(c);
+      controller.close();
+    },
+  });
+  return new Response(body, {
+    status: 200,
+    headers: { 'Content-Type': 'text/event-stream', ...headers },
+  });
+}
+
 describe('ChatStream', () => {
   let mockInvalidate: ReturnType<typeof vi.fn>;
 
@@ -64,6 +77,47 @@ describe('ChatStream', () => {
     expect(stream.expectedEnd).toBe(true);
     expect(stream.error).toBeNull();
     expect(mockInvalidate).toHaveBeenCalledWith('p');
+  });
+
+  it('ignores tokens after done event', async () => {
+    const fetchMock = vi.fn(async () =>
+      makeStreamingResponse([
+        'data: {"type":"token","data":"before"}\n\n',
+        'data: {"type":"done"}\n\n',
+        'data: {"type":"token","data":"after"}\n\n',
+      ]),
+    );
+
+    const stream = new ChatStream({
+      workspaceId: 'ws',
+      peerId: 'p',
+      invalidatePeer: mockInvalidate,
+      fetch: fetchMock,
+    });
+    await stream.send('greet');
+
+    expect(stream.tokens).toBe('before');
+    expect(stream.expectedEnd).toBe(true);
+    expect(stream.error).toBeNull();
+  });
+
+  it('reassembles multi-byte UTF-8 split across chunks', async () => {
+    const enc = new TextEncoder();
+    const payload = enc.encode('data: {"type":"token","data":"café"}\n\ndata: {"type":"done"}\n\n');
+    const splitAt = payload.findIndex((byte) => byte === 0xc3) + 1;
+    const fetchMock = vi.fn(async () => makeByteStreamingResponse([payload.slice(0, splitAt), payload.slice(splitAt)]));
+
+    const stream = new ChatStream({
+      workspaceId: 'ws',
+      peerId: 'p',
+      invalidatePeer: mockInvalidate,
+      fetch: fetchMock,
+    });
+    await stream.send('greet');
+
+    expect(stream.tokens).toBe('café');
+    expect(stream.expectedEnd).toBe(true);
+    expect(stream.error).toBeNull();
   });
 
   it('records error on error event', async () => {

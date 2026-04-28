@@ -1,13 +1,6 @@
-import type { ApiClient } from '$api/client';
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, it } from 'vitest';
+import { mockClient } from '../../../../tests/lib/test-utils';
 import { type ProfileResponse, buildPeerProfileQuery } from './api';
-
-function mockClient<T>(data: T): ApiClient {
-  return {
-    get: vi.fn(async () => data) as ApiClient['get'],
-    post: vi.fn(async () => data) as ApiClient['post'],
-  };
-}
 
 describe('buildPeerProfileQuery', () => {
   it('keys by workspace+peer+profile', () => {

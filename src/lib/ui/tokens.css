@@ -136,6 +136,8 @@
 
 html,
 body {
+  height: 100dvh;
+  margin: 0;
   background: var(--color-bg);
   color: var(--color-fg);
   font-family: var(--font-mono);
@@ -145,6 +147,19 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+#app {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
 }
 
 /* ASCII art blocks — preserve exact glyph alignment, no transforms. */

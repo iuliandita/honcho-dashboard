@@ -17,9 +17,21 @@ describe('formatRelative', () => {
     expect(formatRelative('2026-04-28T11:59:30Z', now)).toBe('just now');
   });
 
+  it('switches from just-now to minutes at 60 seconds', () => {
+    const now = new Date('2026-04-28T12:00:00Z');
+    expect(formatRelative('2026-04-28T11:59:01Z', now)).toBe('just now');
+    expect(formatRelative('2026-04-28T11:59:00Z', now)).toBe('1m ago');
+  });
+
   it('returns minute count for <1h', () => {
     const now = new Date('2026-04-28T12:00:00Z');
     expect(formatRelative('2026-04-28T11:45:00Z', now)).toBe('15m ago');
+  });
+
+  it('switches from minutes to hours at 3600 seconds', () => {
+    const now = new Date('2026-04-28T12:00:00Z');
+    expect(formatRelative('2026-04-28T11:00:01Z', now)).toBe('59m ago');
+    expect(formatRelative('2026-04-28T11:00:00Z', now)).toBe('1h ago');
   });
 
   it('returns hour count for <24h', () => {
@@ -35,6 +47,12 @@ describe('formatRelative', () => {
   it('falls back to absolute date for >=7d', () => {
     const now = new Date('2026-04-28T12:00:00Z');
     expect(formatRelative('2026-04-01T12:00:00Z', now)).toBe('2026-04-01');
+  });
+
+  it('switches from days to absolute date at 7 days', () => {
+    const now = new Date('2026-04-28T12:00:00Z');
+    expect(formatRelative('2026-04-21T12:00:01Z', now)).toBe('6d ago');
+    expect(formatRelative('2026-04-21T12:00:00Z', now)).toBe('2026-04-21');
   });
 });
 

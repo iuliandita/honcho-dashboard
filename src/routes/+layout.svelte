@@ -131,6 +131,12 @@ function toggleTheme() {
   }
 
   .main {
+    box-sizing: border-box;
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-height: 0;
+    width: 100%;
     padding: 1rem;
     max-width: 1400px;
     margin: 0 auto;

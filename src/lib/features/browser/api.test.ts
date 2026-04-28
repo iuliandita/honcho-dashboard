@@ -1,13 +1,7 @@
 import type { ApiClient } from '$api/client';
 import { describe, expect, it, vi } from 'vitest';
+import { mockClient } from '../../../../tests/lib/test-utils';
 import { buildPeersQuery, buildSessionsQuery, buildWorkspacesQuery } from './api';
-
-function mockClient<T>(data: T): ApiClient {
-  return {
-    get: vi.fn(async () => data) as ApiClient['get'],
-    post: vi.fn(async () => data) as ApiClient['post'],
-  };
-}
 
 describe('buildWorkspacesQuery', () => {
   it('builds a POST query against /v3/workspaces/list and unwraps the page envelope', async () => {

@@ -89,6 +89,70 @@ describe('proxy /api/*', () => {
     expect(res.headers.get('X-Trace-Id')).toBe(body.traceId);
   });
 
+  it('returns 504 with traceId when upstream times out', async () => {
+    const timeoutFetch = () => Promise.reject(new DOMException('TimeoutError', 'TimeoutError'));
+
+    const app = new Hono();
+    app.route(
+      '/',
+      proxyRoute({
+        apiBase: 'http://slow.invalid',
+        adminToken: 'test-token',
+        timeoutMs: 1,
+        fetch: timeoutFetch,
+      }),
+    );
+
+    const res = await app.request('/api/slow');
+
+    expect(res.status).toBe(504);
+    const body = await res.json();
+    expect(body).toMatchObject({
+      error: 'upstream timeout',
+      status: 504,
+      upstream: 'proxy',
+      traceId: expect.any(String),
+    });
+    expect(res.headers.get('X-Trace-Id')).toBe(body.traceId);
+  });
+
+  it('passes through SSE chunks when upstream closes mid-stream', async () => {
+    const enc = new TextEncoder();
+    const streamingFetch = () =>
+      Promise.resolve(
+        new Response(
+          new ReadableStream<Uint8Array>({
+            start(controller) {
+              controller.enqueue(enc.encode('data: {"type":"token","data":"partial"}\n\n'));
+              controller.close();
+            },
+          }),
+          { status: 200, headers: { 'Content-Type': 'text/event-stream' } },
+        ),
+      );
+
+    const app = new Hono();
+    app.route(
+      '/',
+      proxyRoute({
+        apiBase: 'http://stub.local',
+        adminToken: 'test-token',
+        timeoutMs: 1000,
+        fetch: streamingFetch,
+      }),
+    );
+
+    const res = await app.request('/api/v3/workspaces/ws/peers/abc/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ query: 'hi', stream: true }),
+    });
+
+    expect(res.status).toBe(200);
+    expect(res.headers.get('Content-Type')).toBe('text/event-stream');
+    expect(await res.text()).toBe('data: {"type":"token","data":"partial"}\n\n');
+  });
+
   it('forwards Honcho 4xx with status preserved and traceId added', async () => {
     const stub = createStubHoncho();
     const honchoFetch = (req: Request) => stub.app.fetch(req);

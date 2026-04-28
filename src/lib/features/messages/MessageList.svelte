@@ -55,7 +55,15 @@ onMount(() => {
 });
 </script>
 
-<div class="message-list pane-body" role="log" aria-live="polite" onscroll={onScroll}>
+<!-- svelte-ignore a11y_no_noninteractive_tabindex (scrollable log region must be keyboard focusable) -->
+<div
+  class="message-list pane-body"
+  role="log"
+  aria-label="session messages"
+  aria-live="polite"
+  tabindex="0"
+  onscroll={onScroll}
+>
   {#if $query.isLoading && messages.length === 0}
     <p class="state-row" role="status">loading messages…</p>
   {:else if $query.isError}
