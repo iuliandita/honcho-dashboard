@@ -20,12 +20,7 @@ export interface SearchResponse {
 
 const PAGE_SIZE = 50;
 
-export function buildWorkspaceSearchQuery(
-  client: ApiClient,
-  workspaceId: string,
-  query: string,
-  topic: string | null,
-) {
+export function buildWorkspaceSearchQuery(client: ApiClient, workspaceId: string, query: string, topic: string | null) {
   const trimmedQuery = query.trim();
   const params: Record<string, string | number> = { q: trimmedQuery, limit: PAGE_SIZE };
   if (topic) params.topic = topic;

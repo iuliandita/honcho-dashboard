@@ -7,10 +7,11 @@ interface Props {
   value: string;
   /** Debounced query; fires after user pauses typing. */
   onCommit: (query: string) => void;
+  onValueChange?: (query: string) => void;
   debounceMs?: number;
 }
 
-let { value = $bindable(''), onCommit, debounceMs = 250 }: Props = $props();
+let { value = $bindable(''), onCommit, onValueChange, debounceMs = 250 }: Props = $props();
 
 // The debounce wrapper is created once for this input's lifetime.
 // svelte-ignore state_referenced_locally
@@ -21,6 +22,7 @@ onDestroy(() => debounced.cancel());
 function handleInput(e: Event) {
   const target = e.target as HTMLInputElement;
   value = target.value;
+  onValueChange?.(target.value);
   debounced(target.value);
 }
 
@@ -30,6 +32,7 @@ function handleKeydown(e: KeyboardEvent) {
     onCommit(value);
   } else if (e.key === 'Escape') {
     value = '';
+    onValueChange?.('');
     debounced.cancel();
     onCommit('');
   }

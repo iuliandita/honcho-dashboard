@@ -2,8 +2,8 @@
 import TopicChip from '$features/representation/TopicChip.svelte';
 import EmptyState from '$ui/primitives/EmptyState.svelte';
 import type { CreateQueryResult } from '@tanstack/svelte-query';
-import type { SearchResponse, SearchResult } from './api';
 import ResultCard from './ResultCard.svelte';
+import type { SearchResponse, SearchResult } from './api';
 
 interface Props {
   /** Resolves a result to a clickable URL. Mode-specific (pinned vs picker). */

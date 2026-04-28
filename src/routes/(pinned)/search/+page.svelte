@@ -1,10 +1,10 @@
 <script lang="ts">
+import { createApiClient } from '$api/client';
 import { replaceState } from '$app/navigation';
 import { page } from '$app/state';
-import { createApiClient } from '$api/client';
-import { buildWorkspaceSearchQuery, type SearchResult } from '$features/search/api';
 import SearchInput from '$features/search/SearchInput.svelte';
 import SearchResults from '$features/search/SearchResults.svelte';
+import { type SearchResult, buildWorkspaceSearchQuery } from '$features/search/api';
 import Pane from '$ui/primitives/Pane.svelte';
 import PaneHeader from '$ui/primitives/PaneHeader.svelte';
 import { createQuery } from '@tanstack/svelte-query';
@@ -52,6 +52,10 @@ function commit(q: string) {
   syncUrl(q, selectedTopic);
 }
 
+function setInputValue(q: string) {
+  inputValue = q;
+}
+
 function setTopic(topic: string | null) {
   selectedTopic = topic;
   syncUrl(committedQuery, topic);
@@ -65,7 +69,7 @@ function hrefForResult(result: SearchResult): string {
 <Pane scrollable>
   <PaneHeader title="search" subtitle="workspace {data.workspaceId}" />
   <div class="search-route">
-    <SearchInput bind:value={inputValue} onCommit={commit} />
+    <SearchInput value={inputValue} onValueChange={setInputValue} onCommit={commit} />
     <SearchResults
       query={committedQuery}
       selectedTopic={selectedTopic}
