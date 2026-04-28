@@ -1,0 +1,14 @@
+IBM Plex Mono — bundled with this dashboard
+
+Copyright (c) 2017 IBM Corp. (https://github.com/IBM/plex)
+
+Licensed under the SIL Open Font License, Version 1.1.
+You may obtain a copy of the License at:
+    https://scripts.sil.org/OFL
+
+This font is bundled here so the dashboard can be self-hosted with no Google
+Fonts CDN dependency. To refresh: run `./scripts/refresh-fonts.sh`.
+
+Files:
+- IBMPlexMono-Regular.woff2 (weight 400)
+- IBMPlexMono-Bold.woff2    (weight 700)
