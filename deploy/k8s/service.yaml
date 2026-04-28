@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: honcho-dashboard
+  labels:
+    app.kubernetes.io/name: honcho-dashboard
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: honcho-dashboard
+  ports:
+    - name: http
+      port: 3000
+      targetPort: http
+      protocol: TCP

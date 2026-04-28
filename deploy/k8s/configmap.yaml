@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: honcho-dashboard-config
+  labels:
+    app.kubernetes.io/name: honcho-dashboard
+data:
+  HONCHO_API_BASE: 'https://REPLACE_ME-honcho.example.com'
+  PORT: '3000'
+  LOG_LEVEL: 'info'
+  HONCHO_PROXY_TIMEOUT: '15'
+  # HONCHO_WORKSPACE_ID: 'ws-default'  # uncomment to pin to one workspace
