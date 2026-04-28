@@ -1,5 +1,7 @@
 <script lang="ts">
 import '$ui/tokens.css';
+import { brandMark } from '$ui/ascii';
+import Icon from '$ui/pixel/Icon.svelte';
 import { QueryClient, QueryClientProvider } from '@tanstack/svelte-query';
 import type { Snippet } from 'svelte';
 import type { LayoutData } from './$types';
@@ -41,14 +43,17 @@ function toggleTheme() {
 
 <QueryClientProvider client={queryClient}>
   <header class="chrome">
-    <span class="brand">honcho-dashboard</span>
-    <span class="muted">v{data.runtimeConfig.version}</span>
+    <span class="brand font-ascii">{brandMark}</span>
+    <span class="rule" aria-hidden="true">─ ─ ─</span>
+    <span class="version">v{data.runtimeConfig.version}</span>
     {#if data.runtimeConfig.workspaceId}
-      <span class="pinned">workspace: {data.runtimeConfig.workspaceId}</span>
+      <span class="rule" aria-hidden="true">─ ─ ─</span>
+      <span class="ws"><Icon name="user" size={12} /> {data.runtimeConfig.workspaceId}</span>
     {/if}
     <span class="spacer"></span>
     <button type="button" class="theme-toggle" onclick={toggleTheme} aria-label="toggle theme">
-      {theme === 'dark' ? '◐ light' : '◑ dark'}
+      <span class="theme-glyph" aria-hidden="true">{theme === 'dark' ? '◐' : '◑'}</span>
+      <span class="theme-label">{theme === 'dark' ? 'light' : 'dark'}</span>
     </button>
   </header>
 
@@ -60,27 +65,50 @@ function toggleTheme() {
 <style>
   .chrome {
     display: flex;
-    align-items: baseline;
-    gap: 1rem;
-    padding: 0.75rem 1rem;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.5rem 1rem;
     border-bottom: 1px solid var(--color-border);
     background: var(--color-surface);
+    font-size: var(--text-sm);
+    /* The chrome is only ever 32px tall — kept tight on purpose. */
+    min-height: 32px;
   }
+
   .brand {
     color: var(--color-yellow-500);
     font-weight: 700;
+    letter-spacing: 0;
+    /* Drop the chrome's default vertical centering quirks for ASCII. */
+    line-height: 1;
   }
-  .muted {
+
+  .rule {
+    color: var(--color-border);
+    font-size: var(--text-xs);
+    /* Hide on narrow screens so the chrome doesn't wrap. */
+  }
+
+  .version {
     color: var(--color-fg-faint);
     font-size: var(--text-xs);
   }
-  .pinned {
+
+  .ws {
     color: var(--color-fg-muted);
-    font-size: var(--text-sm);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
   }
+
+  .ws :global(.pixel) {
+    color: var(--color-yellow-500);
+  }
+
   .spacer {
     flex: 1;
   }
+
   .theme-toggle {
     background: transparent;
     color: var(--color-fg);
@@ -89,11 +117,35 @@ function toggleTheme() {
     font-family: inherit;
     font-size: var(--text-xs);
     cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    border-radius: 0;
   }
+
   .theme-toggle:hover {
     border-color: var(--color-yellow-500);
+    color: var(--color-yellow-500);
   }
+
+  .theme-glyph {
+    font-size: var(--text-base);
+    line-height: 1;
+  }
+
   .main {
     padding: 1rem;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+
+  /* On narrow screens, hide the rule glyphs to keep the chrome a single row. */
+  @media (max-width: 640px) {
+    .rule {
+      display: none;
+    }
+    .ws {
+      display: none;
+    }
   }
 </style>

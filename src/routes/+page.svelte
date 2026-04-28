@@ -16,12 +16,30 @@ $effect(() => {
 });
 </script>
 
-<p class="redirecting">redirecting…</p>
+<div class="redirecting">
+  <p>
+    <span class="prompt" aria-hidden="true">$</span>
+    routing
+    <span class="cursor" aria-hidden="true">█</span>
+  </p>
+</div>
 
 <style>
   .redirecting {
-    color: var(--color-fg-faint);
+    margin: 6rem auto;
     text-align: center;
-    margin-top: 4rem;
+    color: var(--color-fg-faint);
+    font-size: var(--text-sm);
+  }
+
+  .prompt {
+    color: var(--color-yellow-500);
+    margin-right: 0.4rem;
+  }
+
+  .cursor {
+    color: var(--color-yellow-500);
+    animation: var(--animate-cursor-blink);
+    margin-left: 0.2rem;
   }
 </style>

@@ -1,28 +1,43 @@
 <script lang="ts">
 import { page } from '$app/state';
-
-// ASCII fallback art — placeholder; finalized in frontend-design phase.
-const errorMark = `   _____ ____  ____    ___  ____
-  | ___|  _ \\|  _ \\  / _ \\|  _ \\
-  |  _| | |_) | |_) || | | | |_) |
-  |___| |  _ <|  _ < | |_| |  _ <
-        |_| \\_\\_| \\_\\ \\___/|_| \\_\\`;
+import { divider, errorMark } from '$ui/ascii';
+import Icon from '$ui/pixel/Icon.svelte';
 </script>
 
 <div class="error-page">
-  <pre class="art" aria-hidden="true">{errorMark}</pre>
-  <h1>Something broke.</h1>
+  <pre class="ascii mark" aria-hidden="true">{errorMark}</pre>
+
+  <p class="rule" aria-hidden="true">{divider(40, 'tape')}</p>
+
+  <h1>
+    <Icon name="alert" size={16} />
+    <span>fault</span>
+  </h1>
+
   {#if page.error}
     <p class="message">{page.error.message}</p>
-    {#if page.error.status}
-      <p class="status">status: <code>{page.error.status}</code></p>
-    {/if}
-    {#if page.error.traceId}
-      <p class="trace">trace: <code>{page.error.traceId}</code></p>
-    {/if}
+
+    <dl class="meta">
+      {#if page.error.status}
+        <dt>status</dt>
+        <dd><code>{page.error.status}</code></dd>
+      {/if}
+      {#if page.error.traceId}
+        <dt>trace</dt>
+        <dd>
+          <code>{page.error.traceId}</code>
+        </dd>
+      {/if}
+    </dl>
   {/if}
+
+  <p class="rule" aria-hidden="true">{divider(40, 'tape')}</p>
+
   <p class="actions">
-    <a href="/">return to root</a>
+    <a href="/">
+      <Icon name="chevron-right" size={12} />
+      return to root
+    </a>
   </p>
 </div>
 
@@ -32,32 +47,83 @@ const errorMark = `   _____ ____  ____    ___  ____
     margin: 4rem auto;
     padding: 0 1rem;
   }
-  .art {
+
+  .mark {
     color: var(--color-yellow-500);
-    font-size: var(--text-xs);
-    line-height: 1.2;
-    margin-bottom: 2rem;
+    font-size: var(--text-base);
+    line-height: 1.0;
+    margin: 0 0 1rem 0;
+    /* Glow when there's room — purely decorative. */
+    text-shadow: 0 0 8px color-mix(in oklch, var(--color-yellow-500) 50%, transparent);
   }
+
+  .rule {
+    color: var(--color-yellow-700);
+    font-size: var(--text-xs);
+    margin: 0.5rem 0;
+    line-height: 1;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+
   h1 {
     font-size: var(--text-xl);
-    margin: 0 0 0.5rem 0;
+    font-weight: 700;
+    margin: 0.5rem 0;
+    color: var(--color-error);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
   }
+
+  h1 :global(.pixel) {
+    color: var(--color-error);
+  }
+
   .message {
     color: var(--color-fg);
+    margin: 0.5rem 0 1rem 0;
+    line-height: var(--leading-relaxed);
+  }
+
+  .meta {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    column-gap: 1rem;
+    row-gap: 0.25rem;
     margin: 0.5rem 0;
-  }
-  .status, .trace {
-    color: var(--color-fg-muted);
     font-size: var(--text-sm);
-    margin: 0.25rem 0;
   }
+
+  .meta dt {
+    color: var(--color-fg-faint);
+  }
+
+  .meta dd {
+    margin: 0;
+    color: var(--color-fg-muted);
+  }
+
   code {
     color: var(--color-yellow-500);
+    background: var(--color-surface);
+    padding: 0 0.25rem;
+    border: 1px solid var(--color-border);
   }
+
   .actions {
-    margin-top: 2rem;
+    margin-top: 1rem;
   }
+
   a {
     color: var(--color-yellow-500);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  a:hover {
+    text-decoration: underline;
   }
 </style>
