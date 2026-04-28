@@ -56,6 +56,30 @@ function startHoncho(port: number) {
     const nextCursor = nextStart < fixtureMessageHistory.length ? String(nextStart) : null;
     return c.json({ messages: slice, cursor: nextCursor });
   });
+  honcho.post('/v3/workspaces/:ws/peers/:peer/chat', () => {
+    // Canned scripted response — three tokens then done.
+    const stream = new ReadableStream<Uint8Array>({
+      async start(controller) {
+        const enc = new TextEncoder();
+        controller.enqueue(enc.encode('data: {"type":"token","data":"this peer "}\n\n'));
+        await new Promise((r) => setTimeout(r, 50));
+        controller.enqueue(enc.encode('data: {"type":"token","data":"likes "}\n\n'));
+        await new Promise((r) => setTimeout(r, 50));
+        controller.enqueue(enc.encode('data: {"type":"token","data":"oat milk."}\n\n'));
+        await new Promise((r) => setTimeout(r, 50));
+        controller.enqueue(enc.encode('data: {"type":"done"}\n\n'));
+        controller.close();
+      },
+    });
+    return new Response(stream, {
+      status: 200,
+      headers: {
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache',
+        Connection: 'keep-alive',
+      },
+    });
+  });
   honcho.notFound((c) => c.json({ error: 'not found', status: 404 }, 404));
 
   return Bun.serve({ port, fetch: honcho.fetch });
