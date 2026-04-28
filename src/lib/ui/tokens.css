@@ -1,44 +1,96 @@
 @import "tailwindcss";
 
+/*
+ * Design tokens — locked in the frontend-design phase between Plan 1 and Plan 2.
+ *
+ * Visual identity (per brief + spec §7):
+ *   amber CRT phosphor on cool near-black; tabular numerals; pixel/ASCII first.
+ *
+ * Anchor color: yellow-500 (saturated amber, OKLCH hue 88).
+ *   The hue subtly drifts from yellow→orange as the ramp darkens, mimicking how
+ *   amber phosphor decays — pure yellow at peak luminance, warmer as it fades.
+ *
+ * Self-hosted: IBM Plex Mono (SIL OFL). One family, two weights — display
+ * character comes from ASCII art, not a second @font-face.
+ */
+
+@font-face {
+  font-family: "IBM Plex Mono";
+  src: url("/fonts/IBMPlexMono-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "IBM Plex Mono";
+  src: url("/fonts/IBMPlexMono-Bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
 @theme {
-  /* Color — placeholder values; finalized in frontend-design phase */
-  --color-yellow-50: oklch(0.98 0.05 95);
-  --color-yellow-100: oklch(0.94 0.1 95);
-  --color-yellow-200: oklch(0.88 0.15 95);
-  --color-yellow-300: oklch(0.82 0.18 95);
-  --color-yellow-400: oklch(0.76 0.2 95);
-  --color-yellow-500: oklch(0.7 0.22 95); /* primary accent — saturated */
-  --color-yellow-600: oklch(0.62 0.2 95);
-  --color-yellow-700: oklch(0.52 0.16 95);
-  --color-yellow-800: oklch(0.4 0.12 95);
-  --color-yellow-900: oklch(0.28 0.08 95);
+  /* ─── Color: amber ramp ─────────────────────────────────────────────── */
+  /* Hue drifts 95→78 as lightness drops, chroma drops because dark yellows muddy. */
+  --color-yellow-50: oklch(0.97 0.04 95);
+  --color-yellow-100: oklch(0.93 0.09 93);
+  --color-yellow-200: oklch(0.88 0.14 91);
+  --color-yellow-300: oklch(0.83 0.17 90);
+  --color-yellow-400: oklch(0.78 0.19 89);
+  --color-yellow-500: oklch(0.74 0.2 88); /* primary anchor — amber */
+  --color-yellow-600: oklch(0.66 0.18 86);
+  --color-yellow-700: oklch(0.55 0.14 82);
+  --color-yellow-800: oklch(0.42 0.1 78);
+  --color-yellow-900: oklch(0.3 0.06 75);
 
-  --color-bg: oklch(0.12 0.01 280); /* dark default */
-  --color-surface: oklch(0.18 0.01 280);
-  --color-border: oklch(0.3 0.01 280);
-  --color-fg: oklch(0.95 0.01 280);
-  --color-fg-muted: oklch(0.7 0.01 280);
-  --color-fg-faint: oklch(0.5 0.01 280);
+  /* ─── Color: neutrals (cool, hue 280) ────────────────────────────────── */
+  /* Tiny chroma so blacks aren't dead-flat; amber pops harder on cool bg.    */
+  --color-bg: oklch(0.1 0.005 280);
+  --color-surface: oklch(0.16 0.008 280); /* panel */
+  --color-surface-2: oklch(0.2 0.01 280); /* raised panel / hover */
+  --color-border: oklch(0.32 0.012 280);
+  --color-fg: oklch(0.94 0.005 280);
+  --color-fg-muted: oklch(0.7 0.005 280);
+  --color-fg-faint: oklch(0.5 0.005 280);
 
-  --color-error: oklch(0.65 0.2 25);
-  --color-warn: oklch(0.75 0.18 70);
-  --color-ok: oklch(0.7 0.18 145);
+  /* ─── Color: status (yellow is reserved as accent, NOT a status hue) ──── */
+  --color-error: oklch(0.65 0.22 25); /* red, slight orange */
+  --color-warn: oklch(0.78 0.18 65); /* orange — distinct from amber */
+  --color-ok: oklch(0.72 0.18 145); /* green, mid-saturation */
 
-  /* Typography — placeholder font; finalized in frontend-design phase */
-  --font-mono: "IBM Plex Mono", "Berkeley Mono", "Cascadia Code", ui-monospace, monospace;
+  /* ─── Typography ─────────────────────────────────────────────────────── */
+  --font-mono: "IBM Plex Mono", ui-monospace, "Cascadia Code", "Berkeley Mono", monospace;
 
+  /* IBM Plex Mono ships tabular figures by default; this enforces it via OT. */
+  --font-feature-tabular: "tnum", "calt", "ss01";
+
+  /* Type scale — terminal feel: tight, narrow steps, no display hero size.   */
+  /* Display character comes from ASCII art, not from a 48px h1.              */
+  --text-2xs: 0.6875rem; /* 11px — diff line nums, hash badges */
   --text-xs: 0.75rem; /* 12px */
   --text-sm: 0.8125rem; /* 13px */
-  --text-base: 0.875rem; /* 14px */
-  --text-lg: 1rem; /* 16px */
-  --text-xl: 1.25rem; /* 20px */
-  --text-2xl: 1.5rem; /* 24px */
+  --text-base: 0.875rem; /* 14px — body */
+  --text-lg: 1rem; /* 16px — section headers */
+  --text-xl: 1.125rem; /* 18px — page titles (kept restrained) */
 
-  /* Spacing — 4px scale */
-  --spacing: 0.25rem;
+  /* Line heights are tight — terminal rhythm, not docs rhythm. */
+  --leading-tight: 1.25;
+  --leading-snug: 1.4;
+  --leading-relaxed: 1.55;
 
-  /* Motion */
+  /* ─── Spacing ─────────────────────────────────────────────────────────── */
+  --spacing: 0.25rem; /* 4px base → 4/8/12/16/20/24/32/48 */
+
+  /* ─── Borders ─────────────────────────────────────────────────────────── */
+  --radius-none: 0; /* Default: nothing rounds. Terminals don't round. */
+  --radius-xs: 2px; /* Reluctant exception: focus rings on inputs.    */
+
+  /* ─── Motion ──────────────────────────────────────────────────────────── */
   --animate-cursor-blink: cursor-blink 1.06s steps(2) infinite;
+  --animate-amber-glow: amber-glow 1.4s ease-in-out infinite;
+  --animate-fade-in: fade-in 200ms ease-out;
+  --animate-scan: scan 6s linear infinite;
 
   @keyframes cursor-blink {
     0%,
@@ -50,22 +102,51 @@
       opacity: 0;
     }
   }
+  @keyframes amber-glow {
+    0%,
+    100% {
+      opacity: 0.55;
+    }
+    50% {
+      opacity: 1.0;
+    }
+  }
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  @keyframes scan {
+    /* Subtle horizontal scan line — used on long-loading panels. */
+    0% {
+      transform: translateY(0%);
+    }
+    100% {
+      transform: translateY(100%);
+    }
+  }
 }
 
-/* Light theme override — yellow stays anchor; only neutrals invert */
+/* ─── Light theme: neutrals invert (warm cream), yellow stays anchor ──── */
 [data-theme="light"] {
-  --color-bg: oklch(0.98 0.01 280);
-  --color-surface: oklch(0.94 0.01 280);
-  --color-border: oklch(0.85 0.01 280);
-  --color-fg: oklch(0.18 0.01 280);
-  --color-fg-muted: oklch(0.4 0.01 280);
-  --color-fg-faint: oklch(0.55 0.01 280);
+  --color-bg: oklch(0.97 0.012 88); /* warm cream — paper */
+  --color-surface: oklch(0.94 0.01 88);
+  --color-surface-2: oklch(0.91 0.01 88);
+  --color-border: oklch(0.82 0.008 88);
+  --color-fg: oklch(0.2 0.005 280);
+  --color-fg-muted: oklch(0.42 0.005 280);
+  --color-fg-faint: oklch(0.58 0.005 280);
+  /* error/warn/ok stay the same — they read on both themes */
 }
 
-/* Tabular numerals everywhere counts matter */
+/* ─── Root setup ─────────────────────────────────────────────────────── */
 :root {
   font-variant-numeric: tabular-nums;
-  font-feature-settings: "tnum";
+  font-feature-settings: var(--font-feature-tabular);
+  color-scheme: dark light;
 }
 
 html,
@@ -74,5 +155,68 @@ body {
   color: var(--color-fg);
   font-family: var(--font-mono);
   font-size: var(--text-base);
-  line-height: 1.5;
+  line-height: var(--leading-snug);
+  /* Pure-black-on-pure-white is a terminal foul. Keep some warmth. */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* ASCII art blocks — preserve exact glyph alignment, no transforms. */
+pre.ascii,
+.font-ascii {
+  font-family: var(--font-mono);
+  font-weight: 400;
+  font-variant-ligatures: none;
+  font-feature-settings: "calt" off, "liga" off;
+  white-space: pre;
+  letter-spacing: 0;
+  line-height: 1.05;
+}
+
+/* Pixel SVGs — never anti-alias. */
+.pixel,
+.pixel svg {
+  shape-rendering: crispEdges;
+  image-rendering: pixelated;
+}
+
+/* Selection: amber highlight, not the OS default. */
+::selection {
+  background: var(--color-yellow-500);
+  color: var(--color-bg);
+}
+
+/* Focus rings — amber, square. No blue OS default. */
+:focus-visible {
+  outline: 2px solid var(--color-yellow-500);
+  outline-offset: 2px;
+  border-radius: var(--radius-xs);
+}
+
+/* Scrollbar — minimal, themed. (Webkit only; Firefox uses default.) */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-bg);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border: 2px solid var(--color-bg);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-yellow-700);
+}
+
+/* Reduced motion — kill everything decorative. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
