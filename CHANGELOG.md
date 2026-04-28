@@ -16,14 +16,13 @@ All notable changes to this project are documented here. The format follows
 - Opt-in Prometheus `ServiceMonitor` for both plain Kubernetes
   (`deploy/k8s/servicemonitor.yaml`, excluded from kustomization base by
   default) and Helm (`templates/servicemonitor.yaml`, gated on
-  `metrics.enabled`). Supports `metrics.additionalLabels` for the
-  standard `release: kube-prometheus-stack` selector.
+  `metrics.enabled`). This is scaffolding for Prometheus Operator discovery;
+  the dashboard does not expose `/metrics` yet.
 
-### Notes
+### Fixed
 
-- The 1.0.0 entry below originally listed the dialectic chat panel as
-  shipped. That was a documentation error — chat actually landed in
-  this release.
+- Corrected the 1.0.0 entry: dialectic chat was documented there too early
+  and actually landed after 1.0.0.
 
 ## [1.0.0] - 2026-04-28
 
