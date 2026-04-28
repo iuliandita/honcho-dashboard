@@ -7,15 +7,19 @@ export interface ProfileResponse {
   updatedAt: string | null;
 }
 
+interface QueryContext {
+  signal?: AbortSignal;
+}
+
 export function buildPeerProfileQuery(client: ApiClient, workspaceId: string, peerId: string) {
   return {
     queryKey: keys.peerProfile(workspaceId, peerId),
-    queryFn: async () => {
+    queryFn: async ({ signal }: QueryContext = {}) => {
       const body: components['schemas']['PeerRepresentationGet'] = { max_conclusions: null };
-      const response = await client.post<components['schemas']['RepresentationResponse']>(
-        `/v3/workspaces/${workspaceId}/peers/${peerId}/representation`,
-        body,
-      );
+      const path = `/v3/workspaces/${workspaceId}/peers/${peerId}/representation`;
+      const response = await (signal
+        ? client.post<components['schemas']['RepresentationResponse']>(path, body, undefined, { signal })
+        : client.post<components['schemas']['RepresentationResponse']>(path, body));
       return { markdown: response.representation, updatedAt: null };
     },
   };

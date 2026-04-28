@@ -71,4 +71,17 @@ describe('createApiClient', () => {
 
     expect(fetchMock).toHaveBeenCalledOnce();
   });
+
+  it('forwards abort signals to fetch', async () => {
+    const controller = new AbortController();
+    const fetchMock = vi.fn(async (_input: RequestInfo | URL, init?: RequestInit) => {
+      expect(init?.signal).toBe(controller.signal);
+      return new Response('{}', { status: 200, headers: { 'Content-Type': 'application/json' } });
+    });
+
+    const api = createApiClient({ fetch: fetchMock });
+    await api.post('/peers/abc/chat', { query: 'hi' }, undefined, { signal: controller.signal });
+
+    expect(fetchMock).toHaveBeenCalledOnce();
+  });
 });

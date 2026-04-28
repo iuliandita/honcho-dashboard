@@ -38,9 +38,10 @@ describe('buildSessionMessagesQuery', () => {
     });
 
     const opts = buildSessionMessagesQuery(client, 'ws', 'p', 's');
+    const controller = new AbortController();
     const page = await opts.queryFn({
       pageParam: 1,
-      signal: new AbortController().signal,
+      signal: controller.signal,
       queryKey: opts.queryKey,
       meta: undefined,
       direction: 'forward',
@@ -51,6 +52,7 @@ describe('buildSessionMessagesQuery', () => {
       '/v3/workspaces/ws/sessions/s/messages/list',
       { filters: null },
       { page: 1, size: 50, reverse: true },
+      { signal: controller.signal },
     );
   });
 
@@ -58,9 +60,10 @@ describe('buildSessionMessagesQuery', () => {
     const client = mockClient({ items: [], total: 50, page: 2, size: 50, pages: 2 });
 
     const opts = buildSessionMessagesQuery(client, 'ws', 'p', 's');
+    const controller = new AbortController();
     await opts.queryFn({
       pageParam: 2,
-      signal: new AbortController().signal,
+      signal: controller.signal,
       queryKey: opts.queryKey,
       meta: undefined,
       direction: 'backward',
@@ -70,6 +73,7 @@ describe('buildSessionMessagesQuery', () => {
       '/v3/workspaces/ws/sessions/s/messages/list',
       { filters: null },
       { page: 2, size: 50, reverse: true },
+      { signal: controller.signal },
     );
   });
 

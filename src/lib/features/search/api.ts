@@ -18,6 +18,10 @@ export interface SearchResponse {
   topicFacets?: Record<string, number>;
 }
 
+interface QueryContext {
+  signal?: AbortSignal;
+}
+
 const PAGE_SIZE = 50;
 
 function metadataString(metadata: Record<string, unknown> | undefined, key: string): string | null {
@@ -60,11 +64,11 @@ export function buildWorkspaceSearchQuery(client: ApiClient, workspaceId: string
 
   return {
     queryKey: keys.workspaceSearch(workspaceId, trimmedQuery, topic),
-    queryFn: async () => {
-      const messages = await client.post<components['schemas']['Message'][]>(
-        `/v3/workspaces/${workspaceId}/search`,
-        body,
-      );
+    queryFn: async ({ signal }: QueryContext = {}) => {
+      const path = `/v3/workspaces/${workspaceId}/search`;
+      const messages = await (signal
+        ? client.post<components['schemas']['Message'][]>(path, body, undefined, { signal })
+        : client.post<components['schemas']['Message'][]>(path, body));
       const results = messages.map(toSearchResult);
       return { results, topicFacets: topicFacets(results) };
     },

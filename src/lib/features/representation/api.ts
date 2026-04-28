@@ -16,6 +16,10 @@ export interface RepresentationResponse {
   topics: string[];
 }
 
+interface QueryContext {
+  signal?: AbortSignal;
+}
+
 function cleanContent(line: string): string {
   return line.replace(/^[-*]\s+/, '').trim();
 }
@@ -60,12 +64,12 @@ function normalizeRepresentation(raw: components['schemas']['RepresentationRespo
 export function buildPeerRepresentationQuery(client: ApiClient, workspaceId: string, peerId: string) {
   return {
     queryKey: keys.peerRepresentation(workspaceId, peerId),
-    queryFn: async () => {
+    queryFn: async ({ signal }: QueryContext = {}) => {
       const body: components['schemas']['PeerRepresentationGet'] = { max_conclusions: null };
-      const raw = await client.post<components['schemas']['RepresentationResponse']>(
-        `/v3/workspaces/${workspaceId}/peers/${peerId}/representation`,
-        body,
-      );
+      const path = `/v3/workspaces/${workspaceId}/peers/${peerId}/representation`;
+      const raw = await (signal
+        ? client.post<components['schemas']['RepresentationResponse']>(path, body, undefined, { signal })
+        : client.post<components['schemas']['RepresentationResponse']>(path, body));
       return normalizeRepresentation(raw);
     },
   };

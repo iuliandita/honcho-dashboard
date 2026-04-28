@@ -15,13 +15,25 @@ interface PageEnvelope<T> {
   pages: number;
 }
 
-async function fetchAllPages<T>(client: ApiClient, path: string, body: typeof EMPTY_FILTER): Promise<T[]> {
+interface QueryContext {
+  signal?: AbortSignal;
+}
+
+async function fetchAllPages<T>(
+  client: ApiClient,
+  path: string,
+  body: typeof EMPTY_FILTER,
+  signal?: AbortSignal,
+): Promise<T[]> {
   const items: T[] = [];
   let pageNumber = 1;
   let totalPages = 1;
 
   do {
-    const page = await client.post<PageEnvelope<T>>(path, body, { page: pageNumber, size: PAGE_SIZE });
+    const params = { page: pageNumber, size: PAGE_SIZE };
+    const page = await (signal
+      ? client.post<PageEnvelope<T>>(path, body, params, { signal })
+      : client.post<PageEnvelope<T>>(path, body, params));
     items.push(...page.items);
     totalPages = page.pages;
     pageNumber = page.page + 1;
@@ -33,21 +45,28 @@ async function fetchAllPages<T>(client: ApiClient, path: string, body: typeof EM
 export function buildWorkspacesQuery(client: ApiClient) {
   return {
     queryKey: keys.allWorkspaces(),
-    queryFn: () => fetchAllPages<WorkspaceSummary>(client, '/v3/workspaces/list', EMPTY_FILTER),
+    queryFn: ({ signal }: QueryContext = {}) =>
+      fetchAllPages<WorkspaceSummary>(client, '/v3/workspaces/list', EMPTY_FILTER, signal),
   };
 }
 
 export function buildPeersQuery(client: ApiClient, workspaceId: string) {
   return {
     queryKey: [...keys.workspace(workspaceId), 'peers'] as const,
-    queryFn: () => fetchAllPages<PeerSummary>(client, `/v3/workspaces/${workspaceId}/peers/list`, EMPTY_FILTER),
+    queryFn: ({ signal }: QueryContext = {}) =>
+      fetchAllPages<PeerSummary>(client, `/v3/workspaces/${workspaceId}/peers/list`, EMPTY_FILTER, signal),
   };
 }
 
 export function buildSessionsQuery(client: ApiClient, workspaceId: string, peerId: string) {
   return {
     queryKey: [...keys.peer(workspaceId, peerId), 'sessions'] as const,
-    queryFn: () =>
-      fetchAllPages<SessionSummary>(client, `/v3/workspaces/${workspaceId}/peers/${peerId}/sessions`, EMPTY_FILTER),
+    queryFn: ({ signal }: QueryContext = {}) =>
+      fetchAllPages<SessionSummary>(
+        client,
+        `/v3/workspaces/${workspaceId}/peers/${peerId}/sessions`,
+        EMPTY_FILTER,
+        signal,
+      ),
   };
 }

@@ -15,17 +15,16 @@ const EMPTY_FILTER: components['schemas']['MessageGet'] = { filters: null };
 
 export function buildSessionMessagesQuery(client: ApiClient, workspaceId: string, peerId: string, sessionId: string) {
   type QueryKey = ReturnType<typeof keys.sessionMessages>;
-  type QueryContext = { pageParam: number } & Partial<QueryFunctionContext<QueryKey, number>>;
+  type QueryContext = { pageParam?: number } & Partial<QueryFunctionContext<QueryKey, number>>;
 
   return {
     queryKey: keys.sessionMessages(workspaceId, peerId, sessionId),
-    queryFn: async ({ pageParam }: QueryContext) => {
-      const pageNumber = pageParam ?? 1;
-      const page = await client.post<components['schemas']['Page_Message_']>(
-        `/v3/workspaces/${workspaceId}/sessions/${sessionId}/messages/list`,
-        EMPTY_FILTER,
-        { page: pageNumber, size: PAGE_SIZE, reverse: true },
-      );
+    queryFn: async ({ pageParam = 1, signal }: QueryContext = {}) => {
+      const path = `/v3/workspaces/${workspaceId}/sessions/${sessionId}/messages/list`;
+      const params = { page: pageParam, size: PAGE_SIZE, reverse: true };
+      const page = await (signal
+        ? client.post<components['schemas']['Page_Message_']>(path, EMPTY_FILTER, params, { signal })
+        : client.post<components['schemas']['Page_Message_']>(path, EMPTY_FILTER, params));
       return {
         messages: page.items,
         nextPage: page.page < page.pages ? page.page + 1 : null,

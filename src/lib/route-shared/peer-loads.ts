@@ -36,7 +36,6 @@ export async function loadSessionMessages(
   const query = buildSessionMessagesQuery(client, workspaceId, params.peerId, params.sessionId);
   const firstPage = await query.queryFn({
     pageParam: 1,
-    signal: new AbortController().signal,
     queryKey: query.queryKey,
     meta: undefined,
     direction: 'forward',

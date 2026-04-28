@@ -9,12 +9,21 @@ export interface ApiClientOptions {
   basePath?: string;
 }
 
+export interface ApiRequestOptions {
+  signal?: AbortSignal;
+}
+
 export interface ApiClient {
-  get<T = unknown>(path: string, params?: Record<string, string | number | boolean | null | undefined>): Promise<T>;
+  get<T = unknown>(
+    path: string,
+    params?: Record<string, string | number | boolean | null | undefined>,
+    options?: ApiRequestOptions,
+  ): Promise<T>;
   post<T = unknown>(
     path: string,
     body?: unknown,
     params?: Record<string, string | number | boolean | null | undefined>,
+    options?: ApiRequestOptions,
   ): Promise<T>;
 }
 
@@ -43,14 +52,24 @@ export function createApiClient(options: ApiClientOptions = {}): ApiClient {
   }
 
   return {
-    get<T>(path: string, params?: Record<string, string | number | boolean | null | undefined>) {
-      return request<T>(`${path}${buildQuery(params)}`, { method: 'GET' });
+    get<T>(
+      path: string,
+      params?: Record<string, string | number | boolean | null | undefined>,
+      options?: ApiRequestOptions,
+    ) {
+      return request<T>(`${path}${buildQuery(params)}`, { method: 'GET', signal: options?.signal });
     },
-    post<T>(path: string, body?: unknown, params?: Record<string, string | number | boolean | null | undefined>) {
+    post<T>(
+      path: string,
+      body?: unknown,
+      params?: Record<string, string | number | boolean | null | undefined>,
+      options?: ApiRequestOptions,
+    ) {
       return request<T>(`${path}${buildQuery(params)}`, {
         method: 'POST',
         headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
         body: body !== undefined ? JSON.stringify(body) : undefined,
+        signal: options?.signal,
       });
     },
   };
