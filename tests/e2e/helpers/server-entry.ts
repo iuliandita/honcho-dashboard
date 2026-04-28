@@ -5,6 +5,7 @@ import {
   fixturePeers,
   fixtureProfile,
   fixtureRepresentationMarkdown,
+  fixtureSearchResults,
   fixtureSessions,
   fixtureWorkspaces,
 } from './fixtures';
@@ -28,6 +29,24 @@ function startHoncho(port: number) {
     c.json({ representation: fixtureRepresentationMarkdown }),
   );
   honcho.get('/v3/workspaces/:ws/peers/:peer/profile', (c) => c.json(fixtureProfile));
+  honcho.get('/v3/workspaces/:ws/search', (c) => {
+    const q = c.req.query('q')?.toLowerCase() ?? '';
+    const topic = c.req.query('topic') ?? null;
+
+    const filtered = fixtureSearchResults.filter((result) => {
+      const matchesQuery = q === '' || result.excerpt.toLowerCase().includes(q);
+      const matchesTopic = topic === null || result.topic === topic;
+      return matchesQuery && matchesTopic;
+    });
+
+    const allMatching = fixtureSearchResults.filter((result) => q === '' || result.excerpt.toLowerCase().includes(q));
+    const topicFacets = allMatching.reduce<Record<string, number>>((acc, result) => {
+      acc[result.topic] = (acc[result.topic] ?? 0) + 1;
+      return acc;
+    }, {});
+
+    return c.json({ results: filtered, topicFacets });
+  });
   honcho.get('/v3/workspaces/:ws/peers/:peer/sessions/:session/messages', (c) => {
     const cursor = c.req.query('cursor');
     const limit = Number.parseInt(c.req.query('limit') ?? String(PAGE_SIZE), 10);

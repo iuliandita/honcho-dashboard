@@ -1,3 +1,5 @@
+import type { SearchResult } from '../../../src/lib/features/search/api';
+
 export const fixtureWorkspaces = [
   { id: 'ws-alpha', name: 'alpha' },
   { id: 'ws-beta', name: 'beta' },
@@ -117,3 +119,33 @@ Topics that come up across sessions:
 `,
   updatedAt: '2026-04-28T12:00:00Z',
 };
+
+export const fixtureSearchResults: SearchResult[] = [
+  {
+    id: 's1',
+    peerId: 'peer-1',
+    peerName: 'hermes',
+    topic: 'coffee',
+    excerpt: 'prefers oat milk in coffee',
+    score: 0.92,
+    updatedAt: '2026-04-20T10:00:00Z',
+  },
+  {
+    id: 's2',
+    peerId: 'peer-2',
+    peerName: 'iris',
+    topic: 'coffee',
+    excerpt: 'drinks coffee mostly in the morning',
+    score: 0.78,
+    updatedAt: '2026-04-21T11:00:00Z',
+  },
+  {
+    id: 's3',
+    peerId: 'peer-1',
+    peerName: 'hermes',
+    topic: 'work',
+    excerpt: 'coffee chats cover remote work, async-first communication',
+    score: 0.65,
+    updatedAt: '2026-04-22T09:00:00Z',
+  },
+];
