@@ -49,12 +49,7 @@ export async function parseErrorBody(res: Response): Promise<HonchoApiError> {
     }
   }
 
-  let text = '';
-  try {
-    text = await res.text();
-  } catch {
-    // empty body
-  }
+  const text = await res.text().catch(() => '');
 
   return new HonchoApiError(text || `HTTP ${res.status}`, {
     status: res.status,

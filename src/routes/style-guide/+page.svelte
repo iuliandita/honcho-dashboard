@@ -1,5 +1,6 @@
 <script lang="ts">
-import PixelIcon, { type IconName } from '$ui/pixel/PixelIcon.svelte';
+import { iconNames } from '$ui/pixel';
+import Icon from '$ui/pixel/Icon.svelte';
 import { onMount } from 'svelte';
 
 const colorTokens = [
@@ -26,16 +27,6 @@ const colorTokens = [
 ];
 
 const textTokens = ['text-2xs', 'text-xs', 'text-sm', 'text-base', 'text-lg', 'text-xl', 'text-2xl'];
-const iconNames = [
-  'topic',
-  'memory',
-  'profile',
-  'chat',
-  'search',
-  'session',
-  'peer',
-  'workspace',
-] as const satisfies readonly IconName[];
 
 let resolved = $state<Record<string, string>>({});
 
@@ -98,9 +89,9 @@ onMount(() => {
     <div class="icons">
       {#each iconNames as name}
         <div class="icon-cell">
-          <span class="big"><PixelIcon {name} size={32} /></span>
-          <span class="med"><PixelIcon {name} size={16} /></span>
-          <span class="sm"><PixelIcon {name} size={12} /></span>
+          <span class="big"><Icon {name} size={32} /></span>
+          <span class="med"><Icon {name} size={16} /></span>
+          <span class="sm"><Icon {name} size={12} /></span>
           <code>{name}</code>
         </div>
       {/each}

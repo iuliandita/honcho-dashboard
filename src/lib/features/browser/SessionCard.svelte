@@ -1,4 +1,5 @@
 <script lang="ts">
+import { formatAbsolute } from '$features/messages/format';
 import type { SessionSummary } from './api';
 
 interface Props {
@@ -12,7 +13,7 @@ const { session, selected = false }: Props = $props();
 <article class="card" class:selected>
   <span class="id">{session.id}</span>
   <span class="meta">
-    {session.created_at}
+    {formatAbsolute(session.created_at)}
   </span>
 </article>
 

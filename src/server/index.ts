@@ -53,16 +53,11 @@ export function createApp(overrides?: Partial<AppConfig>): Hono {
   const apiBase = overrides?.apiBase ?? readEnvRequired('HONCHO_API_BASE');
   const adminToken = overrides?.adminToken ?? readEnvRequired('HONCHO_ADMIN_TOKEN');
 
-  // Optional fields: env-driven defaults, then overridden by explicit `overrides` keys (incl. null).
-  const optional = {
+  const config: AppConfig = {
     workspaceId: readEnvOptional('HONCHO_WORKSPACE_ID'),
     version: VERSION,
     timeoutMs: Number.parseInt(readEnvOptional('HONCHO_PROXY_TIMEOUT') ?? '15', 10) * 1000,
     buildDir: process.env.BUILD_DIR ?? './build',
-  };
-
-  const config: AppConfig = {
-    ...optional,
     apiBase,
     adminToken,
     ...overrides,

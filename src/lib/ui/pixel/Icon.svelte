@@ -3,12 +3,7 @@ import { type IconName, gridToPath, grids } from './grids';
 
 interface Props {
   name: IconName;
-  /**
-   * Rendered pixel size. Defaults to 16 (1 SVG pixel = 1 CSS pixel — a true
-   * 1× pixel icon). Stick to integer multiples (16, 32, 48) so the grid
-   * stays pixel-aligned. Other sizes still render via crisp-edges, but
-   * non-integer scales technically lose the integer-snap promise.
-   */
+  /** Integer multiples of 16 keep the grid pixel-aligned. */
   size?: number;
   /** Optional accessible label. If present, the SVG is `role=img`. */
   label?: string;
@@ -40,6 +35,5 @@ const role = $derived(label ? 'img' : undefined);
     display: inline-block;
     vertical-align: middle;
     image-rendering: pixelated;
-    /* No anti-aliasing, ever. */
   }
 </style>

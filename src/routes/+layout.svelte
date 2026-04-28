@@ -14,7 +14,6 @@ interface Props {
 
 const { data, children }: Props = $props();
 
-// Single QueryClient for the lifetime of the SPA. Stale time is set per-query.
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -25,7 +24,6 @@ const queryClient = new QueryClient({
   },
 });
 
-// Dark default; toggle persists across reload via localStorage.
 let theme = $state<'dark' | 'light'>(
   typeof localStorage !== 'undefined' ? ((localStorage.getItem('theme') as 'dark' | 'light' | null) ?? 'dark') : 'dark',
 );
@@ -72,7 +70,6 @@ function toggleTheme() {
     border-bottom: 1px solid var(--color-border);
     background: var(--color-surface);
     font-size: var(--text-sm);
-    /* The chrome is only ever 32px tall — kept tight on purpose. */
     min-height: 32px;
   }
 
@@ -80,14 +77,12 @@ function toggleTheme() {
     color: var(--color-yellow-500);
     font-weight: 700;
     letter-spacing: 0;
-    /* Drop the chrome's default vertical centering quirks for ASCII. */
     line-height: 1;
   }
 
   .rule {
     color: var(--color-border);
     font-size: var(--text-xs);
-    /* Hide on narrow screens so the chrome doesn't wrap. */
   }
 
   .version {
@@ -140,7 +135,6 @@ function toggleTheme() {
     margin: 0 auto;
   }
 
-  /* On narrow screens, hide the rule glyphs to keep the chrome a single row. */
   @media (max-width: 640px) {
     .rule {
       display: none;

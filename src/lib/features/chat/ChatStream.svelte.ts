@@ -130,11 +130,7 @@ export class ChatStream {
     } finally {
       this.streamEnded = true;
       this.endedAt = Date.now();
-      try {
-        reader.releaseLock();
-      } catch {
-        // already released
-      }
+      reader.releaseLock();
       this.abortController = null;
 
       if (this.expectedEnd && !this.error) {
