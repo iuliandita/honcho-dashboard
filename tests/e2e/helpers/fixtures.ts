@@ -90,3 +90,30 @@ export const fixtureRepresentationMarkdown = fixtureRepresentation.topics
     return `## ${topic}\n${items}`;
   })
   .join('\n\n');
+
+export const fixtureProfile = {
+  markdown: `# hermes
+
+A peer who treats async-first communication as a default. Prefers writing over calls.
+
+## habits
+
+- **morning**: late riser, productive after 10am
+- **work**: remote, async-first, deep-focus blocks
+- **coffee**: oat milk, medium roast
+
+## interests
+
+Topics that come up across sessions:
+
+- distributed systems
+- self-hosted tooling
+- the [Honcho project](https://honcho.dev)
+
+> "if it's not in the repo, it didn't happen"
+
+<script>alert(1)</script>
+[unsafe](javascript:alert(1))
+`,
+  updatedAt: '2026-04-28T12:00:00Z',
+};
