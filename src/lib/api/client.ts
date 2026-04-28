@@ -69,7 +69,7 @@ export function createApiClient(options: ApiClientOptions = {}): ApiClient {
       return request<T>(`${path}${buildQuery(params)}`, {
         method: 'POST',
         headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
-        body: body !== undefined ? JSON.stringify(body) : undefined,
+        body: body != null ? JSON.stringify(body) : undefined,
         signal: options?.signal,
       });
     },

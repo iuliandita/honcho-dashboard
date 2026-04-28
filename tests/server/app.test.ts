@@ -1,8 +1,12 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { createApp } from '../../src/server/index';
 import { createStubHoncho } from './stub-honcho';
 
 describe('createApp', () => {
+  afterEach(() => {
+    vi.unstubAllEnvs();
+  });
+
   it('mounts /healthz, /api/runtime-config, and proxy', async () => {
     const stub = createStubHoncho();
     const app = createApp({
@@ -36,34 +40,20 @@ describe('createApp', () => {
   });
 
   it('reads env vars when no overrides given', async () => {
-    const original = { ...process.env };
-    process.env.HONCHO_API_BASE = 'http://env.test';
-    process.env.HONCHO_ADMIN_TOKEN = 'env-token';
-    process.env.HONCHO_WORKSPACE_ID = 'env-ws';
+    vi.stubEnv('HONCHO_API_BASE', 'http://env.test');
+    vi.stubEnv('HONCHO_ADMIN_TOKEN', 'env-token');
+    vi.stubEnv('HONCHO_WORKSPACE_ID', 'env-ws');
 
-    try {
-      const app = createApp();
-      const config = await app.request('/api/runtime-config');
-      expect(config.status).toBe(200);
-      expect(await config.json()).toEqual({ workspaceId: 'env-ws', version: '1.0.0' });
-    } finally {
-      process.env = original;
-    }
+    const app = createApp();
+    const config = await app.request('/api/runtime-config');
+    expect(config.status).toBe(200);
+    expect(await config.json()).toEqual({ workspaceId: 'env-ws', version: '1.0.0' });
   });
 
   it('throws if required env vars are missing', () => {
-    const original = { ...process.env };
-    // delete (not assignment to undefined): process.env coerces undefined to the string "undefined",
-    // which would defeat the readEnvRequired check.
-    // biome-ignore lint/performance/noDelete: process.env requires real removal, not undefined assignment.
-    delete process.env.HONCHO_API_BASE;
-    // biome-ignore lint/performance/noDelete: process.env requires real removal, not undefined assignment.
-    delete process.env.HONCHO_ADMIN_TOKEN;
+    vi.stubEnv('HONCHO_API_BASE', '');
+    vi.stubEnv('HONCHO_ADMIN_TOKEN', '');
 
-    try {
-      expect(() => createApp()).toThrow(/HONCHO_API_BASE/);
-    } finally {
-      process.env = original;
-    }
+    expect(() => createApp()).toThrow(/HONCHO_API_BASE/);
   });
 });

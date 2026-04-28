@@ -1,6 +1,5 @@
 <script lang="ts">
 import { onDestroy } from 'svelte';
-import { debounce } from './debounce';
 
 interface Props {
   /** Bound input value (instant). */
@@ -13,27 +12,40 @@ interface Props {
 
 let { value = $bindable(''), onCommit, onValueChange, debounceMs = 250 }: Props = $props();
 
-// The debounce wrapper is created once for this input's lifetime.
-// svelte-ignore state_referenced_locally
-const debounced = debounce((q: string) => onCommit(q), debounceMs);
+let commitTimer: ReturnType<typeof setTimeout> | null = null;
 
-onDestroy(() => debounced.cancel());
+function cancelCommit() {
+  if (commitTimer) {
+    clearTimeout(commitTimer);
+    commitTimer = null;
+  }
+}
+
+function scheduleCommit(query: string) {
+  cancelCommit();
+  commitTimer = setTimeout(() => {
+    commitTimer = null;
+    onCommit(query);
+  }, debounceMs);
+}
+
+onDestroy(cancelCommit);
 
 function handleInput(e: Event) {
   const target = e.target as HTMLInputElement;
   value = target.value;
   onValueChange?.(target.value);
-  debounced(target.value);
+  scheduleCommit(target.value);
 }
 
 function handleKeydown(e: KeyboardEvent) {
   if (e.key === 'Enter') {
-    debounced.cancel();
+    cancelCommit();
     onCommit(value);
   } else if (e.key === 'Escape') {
     value = '';
     onValueChange?.('');
-    debounced.cancel();
+    cancelCommit();
     onCommit('');
   }
 }

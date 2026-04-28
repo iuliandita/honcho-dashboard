@@ -24,9 +24,15 @@ const queryClient = new QueryClient({
   },
 });
 
-let theme = $state<'dark' | 'light'>(
-  typeof localStorage !== 'undefined' ? ((localStorage.getItem('theme') as 'dark' | 'light' | null) ?? 'dark') : 'dark',
-);
+type Theme = 'dark' | 'light';
+
+function readInitialTheme(): Theme {
+  if (typeof localStorage === 'undefined') return 'dark';
+  const stored = localStorage.getItem('theme');
+  return stored === 'dark' || stored === 'light' ? stored : 'dark';
+}
+
+let theme = $state<Theme>(readInitialTheme());
 
 $effect(() => {
   if (typeof document !== 'undefined') {

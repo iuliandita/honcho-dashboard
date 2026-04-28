@@ -37,6 +37,21 @@ describe('createApiClient', () => {
     expect(fetchMock).toHaveBeenCalledOnce();
   });
 
+  it('omits the body when POST receives null', async () => {
+    const fetchMock = vi.fn(async (_input: RequestInfo | URL, init?: RequestInit) => {
+      expect(init?.body).toBeUndefined();
+      return new Response(JSON.stringify({ ok: true }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    });
+
+    const api = createApiClient({ fetch: fetchMock });
+    await api.post('/empty', null);
+
+    expect(fetchMock).toHaveBeenCalledOnce();
+  });
+
   it('throws HonchoApiError on non-2xx', async () => {
     const fetchMock = async () =>
       new Response(
