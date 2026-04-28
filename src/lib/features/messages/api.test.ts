@@ -1,6 +1,6 @@
 import type { ApiClient } from '$api/client';
 import { describe, expect, it, vi } from 'vitest';
-import { buildSessionMessagesQuery, type MessagesPage } from './api';
+import { type MessagesPage, buildSessionMessagesQuery } from './api';
 
 function mockClient<T>(data: T): ApiClient {
   return {

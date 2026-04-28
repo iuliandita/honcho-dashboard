@@ -6,8 +6,8 @@ interface Props {
   message: Message;
 }
 
-let { message }: Props = $props();
-let role = $derived(normalizeRole(message.role));
+const { message }: Props = $props();
+const role = $derived(normalizeRole(message.role));
 </script>
 
 <article class="bubble" data-role={role}>

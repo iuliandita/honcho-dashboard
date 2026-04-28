@@ -3,8 +3,8 @@ import EmptyState from '$ui/primitives/EmptyState.svelte';
 import type { InfiniteData } from '@tanstack/query-core';
 import type { CreateInfiniteQueryResult } from '@tanstack/svelte-query';
 import { onMount } from 'svelte';
-import type { Message, MessagesPage } from './api';
 import MessageBubble from './MessageBubble.svelte';
+import type { Message, MessagesPage } from './api';
 
 interface Props {
   /** TanStack infinite query store. */
@@ -15,11 +15,12 @@ const { query }: Props = $props();
 
 // Honcho returns newest-first pages; keep the first page's newest item visible
 // while prepending older pages above it as scrollback loads.
-let messages = $derived.by((): Message[] => {
+const messages = $derived.by((): Message[] => {
   const pages = $query.data?.pages ?? [];
   return pages.flatMap((page) => [...page.messages].reverse()).reverse();
 });
 
+// biome-ignore lint/style/useConst: bind:this assigns the element after mount.
 let topSentinel: HTMLDivElement | undefined = $state();
 let userScrolled = $state(false);
 

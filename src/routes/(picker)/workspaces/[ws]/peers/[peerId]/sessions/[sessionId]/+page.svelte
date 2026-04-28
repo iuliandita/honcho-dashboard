@@ -1,7 +1,7 @@
 <script lang="ts">
 import { createApiClient } from '$api/client';
-import { buildSessionMessagesQuery } from '$features/messages/api';
 import MessageList from '$features/messages/MessageList.svelte';
+import { buildSessionMessagesQuery } from '$features/messages/api';
 import Pane from '$ui/primitives/Pane.svelte';
 import PaneHeader from '$ui/primitives/PaneHeader.svelte';
 import { createInfiniteQuery } from '@tanstack/svelte-query';

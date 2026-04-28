@@ -18,12 +18,7 @@ export interface MessagesPage {
 
 const PAGE_SIZE = 50;
 
-export function buildSessionMessagesQuery(
-  client: ApiClient,
-  workspaceId: string,
-  peerId: string,
-  sessionId: string,
-) {
+export function buildSessionMessagesQuery(client: ApiClient, workspaceId: string, peerId: string, sessionId: string) {
   type QueryKey = ReturnType<typeof keys.sessionMessages>;
   type QueryContext = { pageParam: string | null } & Partial<QueryFunctionContext<QueryKey, string | null>>;
 
