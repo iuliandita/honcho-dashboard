@@ -1,0 +1,16 @@
+node_modules
+.svelte-kit
+build
+dist
+.git
+.github
+docs
+.superpowers
+.claude
+CLAUDE.md
+AGENTS.md
+.env
+.env.*
+tests
+playwright-report
+test-results
