@@ -105,11 +105,19 @@ export class ChatStream {
         if (done) break;
 
         const chunk = decoder.decode(value, { stream: true });
-        for (const ev of parser.push(chunk)) this.handleEvent(ev, traceId);
+        for (const ev of parser.push(chunk)) {
+          this.handleEvent(ev, traceId);
+          if (this.expectedEnd || this.error) break;
+        }
         if (this.expectedEnd || this.error) break;
       }
 
-      for (const ev of parser.flush()) this.handleEvent(ev, traceId);
+      if (!this.expectedEnd && !this.error) {
+        for (const ev of parser.flush()) {
+          this.handleEvent(ev, traceId);
+          if (this.expectedEnd || this.error) break;
+        }
+      }
 
       if (!this.expectedEnd && !this.error) {
         this.error = new HonchoApiError('stream interrupted before completion', {

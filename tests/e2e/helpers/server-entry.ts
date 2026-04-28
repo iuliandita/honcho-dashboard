@@ -64,36 +64,103 @@ function startHoncho(port: number) {
     });
   });
   honcho.post('/v3/workspaces/:ws/peers/:peer/chat', async (c) => {
-    const body = await c.req.json<{ stream?: boolean; reasoning_level?: string }>();
+    const body = await c.req.json<{ query?: string; stream?: boolean; reasoning_level?: string }>();
     if (body.stream !== true || !body.reasoning_level) {
       return c.json({ detail: 'stream and reasoning_level are required' }, 422);
     }
+
+    if (body.query === 'force 4xx') {
+      return c.json({ detail: 'dialectic denied' }, 422);
+    }
+
+    if (body.query === 'malformed sse') {
+      return streamResponse([
+        'not-a-field\n\n',
+        'data: {bad-json}\n\n',
+        'event: token\nid: 1\nretry: 1000\ndata: {"type":"token","data":"clean token after malformed"}\n\n',
+        'data: {"type":"done"}\n\n',
+      ]);
+    }
+
+    if (body.query === 'split utf8') {
+      const enc = new TextEncoder();
+      const token = enc.encode('data: {"type":"token","data":"cafe ☕"}\n\n');
+      const firstCoffeeByte = enc.encode('☕')[0];
+      if (firstCoffeeByte === undefined) throw new Error('failed to encode test fixture');
+      const coffeeIndex = token.indexOf(firstCoffeeByte);
+      return byteStreamResponse([
+        token.slice(0, coffeeIndex + 1),
+        token.slice(coffeeIndex + 1),
+        enc.encode('data: {"type":"done"}\n\n'),
+      ]);
+    }
+
+    if (body.query === 'done then trailing') {
+      return streamResponse([
+        'data: {"type":"token","data":"finished cleanly"}\n\n',
+        'data: {"type":"done"}\n\ndata: {"type":"token","data":" should not render"}\n\n',
+      ]);
+    }
+
+    if (body.query === 'midstream 5xx') {
+      return failingStreamResponse();
+    }
+
     // Canned scripted response — three tokens then done.
-    const stream = new ReadableStream<Uint8Array>({
-      async start(controller) {
-        const enc = new TextEncoder();
-        controller.enqueue(enc.encode('data: {"type":"token","data":"this peer "}\n\n'));
-        await new Promise((r) => setTimeout(r, 50));
-        controller.enqueue(enc.encode('data: {"type":"token","data":"likes "}\n\n'));
-        await new Promise((r) => setTimeout(r, 50));
-        controller.enqueue(enc.encode('data: {"type":"token","data":"oat milk."}\n\n'));
-        await new Promise((r) => setTimeout(r, 50));
-        controller.enqueue(enc.encode('data: {"type":"done"}\n\n'));
-        controller.close();
-      },
-    });
-    return new Response(stream, {
-      status: 200,
-      headers: {
-        'Content-Type': 'text/event-stream',
-        'Cache-Control': 'no-cache',
-        Connection: 'keep-alive',
-      },
-    });
+    return streamResponse([
+      'data: {"type":"token","data":"this peer "}\n\n',
+      'data: {"type":"token","data":"likes "}\n\n',
+      'data: {"type":"token","data":"oat milk."}\n\n',
+      'data: {"type":"done"}\n\n',
+    ]);
   });
   honcho.notFound((c) => c.json({ error: 'not found', status: 404 }, 404));
 
   return Bun.serve({ port, fetch: honcho.fetch });
+}
+
+function streamResponse(chunks: string[]) {
+  const enc = new TextEncoder();
+  return byteStreamResponse(chunks.map((chunk) => enc.encode(chunk)));
+}
+
+function byteStreamResponse(chunks: Uint8Array[]) {
+  const stream = new ReadableStream<Uint8Array>({
+    async start(controller) {
+      for (const chunk of chunks) {
+        controller.enqueue(chunk);
+        await new Promise((r) => setTimeout(r, 50));
+      }
+      controller.close();
+    },
+  });
+  return new Response(stream, {
+    status: 200,
+    headers: {
+      'Content-Type': 'text/event-stream',
+      'Cache-Control': 'no-cache',
+      Connection: 'keep-alive',
+    },
+  });
+}
+
+function failingStreamResponse() {
+  const enc = new TextEncoder();
+  const stream = new ReadableStream<Uint8Array>({
+    async start(controller) {
+      controller.enqueue(enc.encode('data: {"type":"token","data":"partial before failure"}\n\n'));
+      await new Promise((r) => setTimeout(r, 50));
+      controller.error(new Error('upstream 500 mid-stream'));
+    },
+  });
+  return new Response(stream, {
+    status: 200,
+    headers: {
+      'Content-Type': 'text/event-stream',
+      'Cache-Control': 'no-cache',
+      Connection: 'keep-alive',
+    },
+  });
 }
 
 function startDashboard(port: number) {
