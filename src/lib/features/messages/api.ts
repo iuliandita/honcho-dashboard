@@ -1,5 +1,6 @@
 import type { ApiClient } from '$api/client';
 import { keys } from '$api/keys';
+import type { QueryFunctionContext } from '@tanstack/query-core';
 
 export interface Message {
   id: string;
@@ -23,9 +24,11 @@ export function buildSessionMessagesQuery(
   peerId: string,
   sessionId: string,
 ) {
+  type QueryKey = ReturnType<typeof keys.sessionMessages>;
+
   return {
     queryKey: keys.sessionMessages(workspaceId, peerId, sessionId),
-    queryFn: ({ pageParam }: { pageParam: string | null }) => {
+    queryFn: ({ pageParam }: QueryFunctionContext<QueryKey, string | null>) => {
       const params: Record<string, string | number> = { limit: PAGE_SIZE };
       if (pageParam) params.cursor = pageParam;
       return client.get<MessagesPage>(
