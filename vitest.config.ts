@@ -8,6 +8,20 @@ export default defineConfig({
   plugins: [sveltekit(), svelteTesting()],
   test: {
     include: ['tests/**/*.test.ts', 'src/**/*.test.ts'],
+    coverage: {
+      provider: 'v8',
+      include: [
+        'src/lib/api/**/*.ts',
+        'src/lib/features/**/*.ts',
+        'src/lib/runtime-config/**/*.ts',
+        'src/server/**/*.ts',
+      ],
+      exclude: ['**/*.test.ts', 'src/lib/honcho/**'],
+      thresholds: {
+        lines: 80,
+        branches: 70,
+      },
+    },
     // Component tests (anything touching DOM/Svelte mount) need jsdom.
     // Pure logic tests stay on `node` for speed.
     environmentMatchGlobs: [
