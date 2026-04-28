@@ -6,11 +6,30 @@ Self-hosted Honcho inspector. Renders the same Deployment / Service / Ingress / 
 ## Install
 
 ```bash
+kubectl create secret generic honcho-dashboard-secret \
+  --from-literal=HONCHO_ADMIN_TOKEN="$HONCHO_ADMIN_TOKEN"
+
 helm install dashboard ./deploy/helm/honcho-dashboard \
   --set honcho.apiBase=https://honcho.example.com \
-  --set secret.adminToken=$HONCHO_ADMIN_TOKEN \
+  --set secret.create=false \
+  --set secret.existingSecretName=honcho-dashboard-secret \
   --set ingress.hosts[0].host=dashboard.example.com
 ```
+
+If you want the chart to create the Secret, pass the token from a file instead of `--set` so the admin
+token does not appear in process argv:
+
+```bash
+printf '%s' "$HONCHO_ADMIN_TOKEN" > /tmp/honcho-admin-token
+helm install dashboard ./deploy/helm/honcho-dashboard \
+  --set honcho.apiBase=https://honcho.example.com \
+  --set-file secret.adminToken=/tmp/honcho-admin-token \
+  --set ingress.hosts[0].host=dashboard.example.com
+rm /tmp/honcho-admin-token
+```
+
+The dashboard is an admin-token BFF. Keep it on a trusted operator network; without per-user auth, any
+same-origin POST in a reachable browser session can drive Honcho with the configured admin token.
 
 ## Values reference
 

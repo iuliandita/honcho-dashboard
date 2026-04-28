@@ -66,11 +66,13 @@ export function proxyRoute(config: ProxyConfig) {
       const status = isTimeout ? 504 : 502;
       const errBody: ProxyErrorBody = {
         error: isTimeout ? 'upstream timeout' : 'upstream unreachable',
-        detail: err instanceof Error ? err.message : String(err),
         status,
         traceId,
         upstream: 'proxy',
       };
+      if (process.env.LOG_LEVEL === 'debug') {
+        errBody.detail = err instanceof Error ? err.message : String(err);
+      }
       return c.json(errBody, status);
     }
 

@@ -17,6 +17,11 @@ describe('createApp', () => {
 
     const health = await app.request('/healthz');
     expect(health.status).toBe(200);
+    expect(health.headers.get('Content-Security-Policy')).toContain("default-src 'self'");
+    expect(health.headers.get('Strict-Transport-Security')).toBe('max-age=31536000; includeSubDomains');
+    expect(health.headers.get('X-Content-Type-Options')).toBe('nosniff');
+    expect(health.headers.get('Referrer-Policy')).toBe('no-referrer');
+    expect(health.headers.get('X-Frame-Options')).toBe('DENY');
 
     const config = await app.request('/api/runtime-config');
     expect(await config.json()).toEqual({ workspaceId: 'ws-abc', version: '0.1.0' });

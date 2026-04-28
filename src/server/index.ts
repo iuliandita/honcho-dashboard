@@ -6,6 +6,24 @@ import { runtimeConfigRoute } from './runtime-config';
 import { staticRoute } from './static';
 
 const VERSION = '1.0.0';
+const SECURITY_HEADERS = {
+  'Content-Security-Policy': [
+    "default-src 'self'",
+    "script-src 'self'",
+    "style-src 'self' 'unsafe-inline'",
+    "img-src 'self' data:",
+    "font-src 'self'",
+    "connect-src 'self'",
+    "object-src 'none'",
+    "base-uri 'none'",
+    "form-action 'none'",
+    "frame-ancestors 'none'",
+  ].join('; '),
+  'Strict-Transport-Security': 'max-age=31536000; includeSubDomains',
+  'X-Content-Type-Options': 'nosniff',
+  'Referrer-Policy': 'no-referrer',
+  'X-Frame-Options': 'DENY',
+} as const;
 
 export interface AppConfig {
   apiBase: string;
@@ -51,6 +69,13 @@ export function createApp(overrides?: Partial<AppConfig>): Hono {
   };
 
   const app = new Hono();
+
+  app.use('*', async (c, next) => {
+    await next();
+    for (const [name, value] of Object.entries(SECURITY_HEADERS)) {
+      c.header(name, value);
+    }
+  });
 
   if (process.env.LOG_LEVEL !== 'silent') {
     app.use('*', logger());

@@ -85,6 +85,7 @@ describe('proxy /api/*', () => {
       upstream: 'proxy',
       traceId: expect.any(String),
     });
+    expect(body.detail).toBeUndefined();
     expect(res.headers.get('X-Trace-Id')).toBe(body.traceId);
   });
 
