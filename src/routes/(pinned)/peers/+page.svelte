@@ -1,60 +1,44 @@
 <script lang="ts">
-import { divider, emptyArchive, peersMark } from '$ui/ascii';
+import { goto } from '$app/navigation';
+import { createApiClient } from '$api/client';
+import { buildPeersQuery, type PeerSummary } from '$features/browser/api';
+import PaneList from '$features/browser/PaneList.svelte';
+import PeerCard from '$features/browser/PeerCard.svelte';
+import Pane from '$ui/primitives/Pane.svelte';
+import PaneHeader from '$ui/primitives/PaneHeader.svelte';
+import { createQuery } from '@tanstack/svelte-query';
+import type { PageData } from './$types';
+
+interface Props {
+  data: PageData;
+}
+
+let { data }: Props = $props();
+
+const client = createApiClient();
+// initialData is a one-shot hydration value; the snapshot is intentional.
+// svelte-ignore state_referenced_locally
+const query = createQuery({
+  ...buildPeersQuery(client, data.workspaceId),
+  initialData: data.peers,
+});
+
+function open(peer: PeerSummary) {
+  goto(`/peers/${peer.id}`);
+}
 </script>
 
-<section class="page">
-  <pre class="ascii mark" aria-hidden="true">{peersMark}</pre>
-  <p class="rule" aria-hidden="true">{divider(60, 'dashed')}</p>
-
-  <div class="empty">
-    <pre class="ascii art" aria-hidden="true">{emptyArchive}</pre>
-    <p>placeholder · the peer list lands in Plan 2 (browser feature).</p>
-  </div>
-</section>
-
-<style>
-  .page {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-  }
-
-  .mark {
-    color: var(--color-yellow-500);
-    font-size: var(--text-base);
-    line-height: 1.0;
-    margin: 0;
-  }
-
-  .rule {
-    color: var(--color-fg-faint);
-    font-size: var(--text-xs);
-    margin: 0;
-    line-height: 1;
-    overflow: hidden;
-    white-space: nowrap;
-  }
-
-  .empty {
-    margin-top: 2rem;
-    padding: 1.5rem;
-    border: 1px dashed var(--color-border);
-    background: var(--color-surface);
-    text-align: center;
-  }
-
-  .art {
-    color: var(--color-fg-muted);
-    font-size: var(--text-sm);
-    line-height: 1.05;
-    margin: 0 auto 1rem;
-    display: inline-block;
-    text-align: left;
-  }
-
-  p {
-    color: var(--color-fg-muted);
-    font-size: var(--text-sm);
-    margin: 0;
-  }
-</style>
+<Pane scrollable>
+  <PaneHeader title="peers" subtitle="pinned workspace {data.workspaceId}" />
+  <PaneList
+    items={$query.data ?? []}
+    loading={$query.isLoading}
+    error={$query.error}
+    empty={{ title: 'no peers in this workspace' }}
+    onSelect={open}
+  >
+    {#snippet row(item: PeerSummary)}
+      <PeerCard peer={item} />
+    {/snippet}
+  </PaneList>
+</Pane>
