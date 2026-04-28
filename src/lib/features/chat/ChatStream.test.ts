@@ -90,9 +90,7 @@ describe('ChatStream', () => {
   });
 
   it('marks stream as unexpectedly ended when reader closes without done', async () => {
-    const fetchMock = vi.fn(async () =>
-      makeStreamingResponse(['data: {"type":"token","data":"abrupt"}\n\n']),
-    );
+    const fetchMock = vi.fn(async () => makeStreamingResponse(['data: {"type":"token","data":"abrupt"}\n\n']));
 
     const stream = new ChatStream({
       workspaceId: 'ws',
@@ -111,10 +109,10 @@ describe('ChatStream', () => {
   it('records HonchoApiError on non-200 response', async () => {
     const fetchMock = vi.fn(
       async () =>
-        new Response(
-          JSON.stringify({ error: 'forbidden', status: 403, traceId: 't1', upstream: 'honcho' }),
-          { status: 403, headers: { 'Content-Type': 'application/json' } },
-        ),
+        new Response(JSON.stringify({ error: 'forbidden', status: 403, traceId: 't1', upstream: 'honcho' }), {
+          status: 403,
+          headers: { 'Content-Type': 'application/json' },
+        }),
     );
 
     const stream = new ChatStream({
@@ -189,9 +187,7 @@ describe('ChatStream', () => {
   });
 
   it('builds a workspace-scoped URL', async () => {
-    const fetchMock = vi.fn(async () =>
-      makeStreamingResponse(['data: {"type":"done"}\n\n']),
-    );
+    const fetchMock = vi.fn(async () => makeStreamingResponse(['data: {"type":"done"}\n\n']));
 
     const stream = new ChatStream({
       workspaceId: 'ws-alpha',

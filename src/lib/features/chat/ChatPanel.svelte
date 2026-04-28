@@ -9,7 +9,7 @@ interface Props {
   workspaceId: string;
 }
 
-let { peerId, workspaceId }: Props = $props();
+const { peerId, workspaceId }: Props = $props();
 
 const queryClient = useQueryClient();
 

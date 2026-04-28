@@ -19,9 +19,7 @@ describe('createSseParser', () => {
 
   it('parses multiple events in one chunk', () => {
     const parser = createSseParser();
-    const events = pushAll(parser, [
-      'data: {"type":"token","data":"a"}\n\ndata: {"type":"token","data":"b"}\n\n',
-    ]);
+    const events = pushAll(parser, ['data: {"type":"token","data":"a"}\n\ndata: {"type":"token","data":"b"}\n\n']);
     expect(events).toEqual([
       { type: 'token', data: 'a' },
       { type: 'token', data: 'b' },
@@ -36,10 +34,7 @@ describe('createSseParser', () => {
 
   it('handles boundary split across chunks', () => {
     const parser = createSseParser();
-    const events = pushAll(parser, [
-      'data: {"type":"token","data":"a"}\n',
-      '\ndata: {"type":"token","data":"b"}\n\n',
-    ]);
+    const events = pushAll(parser, ['data: {"type":"token","data":"a"}\n', '\ndata: {"type":"token","data":"b"}\n\n']);
     expect(events).toEqual([
       { type: 'token', data: 'a' },
       { type: 'token', data: 'b' },
@@ -74,17 +69,13 @@ describe('createSseParser', () => {
 
   it('skips malformed JSON gracefully', () => {
     const parser = createSseParser();
-    const events = pushAll(parser, [
-      'data: {bad-json}\n\ndata: {"type":"token","data":"ok"}\n\n',
-    ]);
+    const events = pushAll(parser, ['data: {bad-json}\n\ndata: {"type":"token","data":"ok"}\n\n']);
     expect(events).toEqual([{ type: 'token', data: 'ok' }]);
   });
 
   it('skips events that do not match the schema', () => {
     const parser = createSseParser();
-    const events = pushAll(parser, [
-      'data: {"type":"unknown","stuff":1}\n\ndata: {"type":"token","data":"ok"}\n\n',
-    ]);
+    const events = pushAll(parser, ['data: {"type":"unknown","stuff":1}\n\ndata: {"type":"token","data":"ok"}\n\n']);
     expect(events).toEqual([{ type: 'token', data: 'ok' }]);
   });
 });

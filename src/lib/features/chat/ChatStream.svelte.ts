@@ -115,14 +115,11 @@ export class ChatStream {
       if (err instanceof DOMException && err.name === 'AbortError') {
         // cancelled deliberately — leave error null
       } else {
-        this.error = new HonchoApiError(
-          err instanceof Error ? err.message : 'stream read failure',
-          {
-            status: 0,
-            traceId: response.headers.get('X-Trace-Id') ?? '',
-            upstream: 'proxy',
-          },
-        );
+        this.error = new HonchoApiError(err instanceof Error ? err.message : 'stream read failure', {
+          status: 0,
+          traceId: response.headers.get('X-Trace-Id') ?? '',
+          upstream: 'proxy',
+        });
       }
     } finally {
       this.streamEnded = true;
