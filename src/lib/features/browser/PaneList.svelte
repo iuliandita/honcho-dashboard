@@ -28,7 +28,7 @@ const { items, selectedId = null, empty, loading = false, error = null, row, onS
   {:else if items.length === 0}
     <EmptyState title={empty.title} description={empty.description} />
   {:else}
-    <ul class="list" role="listbox">
+    <ul class="list" role="listbox" aria-label={empty.title}>
       {#each items as item (item.id)}
         <li
           class="row"

@@ -35,8 +35,8 @@
   --color-surface-2: oklch(0.2 0.01 280); /* raised panel / hover */
   --color-border: oklch(0.32 0.012 280);
   --color-fg: oklch(0.94 0.005 280);
-  --color-fg-muted: oklch(0.7 0.005 280);
-  --color-fg-faint: oklch(0.5 0.005 280);
+  --color-fg-muted: oklch(0.78 0.005 280);
+  --color-fg-faint: oklch(0.64 0.005 280);
 
   /* ─── Color: status (yellow is reserved as accent, NOT a status hue) ──── */
   --color-error: oklch(0.65 0.22 25); /* red, slight orange */
@@ -122,8 +122,8 @@
   --color-surface-2: oklch(0.91 0.01 88);
   --color-border: oklch(0.82 0.008 88);
   --color-fg: oklch(0.2 0.005 280);
-  --color-fg-muted: oklch(0.42 0.005 280);
-  --color-fg-faint: oklch(0.58 0.005 280);
+  --color-fg-muted: oklch(0.38 0.005 280);
+  --color-fg-faint: oklch(0.46 0.005 280);
   /* error/warn/ok stay the same — they read on both themes */
 }
 

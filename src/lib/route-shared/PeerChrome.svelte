@@ -63,10 +63,11 @@ function isActive(tabId: string): boolean {
   }
   .trail a {
     color: var(--color-yellow-500);
-    text-decoration: none;
+    text-decoration: underline;
+    text-underline-offset: 0.15em;
   }
   .trail a:hover {
-    text-decoration: underline;
+    color: var(--color-yellow-400);
   }
   .trail code {
     color: var(--color-fg);

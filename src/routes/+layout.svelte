@@ -42,6 +42,7 @@ function toggleTheme() {
 
 <QueryClientProvider client={queryClient}>
   <header class="chrome">
+    <h1 class="sr-only">honcho-dashboard</h1>
     <span class="brand"><BrandMark /></span>
     <span class="rule" aria-hidden="true">─ ─ ─</span>
     <span class="version">v{data.runtimeConfig.version}</span>
@@ -133,6 +134,18 @@ function toggleTheme() {
     padding: 1rem;
     max-width: 1400px;
     margin: 0 auto;
+  }
+
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
   }
 
   @media (max-width: 640px) {
