@@ -77,6 +77,7 @@ export function createApp(overrides?: Partial<AppConfig>): Hono {
   }
 
   app.route('/', healthRoute);
+  // Keep runtime config before the /api/* proxy so the dashboard's own bootstrap endpoint is never forwarded.
   app.route('/', runtimeConfigRoute({ workspaceId: config.workspaceId, version: config.version }));
   app.route(
     '/',

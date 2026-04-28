@@ -47,6 +47,7 @@ export function createApiClient(options: ApiClientOptions = {}): ApiClient {
     if (!res.ok) {
       throw await parseErrorBody(res);
     }
+    // No current Honcho endpoint used by the dashboard returns 204; keep the client tolerant for future empty writes.
     if (res.status === 204) return undefined as T;
     return (await res.json()) as T;
   }
