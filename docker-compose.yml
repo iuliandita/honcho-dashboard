@@ -1,0 +1,68 @@
+# Example compose file: dashboard alongside a Honcho stack.
+# Use this for local development or as a starting point for self-hosted deployments.
+#
+# Required env vars (set in .env or shell):
+#   HONCHO_ADMIN_TOKEN — bearer token for the dashboard's Honcho calls
+#   POSTGRES_PASSWORD  — Honcho's database password
+
+services:
+  dashboard:
+    build: .
+    image: honcho-dashboard:local
+    ports:
+      - '3000:3000'
+    environment:
+      HONCHO_API_BASE: http://honcho:8000
+      HONCHO_ADMIN_TOKEN: ${HONCHO_ADMIN_TOKEN}
+      # HONCHO_WORKSPACE_ID: default
+    depends_on:
+      honcho:
+        condition: service_healthy
+    restart: unless-stopped
+
+  honcho:
+    image: ghcr.io/plastic-labs/honcho:latest
+    ports:
+      - '8000:8000'
+    environment:
+      DATABASE_URL: postgresql://honcho:${POSTGRES_PASSWORD}@postgres:5432/honcho
+      REDIS_URL: redis://redis:6379/0
+      ADMIN_TOKEN: ${HONCHO_ADMIN_TOKEN}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ['CMD', 'wget', '-qO-', 'http://localhost:8000/v3/health']
+      interval: 30s
+      timeout: 5s
+      retries: 5
+
+  postgres:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_USER: honcho
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: honcho
+    volumes:
+      - honcho-pg:/var/lib/postgresql/data
+    restart: unless-stopped
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U honcho -d honcho']
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+volumes:
+  honcho-pg:
