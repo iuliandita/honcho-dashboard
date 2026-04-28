@@ -1,6 +1,12 @@
 import { Hono } from 'hono';
 import { createApp } from '../../../src/server';
-import { fixtureMessageHistory, fixturePeers, fixtureSessions, fixtureWorkspaces } from './fixtures';
+import {
+  fixtureMessageHistory,
+  fixturePeers,
+  fixtureRepresentationMarkdown,
+  fixtureSessions,
+  fixtureWorkspaces,
+} from './fixtures';
 
 type ServerKind = 'dashboard' | 'honcho';
 const PAGE_SIZE = 50;
@@ -17,6 +23,9 @@ function startHoncho(port: number) {
   honcho.post('/v3/workspaces/list', (c) => c.json(fixtureWorkspaces));
   honcho.post('/v3/workspaces/:ws/peers/list', (c) => c.json(fixturePeers));
   honcho.post('/v3/workspaces/:ws/peers/:peer/sessions', (c) => c.json(fixtureSessions));
+  honcho.post('/v3/workspaces/:ws/peers/:peer/representation', (c) =>
+    c.json({ representation: fixtureRepresentationMarkdown }),
+  );
   honcho.get('/v3/workspaces/:ws/peers/:peer/sessions/:session/messages', (c) => {
     const cursor = c.req.query('cursor');
     const limit = Number.parseInt(c.req.query('limit') ?? String(PAGE_SIZE), 10);

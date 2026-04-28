@@ -39,3 +39,54 @@ export function generateMessageHistory(): FixtureMessage[] {
 }
 
 export const fixtureMessageHistory = generateMessageHistory();
+
+export const fixtureRepresentation = {
+  topics: ['coffee', 'sleep', 'work'],
+  items: [
+    {
+      id: 'r1',
+      topic: 'coffee',
+      content: 'prefers oat milk',
+      confidence: 0.92,
+      createdAt: '2026-04-20T10:00:00Z',
+    },
+    {
+      id: 'r2',
+      topic: 'coffee',
+      content: 'medium roast over dark',
+      confidence: 0.78,
+      createdAt: '2026-04-21T10:00:00Z',
+    },
+    {
+      id: 'r3',
+      topic: 'sleep',
+      content: 'late riser, ~9am natural',
+      confidence: 0.85,
+      createdAt: '2026-04-22T10:00:00Z',
+    },
+    {
+      id: 'r4',
+      topic: 'work',
+      content: 'remote, async-first',
+      confidence: 0.95,
+      createdAt: '2026-04-23T10:00:00Z',
+    },
+    {
+      id: 'r5',
+      topic: 'work',
+      content: 'prefers writing over calls',
+      confidence: 0.81,
+      createdAt: '2026-04-24T10:00:00Z',
+    },
+  ],
+};
+
+export const fixtureRepresentationMarkdown = fixtureRepresentation.topics
+  .map((topic) => {
+    const items = fixtureRepresentation.items
+      .filter((item) => item.topic === topic)
+      .map((item) => `- ${item.content}`)
+      .join('\n');
+    return `## ${topic}\n${items}`;
+  })
+  .join('\n\n');
