@@ -1,0 +1,30 @@
+# Agent harness context (private; references local infra paths and secrets)
+CLAUDE.md
+AGENTS.md
+.claude/
+
+# Local-only docs (scratch, briefs, screenshots)
+docs/local/
+
+# Brainstorming visual companion sessions (mockups, server state)
+.superpowers/
+
+# Build artifacts
+node_modules/
+dist/
+build/
+.svelte-kit/
+
+# Test artifacts
+coverage/
+test-results/
+playwright-report/
+
+# OS / IDE
+.DS_Store
+.idea/
+.vscode/
+
+# Environment
+.env
+.env.local

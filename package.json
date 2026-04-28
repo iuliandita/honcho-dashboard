@@ -1,0 +1,45 @@
+{
+  "name": "honcho-dashboard",
+  "version": "0.1.0",
+  "description": "Self-hosted web inspector for the OSS Honcho server",
+  "type": "module",
+  "private": false,
+  "license": "MIT",
+  "scripts": {
+    "dev": "vite dev",
+    "build": "vite build && bun build src/server/index.ts --target=bun --outdir=dist --minify",
+    "preview": "vite preview",
+    "start": "bun run dist/index.js",
+    "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
+    "lint": "biome check .",
+    "lint:fix": "biome check --write .",
+    "format": "biome format --write .",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "codegen": "openapi-typescript src/lib/honcho/openapi.json -o src/lib/honcho/types.ts",
+    "refresh-openapi": "./scripts/refresh-honcho-openapi.sh"
+  },
+  "engines": {
+    "bun": ">=1.1.0"
+  },
+  "dependencies": {
+    "@tanstack/svelte-query": "^5.50.0",
+    "hono": "^4.6.0"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^1.9.0",
+    "@playwright/test": "^1.48.0",
+    "@sveltejs/adapter-static": "^3.0.5",
+    "@sveltejs/kit": "^2.7.0",
+    "@sveltejs/vite-plugin-svelte": "^4.0.0",
+    "@tailwindcss/vite": "^4.0.0",
+    "@types/bun": "^1.1.0",
+    "openapi-typescript": "^7.4.0",
+    "svelte": "^5.0.0",
+    "svelte-check": "^4.0.0",
+    "tailwindcss": "^4.0.0",
+    "typescript": "^5.6.0",
+    "vite": "^5.4.0",
+    "vitest": "^2.1.0"
+  }
+}
