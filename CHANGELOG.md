@@ -4,6 +4,27 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- Dialectic chat panel with SSE streaming against `/peers/{id}/chat`.
+  Cancel mid-stream, reset between sends, surface mid-stream interruptions
+  as typed errors, and invalidate the peer query on clean close so
+  representation/profile reflect post-chat shifts. Routes added in both
+  pinned and picker modes; the existing peer chrome already linked here.
+- Opt-in Prometheus `ServiceMonitor` for both plain Kubernetes
+  (`deploy/k8s/servicemonitor.yaml`, excluded from kustomization base by
+  default) and Helm (`templates/servicemonitor.yaml`, gated on
+  `metrics.enabled`). Supports `metrics.additionalLabels` for the
+  standard `release: kube-prometheus-stack` selector.
+
+### Notes
+
+- The 1.0.0 entry below originally listed the dialectic chat panel as
+  shipped. That was a documentation error — chat actually landed in
+  this release.
+
 ## [1.0.0] - 2026-04-28
 
 First public release.
@@ -14,7 +35,6 @@ First public release.
 - Read-only message stream with cursor pagination.
 - Per-peer representation viewer with topic filtering.
 - Per-peer profile tab with sanitized markdown rendering.
-- Dialectic chat panel with SSE streaming and peer-data invalidation after close.
 - Workspace-scoped semantic search with debounced input and topic facets.
 - `/style-guide` route with a live design system showcase.
 - Multi-stage Dockerfile using `oven/bun:1-alpine`.
