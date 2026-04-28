@@ -1,5 +1,4 @@
 import type { ApiClient } from '$api/client';
-import { QueryClient } from '@tanstack/query-core';
 import { describe, expect, it, vi } from 'vitest';
 import { buildSessionMessagesQuery, type MessagesPage } from './api';
 
@@ -26,7 +25,6 @@ describe('buildSessionMessagesQuery', () => {
 
     const opts = buildSessionMessagesQuery(client, 'ws', 'p', 's');
     const page = await opts.queryFn({
-      client: new QueryClient(),
       pageParam: null,
       signal: new AbortController().signal,
       queryKey: opts.queryKey,
@@ -43,7 +41,6 @@ describe('buildSessionMessagesQuery', () => {
 
     const opts = buildSessionMessagesQuery(client, 'ws', 'p', 's');
     await opts.queryFn({
-      client: new QueryClient(),
       pageParam: 'c2',
       signal: new AbortController().signal,
       queryKey: opts.queryKey,

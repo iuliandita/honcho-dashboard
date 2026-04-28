@@ -25,10 +25,11 @@ export function buildSessionMessagesQuery(
   sessionId: string,
 ) {
   type QueryKey = ReturnType<typeof keys.sessionMessages>;
+  type QueryContext = { pageParam: string | null } & Partial<QueryFunctionContext<QueryKey, string | null>>;
 
   return {
     queryKey: keys.sessionMessages(workspaceId, peerId, sessionId),
-    queryFn: ({ pageParam }: QueryFunctionContext<QueryKey, string | null>) => {
+    queryFn: ({ pageParam }: QueryContext) => {
       const params: Record<string, string | number> = { limit: PAGE_SIZE };
       if (pageParam) params.cursor = pageParam;
       return client.get<MessagesPage>(
