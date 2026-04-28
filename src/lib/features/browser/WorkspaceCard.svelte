@@ -6,7 +6,7 @@ interface Props {
   selected?: boolean;
 }
 
-let { workspace, selected = false }: Props = $props();
+const { workspace, selected = false }: Props = $props();
 </script>
 
 <article class="card" class:selected>

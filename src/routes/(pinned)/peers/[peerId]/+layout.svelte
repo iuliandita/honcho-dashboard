@@ -8,9 +8,9 @@ interface Props {
   children: Snippet;
 }
 
-let { data, children }: Props = $props();
+const { data, children }: Props = $props();
 
-let basePath = $derived(`/peers/${data.peerId}`);
+const basePath = $derived(`/peers/${data.peerId}`);
 const tabs = [
   { id: 'sessions', label: 'sessions' },
   { id: 'representation', label: 'representation' },

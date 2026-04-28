@@ -6,7 +6,7 @@ interface Props {
   selected?: boolean;
 }
 
-let { peer, selected = false }: Props = $props();
+const { peer, selected = false }: Props = $props();
 </script>
 
 <article class="card" class:selected>

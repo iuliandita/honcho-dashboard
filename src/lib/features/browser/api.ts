@@ -40,7 +40,6 @@ export function buildPeersQuery(client: ApiClient, workspaceId: string) {
 export function buildSessionsQuery(client: ApiClient, workspaceId: string, peerId: string) {
   return {
     queryKey: [...keys.peer(workspaceId, peerId), 'sessions'] as const,
-    queryFn: () =>
-      client.post<SessionSummary[]>(`/v3/workspaces/${workspaceId}/peers/${peerId}/sessions`, {}),
+    queryFn: () => client.post<SessionSummary[]>(`/v3/workspaces/${workspaceId}/peers/${peerId}/sessions`, {}),
   };
 }

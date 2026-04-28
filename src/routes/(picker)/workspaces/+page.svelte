@@ -1,9 +1,9 @@
 <script lang="ts">
-import { goto } from '$app/navigation';
 import { createApiClient } from '$api/client';
-import { buildWorkspacesQuery, type WorkspaceSummary } from '$features/browser/api';
+import { goto } from '$app/navigation';
 import PaneList from '$features/browser/PaneList.svelte';
 import WorkspaceCard from '$features/browser/WorkspaceCard.svelte';
+import { type WorkspaceSummary, buildWorkspacesQuery } from '$features/browser/api';
 import Pane from '$ui/primitives/Pane.svelte';
 import PaneHeader from '$ui/primitives/PaneHeader.svelte';
 import { createQuery } from '@tanstack/svelte-query';
@@ -13,7 +13,7 @@ interface Props {
   data: PageData;
 }
 
-let { data }: Props = $props();
+const { data }: Props = $props();
 
 const client = createApiClient();
 // initialData is a one-shot hydration value; capturing data.workspaces here is the intended seed.

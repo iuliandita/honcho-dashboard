@@ -7,7 +7,7 @@ interface Props {
   scrollable?: boolean;
 }
 
-let { children, scrollable = false }: Props = $props();
+const { children, scrollable = false }: Props = $props();
 </script>
 
 <section class="pane" class:scrollable>

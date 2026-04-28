@@ -7,7 +7,7 @@ interface Props {
   actions?: Snippet;
 }
 
-let { title, subtitle, actions }: Props = $props();
+const { title, subtitle, actions }: Props = $props();
 </script>
 
 <header class="pane-header">

@@ -6,7 +6,7 @@ interface Props {
   selected?: boolean;
 }
 
-let { session, selected = false }: Props = $props();
+const { session, selected = false }: Props = $props();
 
 function formatTimestamp(iso: string | undefined): string {
   if (!iso) return '—';

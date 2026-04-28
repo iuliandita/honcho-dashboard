@@ -15,7 +15,7 @@ interface Props {
   onSelect?: (item: T) => void;
 }
 
-let { items, selectedId = null, empty, loading = false, error = null, row, onSelect }: Props = $props();
+const { items, selectedId = null, empty, loading = false, error = null, row, onSelect }: Props = $props();
 </script>
 
 <div class="pane-body">

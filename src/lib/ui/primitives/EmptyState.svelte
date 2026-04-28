@@ -9,7 +9,7 @@ interface Props {
   art?: string;
 }
 
-let { title, description, art }: Props = $props();
+const { title, description, art }: Props = $props();
 </script>
 
 <div class="empty-state" role="status">

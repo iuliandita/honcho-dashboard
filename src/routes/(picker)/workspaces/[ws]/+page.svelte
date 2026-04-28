@@ -1,10 +1,10 @@
 <script lang="ts">
+import { createApiClient } from '$api/client';
 import { goto } from '$app/navigation';
 import { page } from '$app/state';
-import { createApiClient } from '$api/client';
-import { buildPeersQuery, type PeerSummary } from '$features/browser/api';
 import PaneList from '$features/browser/PaneList.svelte';
 import PeerCard from '$features/browser/PeerCard.svelte';
+import { type PeerSummary, buildPeersQuery } from '$features/browser/api';
 import Pane from '$ui/primitives/Pane.svelte';
 import PaneHeader from '$ui/primitives/PaneHeader.svelte';
 import { createQuery } from '@tanstack/svelte-query';
@@ -14,8 +14,8 @@ interface Props {
   data: PageData;
 }
 
-let { data }: Props = $props();
-let workspaceId = $derived(page.params.ws ?? '');
+const { data }: Props = $props();
+const workspaceId = $derived(page.params.ws ?? '');
 
 const client = createApiClient();
 // initialData is a one-shot hydration value; the snapshot is intentional.
