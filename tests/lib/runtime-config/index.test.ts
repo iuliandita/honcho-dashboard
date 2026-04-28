@@ -5,10 +5,10 @@ describe('fetchRuntimeConfig', () => {
   it('fetches and returns the runtime config payload', async () => {
     const fetchMock = async (url: RequestInfo | URL) => {
       expect(typeof url === 'string' ? url : url.toString()).toBe('/api/runtime-config');
-      return new Response(
-        JSON.stringify({ workspaceId: 'ws-abc', version: '0.1.0' }),
-        { status: 200, headers: { 'Content-Type': 'application/json' } },
-      );
+      return new Response(JSON.stringify({ workspaceId: 'ws-abc', version: '0.1.0' }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      });
     };
 
     const config = await fetchRuntimeConfig({ fetch: fetchMock });

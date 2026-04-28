@@ -1,19 +1,19 @@
 <script lang="ts">
-  import { goto } from '$app/navigation';
-  import { workspaceMode } from '$lib/runtime-config';
-  import type { PageData } from './$types';
+import { goto } from '$app/navigation';
+import { workspaceMode } from '$lib/runtime-config';
+import type { PageData } from './$types';
 
-  interface Props {
-    data: PageData;
-  }
+interface Props {
+  data: PageData;
+}
 
-  let { data }: Props = $props();
+const { data }: Props = $props();
 
-  $effect(() => {
-    const mode = workspaceMode(data.runtimeConfig);
-    const target = mode === 'pinned' ? '/peers' : '/workspaces';
-    goto(target, { replaceState: true });
-  });
+$effect(() => {
+  const mode = workspaceMode(data.runtimeConfig);
+  const target = mode === 'pinned' ? '/peers' : '/workspaces';
+  goto(target, { replaceState: true });
+});
 </script>
 
 <p class="redirecting">redirecting…</p>

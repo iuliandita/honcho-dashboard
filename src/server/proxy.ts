@@ -36,7 +36,9 @@ export function proxyRoute(config: ProxyConfig) {
 
     // Strip /api prefix to compose target URL
     const path = c.req.path.replace(/^\/api/, '');
-    const url = `${apiBase}${path}${c.req.url.includes('?') ? '?' + c.req.url.split('?')[1] : ''}`;
+    const queryIndex = c.req.url.indexOf('?');
+    const query = queryIndex >= 0 ? c.req.url.slice(queryIndex) : '';
+    const url = `${apiBase}${path}${query}`;
 
     const headers = new Headers();
     // Forward content-type and accept; never forward Authorization from client.

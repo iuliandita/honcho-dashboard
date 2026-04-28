@@ -1,8 +1,8 @@
 <script lang="ts">
-  import { page } from '$app/state';
+import { page } from '$app/state';
 
-  // ASCII fallback art — placeholder; finalized in frontend-design phase.
-  const errorMark = `   _____ ____  ____    ___  ____
+// ASCII fallback art — placeholder; finalized in frontend-design phase.
+const errorMark = `   _____ ____  ____    ___  ____
   | ___|  _ \\|  _ \\  / _ \\|  _ \\
   |  _| | |_) | |_) || | | | |_) |
   |___| |  _ <|  _ < | |_| |  _ <

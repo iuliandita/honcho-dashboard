@@ -1,13 +1,13 @@
 <script lang="ts">
-  import type { Snippet } from 'svelte';
-  import type { LayoutData } from './$types';
+import type { Snippet } from 'svelte';
+import type { LayoutData } from './$types';
 
-  interface Props {
-    data: LayoutData;
-    children: Snippet;
-  }
+interface Props {
+  data: LayoutData;
+  children: Snippet;
+}
 
-  let { data, children }: Props = $props();
+const { data, children }: Props = $props();
 </script>
 
 <section class="pinned-mode">

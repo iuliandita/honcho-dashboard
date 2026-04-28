@@ -9,12 +9,15 @@ describe('proxy /api/*', () => {
     const honchoFetch = (req: Request) => stub.app.fetch(req);
 
     const app = new Hono();
-    app.route('/', proxyRoute({
-      apiBase: 'http://stub.local',
-      adminToken: 'test-token-123',
-      timeoutMs: 1000,
-      fetch: honchoFetch,
-    }));
+    app.route(
+      '/',
+      proxyRoute({
+        apiBase: 'http://stub.local',
+        adminToken: 'test-token-123',
+        timeoutMs: 1000,
+        fetch: honchoFetch,
+      }),
+    );
 
     const res = await app.request('/api/peers/abc');
 
@@ -30,12 +33,15 @@ describe('proxy /api/*', () => {
     const honchoFetch = (req: Request) => stub.app.fetch(req);
 
     const app = new Hono();
-    app.route('/', proxyRoute({
-      apiBase: 'http://stub.local',
-      adminToken: 'test-token',
-      timeoutMs: 1000,
-      fetch: honchoFetch,
-    }));
+    app.route(
+      '/',
+      proxyRoute({
+        apiBase: 'http://stub.local',
+        adminToken: 'test-token',
+        timeoutMs: 1000,
+        fetch: honchoFetch,
+      }),
+    );
 
     const res = await app.request('/api/peers/abc/chat', {
       method: 'POST',
@@ -55,12 +61,15 @@ describe('proxy /api/*', () => {
     const failingFetch = () => Promise.reject(new Error('ECONNREFUSED'));
 
     const app = new Hono();
-    app.route('/', proxyRoute({
-      apiBase: 'http://nowhere.invalid',
-      adminToken: 'test-token',
-      timeoutMs: 1000,
-      fetch: failingFetch,
-    }));
+    app.route(
+      '/',
+      proxyRoute({
+        apiBase: 'http://nowhere.invalid',
+        adminToken: 'test-token',
+        timeoutMs: 1000,
+        fetch: failingFetch,
+      }),
+    );
 
     const res = await app.request('/api/peers/abc');
 
@@ -80,12 +89,15 @@ describe('proxy /api/*', () => {
     const honchoFetch = (req: Request) => stub.app.fetch(req);
 
     const app = new Hono();
-    app.route('/', proxyRoute({
-      apiBase: 'http://stub.local',
-      adminToken: 'test-token',
-      timeoutMs: 1000,
-      fetch: honchoFetch,
-    }));
+    app.route(
+      '/',
+      proxyRoute({
+        apiBase: 'http://stub.local',
+        adminToken: 'test-token',
+        timeoutMs: 1000,
+        fetch: honchoFetch,
+      }),
+    );
 
     const res = await app.request('/api/does-not-exist');
 

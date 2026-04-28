@@ -1,11 +1,11 @@
 <script lang="ts">
-  import type { Snippet } from 'svelte';
+import type { Snippet } from 'svelte';
 
-  interface Props {
-    children: Snippet;
-  }
+interface Props {
+  children: Snippet;
+}
 
-  let { children }: Props = $props();
+const { children }: Props = $props();
 </script>
 
 <section class="picker-mode">

@@ -1,44 +1,42 @@
 <script lang="ts">
-  import '$ui/tokens.css';
-  import { QueryClient, QueryClientProvider } from '@tanstack/svelte-query';
-  import type { Snippet } from 'svelte';
-  import type { LayoutData } from './$types';
+import '$ui/tokens.css';
+import { QueryClient, QueryClientProvider } from '@tanstack/svelte-query';
+import type { Snippet } from 'svelte';
+import type { LayoutData } from './$types';
 
-  interface Props {
-    data: LayoutData;
-    children: Snippet;
-  }
+interface Props {
+  data: LayoutData;
+  children: Snippet;
+}
 
-  let { data, children }: Props = $props();
+const { data, children }: Props = $props();
 
-  // Single QueryClient for the lifetime of the SPA. Stale time is set per-query.
-  const queryClient = new QueryClient({
-    defaultOptions: {
-      queries: {
-        refetchOnWindowFocus: true,
-        retry: 1,
-        staleTime: 30_000,
-      },
+// Single QueryClient for the lifetime of the SPA. Stale time is set per-query.
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: true,
+      retry: 1,
+      staleTime: 30_000,
     },
-  });
+  },
+});
 
-  // Dark default; toggle persists across reload via localStorage.
-  let theme = $state<'dark' | 'light'>(
-    typeof localStorage !== 'undefined'
-      ? ((localStorage.getItem('theme') as 'dark' | 'light' | null) ?? 'dark')
-      : 'dark',
-  );
+// Dark default; toggle persists across reload via localStorage.
+let theme = $state<'dark' | 'light'>(
+  typeof localStorage !== 'undefined' ? ((localStorage.getItem('theme') as 'dark' | 'light' | null) ?? 'dark') : 'dark',
+);
 
-  $effect(() => {
-    if (typeof document !== 'undefined') {
-      document.documentElement.dataset.theme = theme;
-      localStorage.setItem('theme', theme);
-    }
-  });
-
-  function toggleTheme() {
-    theme = theme === 'dark' ? 'light' : 'dark';
+$effect(() => {
+  if (typeof document !== 'undefined') {
+    document.documentElement.dataset.theme = theme;
+    localStorage.setItem('theme', theme);
   }
+});
+
+function toggleTheme() {
+  theme = theme === 'dark' ? 'light' : 'dark';
+}
 </script>
 
 <QueryClientProvider client={queryClient}>

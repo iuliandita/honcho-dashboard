@@ -1,5 +1,5 @@
 <script lang="ts">
-  // Placeholder. Plan 2 replaces this with the peer list component.
+// Placeholder. Plan 2 replaces this with the peer list component.
 </script>
 
 <h1>peers</h1>

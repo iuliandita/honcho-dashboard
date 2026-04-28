@@ -42,7 +42,11 @@ describe('createApp', () => {
 
   it('throws if required env vars are missing', () => {
     const original = { ...process.env };
+    // delete (not assignment to undefined): process.env coerces undefined to the string "undefined",
+    // which would defeat the readEnvRequired check.
+    // biome-ignore lint/performance/noDelete: process.env requires real removal, not undefined assignment.
     delete process.env.HONCHO_API_BASE;
+    // biome-ignore lint/performance/noDelete: process.env requires real removal, not undefined assignment.
     delete process.env.HONCHO_ADMIN_TOKEN;
 
     try {

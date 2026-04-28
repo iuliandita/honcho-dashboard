@@ -58,12 +58,15 @@ export function createApp(overrides?: Partial<AppConfig>): Hono {
 
   app.route('/', healthRoute);
   app.route('/', runtimeConfigRoute({ workspaceId: config.workspaceId, version: config.version }));
-  app.route('/', proxyRoute({
-    apiBase: config.apiBase,
-    adminToken: config.adminToken,
-    timeoutMs: config.timeoutMs,
-    fetch: config.fetch,
-  }));
+  app.route(
+    '/',
+    proxyRoute({
+      apiBase: config.apiBase,
+      adminToken: config.adminToken,
+      timeoutMs: config.timeoutMs,
+      fetch: config.fetch,
+    }),
+  );
   app.route('/', staticRoute({ buildDir: config.buildDir }));
 
   return app;

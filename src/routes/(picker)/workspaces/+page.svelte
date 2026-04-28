@@ -1,5 +1,5 @@
 <script lang="ts">
-  // Placeholder. Plan 2 replaces this with the workspace picker.
+// Placeholder. Plan 2 replaces this with the workspace picker.
 </script>
 
 <h1>workspaces</h1>
