@@ -2,6 +2,7 @@
 import { createApiClient } from '$api/client';
 import ProfileMarkdown from '$features/profile/ProfileMarkdown.svelte';
 import { buildPeerProfileQuery } from '$features/profile/api';
+import EmptyProfile from '$ui/ascii/EmptyProfile.svelte';
 import EmptyState from '$ui/primitives/EmptyState.svelte';
 import Pane from '$ui/primitives/Pane.svelte';
 import PaneHeader from '$ui/primitives/PaneHeader.svelte';
@@ -32,7 +33,9 @@ const query = createQuery({
   {:else if $query.data}
     <ProfileMarkdown profile={$query.data} />
   {:else}
-    <EmptyState title="no profile" />
+    <EmptyState title="no profile">
+      {#snippet art()}<EmptyProfile />{/snippet}
+    </EmptyState>
   {/if}
 </Pane>
 

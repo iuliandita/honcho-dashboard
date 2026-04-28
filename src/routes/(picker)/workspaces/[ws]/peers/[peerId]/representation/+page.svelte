@@ -2,6 +2,7 @@
 import { createApiClient } from '$api/client';
 import RepresentationGrid from '$features/representation/RepresentationGrid.svelte';
 import { buildPeerRepresentationQuery } from '$features/representation/api';
+import EmptyMemory from '$ui/ascii/EmptyMemory.svelte';
 import EmptyState from '$ui/primitives/EmptyState.svelte';
 import Pane from '$ui/primitives/Pane.svelte';
 import PaneHeader from '$ui/primitives/PaneHeader.svelte';
@@ -32,7 +33,9 @@ const query = createQuery({
   {:else if $query.data}
     <RepresentationGrid data={$query.data} />
   {:else}
-    <EmptyState title="no representation" />
+    <EmptyState title="no representation">
+      {#snippet art()}<EmptyMemory />{/snippet}
+    </EmptyState>
   {/if}
 </Pane>
 

@@ -1,5 +1,7 @@
 <script lang="ts">
 import TopicChip from '$features/representation/TopicChip.svelte';
+import EmptyArchive from '$ui/ascii/EmptyArchive.svelte';
+import EmptySearch from '$ui/ascii/EmptySearch.svelte';
 import EmptyState from '$ui/primitives/EmptyState.svelte';
 import type { CreateQueryResult } from '@tanstack/svelte-query';
 import ResultCard from './ResultCard.svelte';
@@ -19,7 +21,9 @@ const { hrefForResult, query, selectedTopic, onTopicChange, queryStore }: Props 
 
 <div class="search-results">
   {#if !query.trim()}
-    <EmptyState title="type to search" description="searches across all peers in this workspace" />
+    <EmptyState title="type to search" description="searches across all peers in this workspace">
+      {#snippet art()}<EmptySearch />{/snippet}
+    </EmptyState>
   {:else if $queryStore.isLoading}
     <p class="state">searching...</p>
   {:else if $queryStore.isError}
@@ -45,7 +49,9 @@ const { hrefForResult, query, selectedTopic, onTopicChange, queryStore }: Props 
         description={selectedTopic
           ? `nothing for "${query}" under topic ${selectedTopic}`
           : `nothing for "${query}" in this workspace`}
-      />
+      >
+        {#snippet art()}<EmptyArchive />{/snippet}
+      </EmptyState>
     {:else}
       <ol class="results">
         {#each $queryStore.data.results as result (result.id)}

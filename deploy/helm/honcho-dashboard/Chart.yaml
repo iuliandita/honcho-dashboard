@@ -2,8 +2,8 @@ apiVersion: v2
 name: honcho-dashboard
 description: Self-hosted web inspector for the OSS Honcho server
 type: application
-version: 0.1.0
-appVersion: 0.1.0
+version: 1.0.0
+appVersion: 1.0.0
 home: https://github.com/REPLACE_ME/honcho-dashboard
 sources:
   - https://github.com/REPLACE_ME/honcho-dashboard

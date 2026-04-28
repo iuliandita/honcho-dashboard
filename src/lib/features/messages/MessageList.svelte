@@ -1,4 +1,5 @@
 <script lang="ts">
+import EmptyArchive from '$ui/ascii/EmptyArchive.svelte';
 import EmptyState from '$ui/primitives/EmptyState.svelte';
 import type { InfiniteData } from '@tanstack/query-core';
 import type { CreateInfiniteQueryResult } from '@tanstack/svelte-query';
@@ -59,7 +60,9 @@ onMount(() => {
   {:else if $query.isError}
     <p class="state-row error" role="alert">error: {$query.error?.message}</p>
   {:else if messages.length === 0}
-    <EmptyState title="no messages in this session" />
+    <EmptyState title="no messages in this session">
+      {#snippet art()}<EmptyArchive />{/snippet}
+    </EmptyState>
   {:else}
     <div bind:this={topSentinel} class="sentinel" aria-hidden="true">
       {#if $query.isFetchingNextPage}

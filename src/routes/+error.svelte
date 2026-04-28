@@ -1,13 +1,18 @@
 <script lang="ts">
 import { page } from '$app/state';
-import { divider, errorMark } from '$ui/ascii';
+import Divider from '$ui/ascii/Divider.svelte';
+import ErrorMark from '$ui/ascii/ErrorMark.svelte';
 import Icon from '$ui/pixel/Icon.svelte';
 </script>
 
 <div class="error-page">
-  <pre class="ascii mark" aria-hidden="true">{errorMark}</pre>
+  <div class="mark">
+    <ErrorMark />
+  </div>
 
-  <p class="rule" aria-hidden="true">{divider(40, 'tape')}</p>
+  <div class="rule">
+    <Divider cols={40} style="tape" />
+  </div>
 
   <h1>
     <Icon name="alert" size={16} />
@@ -31,7 +36,9 @@ import Icon from '$ui/pixel/Icon.svelte';
     </dl>
   {/if}
 
-  <p class="rule" aria-hidden="true">{divider(40, 'tape')}</p>
+  <div class="rule">
+    <Divider cols={40} style="tape" />
+  </div>
 
   <p class="actions">
     <a href="/">

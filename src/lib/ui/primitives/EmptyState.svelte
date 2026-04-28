@@ -1,19 +1,21 @@
 <script lang="ts">
-import { emptyArchive } from '$ui/ascii';
+import type { Snippet } from 'svelte';
 
 interface Props {
   title: string;
   /** Optional secondary line. */
   description?: string;
-  /** ASCII art block. Defaults to the finalized `emptyArchive` mark. */
-  art?: string;
+  /** Optional ASCII art slot. If omitted, no art renders. */
+  art?: Snippet;
 }
 
 const { title, description, art }: Props = $props();
 </script>
 
 <div class="empty-state" role="status">
-  <pre class="ascii art" aria-hidden="true">{art ?? emptyArchive}</pre>
+  {#if art}
+    <div class="art" aria-hidden="true">{@render art()}</div>
+  {/if}
   <p class="title">{title}</p>
   {#if description}<p class="description">{description}</p>{/if}
 </div>
@@ -30,8 +32,7 @@ const { title, description, art }: Props = $props();
   .art {
     color: var(--color-yellow-500);
     font-size: var(--text-xs);
-    line-height: 1.05;
-    margin: 0;
+    line-height: 1.2;
   }
   .title {
     margin: 0;

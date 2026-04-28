@@ -1,6 +1,7 @@
 <script lang="ts">
+import '$ui/fonts.css';
 import '$ui/tokens.css';
-import { brandMark } from '$ui/ascii';
+import BrandMark from '$ui/ascii/BrandMark.svelte';
 import Icon from '$ui/pixel/Icon.svelte';
 import { QueryClient, QueryClientProvider } from '@tanstack/svelte-query';
 import type { Snippet } from 'svelte';
@@ -43,7 +44,7 @@ function toggleTheme() {
 
 <QueryClientProvider client={queryClient}>
   <header class="chrome">
-    <span class="brand font-ascii">{brandMark}</span>
+    <span class="brand"><BrandMark /></span>
     <span class="rule" aria-hidden="true">─ ─ ─</span>
     <span class="version">v{data.runtimeConfig.version}</span>
     {#if data.runtimeConfig.workspaceId}

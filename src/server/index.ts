@@ -5,7 +5,7 @@ import { proxyRoute } from './proxy';
 import { runtimeConfigRoute } from './runtime-config';
 import { staticRoute } from './static';
 
-const VERSION = '0.1.0';
+const VERSION = '1.0.0';
 
 export interface AppConfig {
   apiBase: string;

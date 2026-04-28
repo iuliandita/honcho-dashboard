@@ -1,5 +1,6 @@
 <script lang="ts">
 import { formatAbsolute, formatRelative } from '$features/messages/format';
+import EmptyProfile from '$ui/ascii/EmptyProfile.svelte';
 import EmptyState from '$ui/primitives/EmptyState.svelte';
 import type { ProfileResponse } from './api';
 import { renderMarkdown } from './markdown';
@@ -14,7 +15,9 @@ const trimmed = $derived(profile.markdown.trim());
 </script>
 
 {#if !trimmed}
-  <EmptyState title="no profile yet" description="this peer has no rolling summary; activity will populate it server-side" />
+  <EmptyState title="no profile yet" description="this peer has no rolling summary; activity will populate it server-side">
+    {#snippet art()}<EmptyProfile />{/snippet}
+  </EmptyState>
 {:else}
   <article class="profile">
     {#if profile.updatedAt}

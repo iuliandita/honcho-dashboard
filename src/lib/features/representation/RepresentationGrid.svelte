@@ -1,4 +1,5 @@
 <script lang="ts">
+import EmptyMemory from '$ui/ascii/EmptyMemory.svelte';
 import EmptyState from '$ui/primitives/EmptyState.svelte';
 import RepresentationCard from './RepresentationCard.svelte';
 import TopicChip from './TopicChip.svelte';
@@ -40,7 +41,9 @@ function setTopic(topic: string | null) {
     <EmptyState
       title={selectedTopic === null ? 'no representation yet' : `no items for topic: ${selectedTopic}`}
       description="this peer has no learned state under this filter"
-    />
+    >
+      {#snippet art()}<EmptyMemory />{/snippet}
+    </EmptyState>
   {:else}
     <div class="grid">
       {#each filtered as item (item.id)}
