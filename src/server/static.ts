@@ -6,62 +6,46 @@ export interface StaticConfig {
 }
 
 /**
- * Serves the SvelteKit adapter-static build.
+ * Serves the SvelteKit adapter-static build using Bun.file directly.
  *
- * - `/` and unknown routes fall back to `index.html` (SPA mode).
- * - Hashed assets (everything under `/_app/`) get long-lived immutable cache.
- * - `index.html` is no-cache so config injection / version updates land immediately.
+ * Why not `hono/bun`'s `serveStatic`? Two reasons:
+ *  - It references the global `Bun` at module load, which crashes vitest under Node.
+ *  - It's a thin wrapper over Bun.file anyway; we control the headers we want.
  *
- * Bun-specific deps (`hono/bun`, global `Bun`) are loaded lazily inside the handler so the module
- * can be imported in non-Bun runtimes (vitest under Node) without crashing at module load.
+ * Behaviour:
+ *  - Hashed assets under `/_app/...` get `Cache-Control: public, max-age=31536000, immutable`.
+ *  - Other matched files get `Cache-Control: no-cache` so config-injected pages update fast.
+ *  - Unmatched paths fall back to `index.html` (SPA mode).
+ *  - Path traversal (`..`, NUL, control bytes) returns 404 without touching the filesystem.
  */
 export function staticRoute(config: StaticConfig) {
-  const app = new Hono();
+  return new Hono().get('*', async (c) => {
+    const requested = decodeURIComponent(c.req.path);
 
-  // Lazy-mount the Bun-backed serveStatic on first matching request.
-  let bunRoutesMounted = false;
-  async function mountBunRoutes() {
-    if (bunRoutesMounted) return;
-    bunRoutesMounted = true;
-    const { serveStatic } = await import('hono/bun');
-    app.use(
-      '/_app/*',
-      serveStatic({
-        root: config.buildDir,
-        rewriteRequestPath: (path) => path,
-        onFound: (_path, c) => {
-          c.header('Cache-Control', 'public, max-age=31536000, immutable');
-        },
-      }),
-    );
-    app.use(
-      '*',
-      serveStatic({
-        root: config.buildDir,
-        rewriteRequestPath: (path) => path,
-        onFound: (_path, c) => {
-          c.header('Cache-Control', 'no-cache');
-        },
-      }),
-    );
-  }
-
-  app.use('*', async (c, next) => {
-    await mountBunRoutes();
-    await next();
-  });
-
-  // SPA fallback — any request that didn't match a file falls through to index.html.
-  app.get('*', async (c) => {
-    const file = Bun.file(`${config.buildDir}/index.html`);
-    const exists = await file.exists();
-    if (!exists) {
-      return c.text('Build not found. Run `bun run build`.', 500);
+    // Refuse anything that looks like an attempt to escape buildDir or smuggle control bytes.
+    // biome-ignore lint/suspicious/noControlCharactersInRegex: deliberately rejecting C0 control chars in path.
+    if (requested.includes('..') || /[\x00-\x1f]/.test(requested)) {
+      return c.notFound();
     }
-    c.header('Cache-Control', 'no-cache');
-    c.header('Content-Type', 'text/html; charset=utf-8');
-    return c.body(await file.arrayBuffer());
-  });
 
-  return app;
+    const tryPath = requested === '/' ? '/index.html' : requested;
+    const file = Bun.file(`${config.buildDir}${tryPath}`);
+
+    if (await file.exists()) {
+      const cacheControl = tryPath.startsWith('/_app/') ? 'public, max-age=31536000, immutable' : 'no-cache';
+      c.header('Cache-Control', cacheControl);
+      if (file.type) c.header('Content-Type', file.type);
+      return c.body(await file.arrayBuffer());
+    }
+
+    // SPA fallback — any unmatched path serves index.html so the client router takes over.
+    const index = Bun.file(`${config.buildDir}/index.html`);
+    if (await index.exists()) {
+      c.header('Cache-Control', 'no-cache');
+      c.header('Content-Type', 'text/html; charset=utf-8');
+      return c.body(await index.arrayBuffer());
+    }
+
+    return c.text('Build not found. Run `bun run build`.', 500);
+  });
 }
