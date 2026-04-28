@@ -20,7 +20,12 @@ export interface StaticConfig {
  */
 export function staticRoute(config: StaticConfig) {
   return new Hono().get('*', async (c) => {
-    const requested = decodeURIComponent(c.req.path);
+    let requested: string;
+    try {
+      requested = decodeURIComponent(c.req.path);
+    } catch {
+      return c.notFound();
+    }
 
     // Refuse anything that looks like an attempt to escape buildDir or smuggle control bytes.
     // biome-ignore lint/suspicious/noControlCharactersInRegex: deliberately rejecting C0 control chars in path.
@@ -33,17 +38,20 @@ export function staticRoute(config: StaticConfig) {
 
     if (await file.exists()) {
       const cacheControl = tryPath.startsWith('/_app/') ? 'public, max-age=31536000, immutable' : 'no-cache';
-      c.header('Cache-Control', cacheControl);
-      if (file.type) c.header('Content-Type', file.type);
-      return c.body(await file.arrayBuffer());
+      const headers = new Headers({ 'Cache-Control': cacheControl });
+      if (file.type) headers.set('Content-Type', file.type);
+      return new Response(file, { headers });
     }
 
     // SPA fallback — any unmatched path serves index.html so the client router takes over.
     const index = Bun.file(`${config.buildDir}/index.html`);
     if (await index.exists()) {
-      c.header('Cache-Control', 'no-cache');
-      c.header('Content-Type', 'text/html; charset=utf-8');
-      return c.body(await index.arrayBuffer());
+      return new Response(index, {
+        headers: {
+          'Cache-Control': 'no-cache',
+          'Content-Type': 'text/html; charset=utf-8',
+        },
+      });
     }
 
     return c.text('Build not found. Run `bun run build`.', 500);
