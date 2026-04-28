@@ -1,0 +1,31 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Honcho (placeholder)",
+    "version": "0.0.0",
+    "description": "Placeholder OpenAPI document. Replace with the real Honcho schema via scripts/refresh-honcho-openapi.sh."
+  },
+  "paths": {
+    "/": {
+      "get": {
+        "operationId": "root",
+        "responses": {
+          "200": {
+            "description": "Honcho root",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "name": { "type": "string" },
+                    "version": { "type": "string" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
