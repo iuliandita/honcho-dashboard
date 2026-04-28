@@ -21,14 +21,27 @@ let messages = $derived.by((): Message[] => {
 });
 
 let topSentinel: HTMLDivElement | undefined = $state();
+let userScrolled = $state(false);
+
+function fetchOlderIfAvailable() {
+  if ($query.hasNextPage && !$query.isFetchingNextPage) {
+    $query.fetchNextPage();
+  }
+}
+
+function onScroll(event: Event) {
+  userScrolled = true;
+  const target = event.currentTarget as HTMLElement;
+  if (target.scrollTop <= 4) fetchOlderIfAvailable();
+}
 
 onMount(() => {
   if (!topSentinel) return;
   const observer = new IntersectionObserver(
     (entries) => {
       for (const entry of entries) {
-        if (entry.isIntersecting && $query.hasNextPage && !$query.isFetchingNextPage) {
-          $query.fetchNextPage();
+        if (userScrolled && entry.isIntersecting && $query.hasNextPage && !$query.isFetchingNextPage) {
+          fetchOlderIfAvailable();
         }
       }
     },
@@ -39,7 +52,7 @@ onMount(() => {
 });
 </script>
 
-<div class="message-list pane-body" role="log" aria-live="polite">
+<div class="message-list pane-body" role="log" aria-live="polite" onscroll={onScroll}>
   {#if $query.isLoading && messages.length === 0}
     <p class="state-row" role="status">loading messages…</p>
   {:else if $query.isError}
