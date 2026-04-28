@@ -41,6 +41,28 @@ describe('createSseParser', () => {
     ]);
   });
 
+  it('accepts CRLF and CR-only event separators', () => {
+    const parser = createSseParser();
+    const events = pushAll(parser, [
+      'data: {"type":"token","data":"crlf"}\r\n\r\n',
+      'data: {"type":"token","data":"cr"}\r\r',
+    ]);
+
+    expect(events).toEqual([
+      { type: 'token', data: 'crlf' },
+      { type: 'token', data: 'cr' },
+    ]);
+  });
+
+  it('ignores SSE metadata fields while preserving data lines', () => {
+    const parser = createSseParser();
+    const events = pushAll(parser, [
+      'event: token\nid: 42\nretry: 1000\ndata: {"type":"token","data":"metadata ignored"}\n\n',
+    ]);
+
+    expect(events).toEqual([{ type: 'token', data: 'metadata ignored' }]);
+  });
+
   it('parses done events', () => {
     const parser = createSseParser();
     const events = pushAll(parser, ['data: {"type":"done"}\n\n']);

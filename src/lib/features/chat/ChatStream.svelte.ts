@@ -97,6 +97,7 @@ export class ChatStream {
     const reader = response.body.getReader();
     const decoder = new TextDecoder();
     const parser = createSseParser();
+    const traceId = response.headers.get('X-Trace-Id') ?? '';
 
     try {
       while (true) {
@@ -104,16 +105,16 @@ export class ChatStream {
         if (done) break;
 
         const chunk = decoder.decode(value, { stream: true });
-        for (const ev of parser.push(chunk)) this.handleEvent(ev);
+        for (const ev of parser.push(chunk)) this.handleEvent(ev, traceId);
         if (this.expectedEnd || this.error) break;
       }
 
-      for (const ev of parser.flush()) this.handleEvent(ev);
+      for (const ev of parser.flush()) this.handleEvent(ev, traceId);
 
       if (!this.expectedEnd && !this.error) {
         this.error = new HonchoApiError('stream interrupted before completion', {
           status: 0,
-          traceId: response.headers.get('X-Trace-Id') ?? '',
+          traceId,
           upstream: 'proxy',
         });
       }
@@ -123,7 +124,7 @@ export class ChatStream {
       } else {
         this.error = new HonchoApiError(err instanceof Error ? err.message : 'stream read failure', {
           status: 0,
-          traceId: response.headers.get('X-Trace-Id') ?? '',
+          traceId,
           upstream: 'proxy',
         });
       }
@@ -143,7 +144,7 @@ export class ChatStream {
     this.abortController?.abort();
   }
 
-  private handleEvent(event: ChatEvent): void {
+  private handleEvent(event: ChatEvent, traceId: string): void {
     switch (event.type) {
       case 'token':
         this.tokens += event.data;
@@ -154,7 +155,7 @@ export class ChatStream {
       case 'error':
         this.error = new HonchoApiError(event.data, {
           status: 0,
-          traceId: '',
+          traceId,
           upstream: 'honcho',
         });
         break;

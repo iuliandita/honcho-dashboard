@@ -89,6 +89,22 @@ describe('ChatStream', () => {
     expect(mockInvalidate).not.toHaveBeenCalled();
   });
 
+  it('preserves trace ID on streamed error events', async () => {
+    const fetchMock = vi.fn(async () =>
+      makeStreamingResponse(['data: {"type":"error","data":"upstream lost"}\n\n'], { 'X-Trace-Id': 'trace-1' }),
+    );
+
+    const stream = new ChatStream({
+      workspaceId: 'ws',
+      peerId: 'p',
+      invalidatePeer: mockInvalidate,
+      fetch: fetchMock,
+    });
+    await stream.send('greet');
+
+    expect(stream.error?.traceId).toBe('trace-1');
+  });
+
   it('marks stream as unexpectedly ended when reader closes without done', async () => {
     const fetchMock = vi.fn(async () => makeStreamingResponse(['data: {"type":"token","data":"abrupt"}\n\n']));
 
