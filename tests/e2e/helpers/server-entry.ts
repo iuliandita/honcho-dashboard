@@ -1,8 +1,9 @@
 import { Hono } from 'hono';
 import { createApp } from '../../../src/server';
-import { fixturePeers, fixtureSessions, fixtureWorkspaces } from './fixtures';
+import { fixtureMessageHistory, fixturePeers, fixtureSessions, fixtureWorkspaces } from './fixtures';
 
 type ServerKind = 'dashboard' | 'honcho';
+const PAGE_SIZE = 50;
 
 function readArg(index: number, name: string): string {
   const value = process.argv[index];
@@ -16,6 +17,15 @@ function startHoncho(port: number) {
   honcho.post('/v3/workspaces/list', (c) => c.json(fixtureWorkspaces));
   honcho.post('/v3/workspaces/:ws/peers/list', (c) => c.json(fixturePeers));
   honcho.post('/v3/workspaces/:ws/peers/:peer/sessions', (c) => c.json(fixtureSessions));
+  honcho.get('/v3/workspaces/:ws/peers/:peer/sessions/:session/messages', (c) => {
+    const cursor = c.req.query('cursor');
+    const limit = Number.parseInt(c.req.query('limit') ?? String(PAGE_SIZE), 10);
+    const startIdx = cursor ? Number.parseInt(cursor, 10) : 0;
+    const slice = fixtureMessageHistory.slice(startIdx, startIdx + limit);
+    const nextStart = startIdx + slice.length;
+    const nextCursor = nextStart < fixtureMessageHistory.length ? String(nextStart) : null;
+    return c.json({ messages: slice, cursor: nextCursor });
+  });
   honcho.notFound((c) => c.json({ error: 'not found', status: 404 }, 404));
 
   return Bun.serve({ port, fetch: honcho.fetch });
