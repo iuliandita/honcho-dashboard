@@ -1,0 +1,50 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "required": ["image", "honcho"],
+  "properties": {
+    "image": {
+      "type": "object",
+      "required": ["repository"],
+      "properties": {
+        "repository": { "type": "string" },
+        "tag": { "type": "string" },
+        "pullPolicy": { "type": "string", "enum": ["Always", "IfNotPresent", "Never"] }
+      }
+    },
+    "honcho": {
+      "type": "object",
+      "required": ["apiBase"],
+      "properties": {
+        "apiBase": { "type": "string", "format": "uri" },
+        "workspaceId": { "type": "string" },
+        "proxyTimeout": { "type": "integer", "minimum": 1, "maximum": 300 }
+      }
+    },
+    "logLevel": { "type": "string", "enum": ["info", "debug"] },
+    "port": { "type": "integer", "minimum": 1, "maximum": 65535 },
+    "secret": {
+      "type": "object",
+      "properties": {
+        "create": { "type": "boolean" },
+        "adminToken": { "type": "string" },
+        "existingSecretName": { "type": "string" }
+      }
+    },
+    "service": {
+      "type": "object",
+      "properties": {
+        "type": { "type": "string" },
+        "port": { "type": "integer" }
+      }
+    },
+    "ingress": {
+      "type": "object",
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "className": { "type": "string" }
+      }
+    },
+    "replicaCount": { "type": "integer", "minimum": 1 }
+  }
+}

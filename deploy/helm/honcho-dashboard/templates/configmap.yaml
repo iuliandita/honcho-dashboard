@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "honcho-dashboard.fullname" . }}-config
+  labels:
+    {{- include "honcho-dashboard.labels" . | nindent 4 }}
+data:
+  HONCHO_API_BASE: {{ required "honcho.apiBase is required" .Values.honcho.apiBase | quote }}
+  PORT: {{ .Values.port | quote }}
+  LOG_LEVEL: {{ .Values.logLevel | quote }}
+  HONCHO_PROXY_TIMEOUT: {{ .Values.honcho.proxyTimeout | quote }}
+  {{- if .Values.honcho.workspaceId }}
+  HONCHO_WORKSPACE_ID: {{ .Values.honcho.workspaceId | quote }}
+  {{- end }}

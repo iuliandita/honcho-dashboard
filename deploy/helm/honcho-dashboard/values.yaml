@@ -1,0 +1,62 @@
+image:
+  repository: ghcr.io/REPLACE_ME/honcho-dashboard
+  tag: ''                             # defaults to .Chart.AppVersion when empty
+  pullPolicy: IfNotPresent
+
+honcho:
+  apiBase: 'https://REPLACE_ME-honcho.example.com'
+  workspaceId: ''                     # empty = picker mode
+  proxyTimeout: 15
+
+logLevel: info
+port: 3000
+
+secret:
+  create: true                        # set false to provide your own secret externally
+  adminToken: ''                      # required when create=true; set via --set or values override
+  existingSecretName: ''              # set when create=false to reference your own secret
+
+service:
+  type: ClusterIP
+  port: 3000
+
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+  hosts:
+    - host: REPLACE_ME.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: honcho-dashboard-tls
+      hosts:
+        - REPLACE_ME.example.com
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 64Mi
+  limits:
+    cpu: 500m
+    memory: 128Mi
+
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 1000
+  fsGroup: 1000
+  seccompProfile:
+    type: RuntimeDefault
+
+securityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  capabilities:
+    drop: [ALL]
+
+replicaCount: 1
+nodeSelector: {}
+tolerations: []
+affinity: {}
