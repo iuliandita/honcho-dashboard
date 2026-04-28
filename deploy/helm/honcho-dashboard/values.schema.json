@@ -45,6 +45,16 @@
         "className": { "type": "string" }
       }
     },
-    "replicaCount": { "type": "integer", "minimum": 1 }
+    "replicaCount": { "type": "integer", "minimum": 1 },
+    "metrics": {
+      "type": "object",
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "path": { "type": "string" },
+        "interval": { "type": "string" },
+        "scrapeTimeout": { "type": "string" },
+        "additionalLabels": { "type": "object" }
+      }
+    }
   }
 }

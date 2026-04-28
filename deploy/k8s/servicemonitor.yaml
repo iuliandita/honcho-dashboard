@@ -1,0 +1,22 @@
+# Opt-in: not listed in kustomization.yaml resources by default. To enable,
+# add `- servicemonitor.yaml` under `resources:` in kustomization.yaml.
+#
+# Requires the Prometheus Operator CRDs to be installed in the cluster
+# (monitoring.coreos.com/v1). The dashboard does not currently expose a
+# /metrics endpoint; this manifest is scaffolding for a future release that
+# will. Adjust `endpoints[0].path` if your scrape target differs.
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: honcho-dashboard
+  labels:
+    app.kubernetes.io/name: honcho-dashboard
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: honcho-dashboard
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 30s
+      scrapeTimeout: 10s

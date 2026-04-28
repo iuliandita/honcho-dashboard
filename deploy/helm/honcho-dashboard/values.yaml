@@ -60,3 +60,10 @@ replicaCount: 1
 nodeSelector: {}
 tolerations: []
 affinity: {}
+
+metrics:
+  enabled: false                      # set true to render a Prometheus Operator ServiceMonitor
+  path: /metrics                      # scrape path; the dashboard does not yet expose /metrics
+  interval: 30s
+  scrapeTimeout: 10s
+  additionalLabels: {}                # extra labels for the ServiceMonitor (e.g. release: kube-prometheus-stack)
