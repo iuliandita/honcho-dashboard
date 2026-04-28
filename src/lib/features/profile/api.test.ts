@@ -1,6 +1,6 @@
 import type { ApiClient } from '$api/client';
 import { describe, expect, it, vi } from 'vitest';
-import { buildPeerProfileQuery, type ProfileResponse } from './api';
+import { type ProfileResponse, buildPeerProfileQuery } from './api';
 
 function mockClient<T>(data: T): ApiClient {
   return {
