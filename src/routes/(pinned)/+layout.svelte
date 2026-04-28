@@ -1,4 +1,5 @@
 <script lang="ts">
+import { page } from '$app/state';
 import Icon from '$ui/pixel/Icon.svelte';
 import type { Snippet } from 'svelte';
 import type { LayoutData } from './$types';
@@ -9,15 +10,23 @@ interface Props {
 }
 
 const { data, children }: Props = $props();
+
+const isSearch = $derived(page.url.pathname.startsWith('/search'));
 </script>
 
 <section class="pinned-mode">
-  <p class="banner">
-    <Icon name="dot" size={10} />
-    <span class="label">pinned</span>
-    <span class="sep" aria-hidden="true">·</span>
-    <span class="ws-id">workspace <code>{data.workspaceId}</code></span>
-  </p>
+  <nav class="ws-nav" aria-label="pinned workspace">
+    <p class="banner">
+      <Icon name="dot" size={10} />
+      <span class="label">pinned</span>
+      <span class="sep" aria-hidden="true">·</span>
+      <span class="ws-id">workspace <code>{data.workspaceId}</code></span>
+    </p>
+    <a class="search-link" class:active={isSearch} href="/search">
+      <Icon name="search" size={12} />
+      <span>search</span>
+    </a>
+  </nav>
   {@render children()}
 </section>
 
@@ -26,13 +35,21 @@ const { data, children }: Props = $props();
     display: contents;
   }
 
+  .ws-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin: 0 0 1rem 0;
+  }
+
   .banner {
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
     color: var(--color-fg-muted);
     font-size: var(--text-xs);
-    margin: 0 0 1rem 0;
+    margin: 0;
   }
 
   .banner :global(.pixel) {
@@ -55,5 +72,33 @@ const { data, children }: Props = $props();
     padding: 0 0.25rem;
     border: 1px solid var(--color-border);
     font-size: var(--text-xs);
+  }
+
+  .search-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    min-height: 2.75rem;
+    padding: 0.25rem 0.75rem;
+    color: var(--color-fg-muted);
+    border: 1px solid transparent;
+    text-decoration: none;
+    font-size: var(--text-sm);
+  }
+
+  .search-link:hover {
+    color: var(--color-fg);
+    border-color: var(--color-border);
+  }
+
+  .search-link:focus-visible {
+    outline: 2px solid var(--color-yellow-500);
+    outline-offset: 2px;
+  }
+
+  .search-link.active {
+    color: var(--color-yellow-500);
+    border-color: var(--color-yellow-500);
   }
 </style>
