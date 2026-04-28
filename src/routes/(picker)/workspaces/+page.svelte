@@ -1,60 +1,44 @@
 <script lang="ts">
-import { divider, emptyArchive, workspacesMark } from '$ui/ascii';
+import { goto } from '$app/navigation';
+import { createApiClient } from '$api/client';
+import { buildWorkspacesQuery, type WorkspaceSummary } from '$features/browser/api';
+import PaneList from '$features/browser/PaneList.svelte';
+import WorkspaceCard from '$features/browser/WorkspaceCard.svelte';
+import Pane from '$ui/primitives/Pane.svelte';
+import PaneHeader from '$ui/primitives/PaneHeader.svelte';
+import { createQuery } from '@tanstack/svelte-query';
+import type { PageData } from './$types';
+
+interface Props {
+  data: PageData;
+}
+
+let { data }: Props = $props();
+
+const client = createApiClient();
+// initialData is a one-shot hydration value; capturing data.workspaces here is the intended seed.
+// svelte-ignore state_referenced_locally
+const query = createQuery({
+  ...buildWorkspacesQuery(client),
+  initialData: data.workspaces,
+});
+
+function open(workspace: WorkspaceSummary) {
+  goto(`/workspaces/${workspace.id}`);
+}
 </script>
 
-<section class="page">
-  <pre class="ascii mark" aria-hidden="true">{workspacesMark}</pre>
-  <p class="rule" aria-hidden="true">{divider(60, 'dashed')}</p>
-
-  <div class="empty">
-    <pre class="ascii art" aria-hidden="true">{emptyArchive}</pre>
-    <p>placeholder · the workspace picker lands in Plan 2 (browser feature).</p>
-  </div>
-</section>
-
-<style>
-  .page {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-  }
-
-  .mark {
-    color: var(--color-yellow-500);
-    font-size: var(--text-base);
-    line-height: 1.0;
-    margin: 0;
-  }
-
-  .rule {
-    color: var(--color-fg-faint);
-    font-size: var(--text-xs);
-    margin: 0;
-    line-height: 1;
-    overflow: hidden;
-    white-space: nowrap;
-  }
-
-  .empty {
-    margin-top: 2rem;
-    padding: 1.5rem;
-    border: 1px dashed var(--color-border);
-    background: var(--color-surface);
-    text-align: center;
-  }
-
-  .art {
-    color: var(--color-fg-muted);
-    font-size: var(--text-sm);
-    line-height: 1.05;
-    margin: 0 auto 1rem;
-    display: inline-block;
-    text-align: left;
-  }
-
-  p {
-    color: var(--color-fg-muted);
-    font-size: var(--text-sm);
-    margin: 0;
-  }
-</style>
+<Pane scrollable>
+  <PaneHeader title="workspaces" subtitle="select a workspace to inspect" />
+  <PaneList
+    items={$query.data ?? []}
+    loading={$query.isLoading}
+    error={$query.error}
+    empty={{ title: 'no workspaces', description: 'this admin token has no visible workspaces' }}
+    onSelect={open}
+  >
+    {#snippet row(item: WorkspaceSummary)}
+      <WorkspaceCard workspace={item} />
+    {/snippet}
+  </PaneList>
+</Pane>
