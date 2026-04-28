@@ -15,6 +15,9 @@
     "lint:fix": "biome check --write .",
     "format": "biome format --write .",
     "test": "vitest run",
+    "test:e2e": "bun run build && playwright test",
+    "test:e2e:ui": "bun run build && playwright test --ui",
+    "test:e2e:install": "playwright install --with-deps chromium",
     "test:watch": "vitest",
     "codegen": "openapi-typescript src/lib/honcho/openapi.json -o src/lib/honcho/types.ts",
     "refresh-openapi": "./scripts/refresh-honcho-openapi.sh"
