@@ -10,15 +10,16 @@ import type { Message, MessagesPage } from './api';
 interface Props {
   /** TanStack infinite query store. */
   query: CreateInfiniteQueryResult<InfiniteData<MessagesPage>, Error>;
+  peerId: string;
 }
 
-const { query }: Props = $props();
+const { query, peerId }: Props = $props();
 
 // Honcho returns newest-first pages; keep the first page's newest item visible
 // while prepending older pages above it as scrollback loads.
 const messages = $derived.by((): Message[] => {
   const pages = $query.data?.pages ?? [];
-  return pages.flatMap((page) => [...page.messages].reverse()).reverse();
+  return [...pages].reverse().flatMap((page) => [...page.messages].reverse());
 });
 
 // biome-ignore lint/style/useConst: bind:this assigns the element after mount.
@@ -73,7 +74,7 @@ onMount(() => {
       {/if}
     </div>
     {#each messages as message (message.id)}
-      <MessageBubble {message} />
+      <MessageBubble {message} {peerId} />
     {/each}
   {/if}
 </div>

@@ -30,7 +30,7 @@ test.describe('pinned mode flow', () => {
     await expect(page).toHaveURL(/\/peers\/peer-1$/);
 
     await expect(page.getByText('sess-1')).toBeVisible();
-    await expect(page.getByText('42 msg')).toBeVisible();
+    await expect(page.getByText('2026-04-28T12:34:56Z')).toBeVisible();
 
     await expect(page.getByRole('link', { name: 'sessions' })).toHaveClass(/active/);
     await expect(page.getByRole('link', { name: 'chat' })).toBeVisible();

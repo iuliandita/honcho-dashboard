@@ -11,54 +11,73 @@ function mockClient<T>(data: T): ApiClient {
 
 describe('buildSessionMessagesQuery', () => {
   it('builds an infinite query keyed by workspace/peer/session/messages', () => {
-    const client = mockClient<MessagesPage>({ messages: [], cursor: null });
+    const client = mockClient({ items: [], total: 0, page: 1, size: 50, pages: 1 });
     const opts = buildSessionMessagesQuery(client, 'ws', 'p', 's');
 
     expect(opts.queryKey).toEqual(['workspace', 'ws', 'peer', 'p', 'session', 's', 'messages']);
   });
 
   it('first page request omits cursor', async () => {
-    const client = mockClient<MessagesPage>({
-      messages: [{ id: 'm1', role: 'user', content: 'hi', createdAt: '2026-01-01T00:00:00Z' }],
-      cursor: 'c2',
+    const client = mockClient({
+      items: [
+        {
+          id: 'm1',
+          peer_id: 'p',
+          session_id: 's',
+          workspace_id: 'ws',
+          content: 'hi',
+          metadata: {},
+          created_at: '2026-01-01T00:00:00Z',
+          token_count: 1,
+        },
+      ],
+      total: 51,
+      page: 1,
+      size: 50,
+      pages: 2,
     });
 
     const opts = buildSessionMessagesQuery(client, 'ws', 'p', 's');
     const page = await opts.queryFn({
-      pageParam: null,
+      pageParam: 1,
       signal: new AbortController().signal,
       queryKey: opts.queryKey,
       meta: undefined,
       direction: 'forward',
     });
 
-    expect(page.cursor).toBe('c2');
-    expect(client.get).toHaveBeenCalledWith('/v3/workspaces/ws/peers/p/sessions/s/messages', { limit: 50 });
+    expect(page.nextPage).toBe(2);
+    expect(client.post).toHaveBeenCalledWith(
+      '/v3/workspaces/ws/sessions/s/messages/list',
+      { filters: null },
+      { page: 1, size: 50, reverse: true },
+    );
   });
 
-  it('subsequent page request includes cursor', async () => {
-    const client = mockClient<MessagesPage>({ messages: [], cursor: null });
+  it('subsequent page request includes page number', async () => {
+    const client = mockClient({ items: [], total: 50, page: 2, size: 50, pages: 2 });
 
     const opts = buildSessionMessagesQuery(client, 'ws', 'p', 's');
     await opts.queryFn({
-      pageParam: 'c2',
+      pageParam: 2,
       signal: new AbortController().signal,
       queryKey: opts.queryKey,
       meta: undefined,
       direction: 'backward',
     });
 
-    expect(client.get).toHaveBeenCalledWith('/v3/workspaces/ws/peers/p/sessions/s/messages', {
-      limit: 50,
-      cursor: 'c2',
-    });
+    expect(client.post).toHaveBeenCalledWith(
+      '/v3/workspaces/ws/sessions/s/messages/list',
+      { filters: null },
+      { page: 2, size: 50, reverse: true },
+    );
   });
 
-  it('getNextPageParam returns the page cursor or undefined', () => {
-    const client = mockClient({ messages: [], cursor: null });
+  it('getNextPageParam returns the next page number or undefined', () => {
+    const client = mockClient({ items: [], total: 0, page: 1, size: 50, pages: 1 });
     const opts = buildSessionMessagesQuery(client, 'ws', 'p', 's');
 
-    expect(opts.getNextPageParam({ messages: [], cursor: 'c3' })).toBe('c3');
-    expect(opts.getNextPageParam({ messages: [], cursor: null })).toBeUndefined();
+    expect(opts.getNextPageParam({ messages: [], nextPage: 3 })).toBe(3);
+    expect(opts.getNextPageParam({ messages: [], nextPage: null })).toBeUndefined();
   });
 });

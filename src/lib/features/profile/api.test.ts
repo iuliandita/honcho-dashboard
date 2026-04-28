@@ -11,18 +11,19 @@ function mockClient<T>(data: T): ApiClient {
 
 describe('buildPeerProfileQuery', () => {
   it('keys by workspace+peer+profile', () => {
-    const client = mockClient<ProfileResponse>({ markdown: '', updatedAt: null });
+    const client = mockClient({ representation: '' });
     const opts = buildPeerProfileQuery(client, 'ws', 'p');
 
     expect(opts.queryKey).toEqual(['workspace', 'ws', 'peer', 'p', 'profile']);
   });
 
-  it('GETs the profile endpoint', async () => {
-    const client = mockClient<ProfileResponse>({ markdown: '# hi', updatedAt: '2026-01-01T00:00:00Z' });
+  it('synthesizes profile markdown from the OSS representation endpoint', async () => {
+    const client = mockClient({ representation: '# hi' });
     const opts = buildPeerProfileQuery(client, 'ws', 'p');
 
     const result = await opts.queryFn();
     expect(result.markdown).toBe('# hi');
-    expect(client.get).toHaveBeenCalledWith('/v3/workspaces/ws/peers/p/profile');
+    expect(result.updatedAt).toBeNull();
+    expect(client.post).toHaveBeenCalledWith('/v3/workspaces/ws/peers/p/representation', { max_conclusions: null });
   });
 });

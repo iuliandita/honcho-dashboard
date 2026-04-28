@@ -21,7 +21,11 @@ describe('createApp', () => {
     const config = await app.request('/api/runtime-config');
     expect(await config.json()).toEqual({ workspaceId: 'ws-abc', version: '0.1.0' });
 
-    const proxied = await app.request('/api/peers/abc');
+    const proxied = await app.request('/api/v3/workspaces/ws-abc/peers/abc/representation', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ max_conclusions: null }),
+    });
     expect(proxied.status).toBe(200);
     expect(stub.requests[0]?.authorization).toBe('Bearer test-token');
   });

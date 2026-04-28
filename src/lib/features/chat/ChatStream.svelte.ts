@@ -1,5 +1,6 @@
 import type { ClientFetch } from '$api/client';
 import { HonchoApiError, parseErrorBody } from '$api/errors';
+import type { components } from '$lib/honcho/types';
 import type { ChatEvent } from './events';
 import { createSseParser } from './parse-sse';
 
@@ -50,13 +51,18 @@ export class ChatStream {
 
     const fetcher = this.config.fetch ?? globalThis.fetch;
     const url = `/api/v3/workspaces/${this.config.workspaceId}/peers/${this.config.peerId}/chat`;
+    const body: components['schemas']['DialecticOptions'] = {
+      query,
+      stream: true,
+      reasoning_level: 'low',
+    };
 
     let response: Response;
     try {
       response = await fetcher(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Accept: 'text/event-stream' },
-        body: JSON.stringify({ query }),
+        body: JSON.stringify(body),
         signal: this.abortController.signal,
       });
     } catch (err) {

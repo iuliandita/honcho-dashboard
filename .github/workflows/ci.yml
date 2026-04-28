@@ -23,7 +23,9 @@ jobs:
         run: bun install --frozen-lockfile
 
       - name: Codegen
-        run: bun run codegen
+        run: |
+          bun run codegen
+          git diff --exit-code src/lib/honcho/types.ts
 
       - name: Lint
         run: bun run lint
@@ -51,7 +53,9 @@ jobs:
         run: bun install --frozen-lockfile
 
       - name: Codegen
-        run: bun run codegen
+        run: |
+          bun run codegen
+          git diff --exit-code src/lib/honcho/types.ts
 
       - name: Install Playwright browsers
         run: bun run test:e2e:install

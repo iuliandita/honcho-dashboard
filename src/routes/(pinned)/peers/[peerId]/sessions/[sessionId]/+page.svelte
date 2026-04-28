@@ -18,11 +18,11 @@ const client = createApiClient();
 // svelte-ignore state_referenced_locally
 const query = createInfiniteQuery({
   ...buildSessionMessagesQuery(client, data.workspaceId, data.peerId, data.sessionId),
-  initialData: { pages: [data.firstPage], pageParams: [null] },
+  initialData: { pages: [data.firstPage], pageParams: [1] },
 });
 </script>
 
 <Pane scrollable>
   <PaneHeader title="messages" subtitle="session {data.sessionId}" />
-  <MessageList {query} />
+  <MessageList {query} peerId={data.peerId} />
 </Pane>

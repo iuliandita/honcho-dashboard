@@ -11,7 +11,7 @@ function mockClient<T>(data: T): ApiClient {
 
 describe('buildPeerRepresentationQuery', () => {
   it('keys by workspace+peer+representation', () => {
-    const client = mockClient<RepresentationResponse>({ items: [], topics: [] });
+    const client = mockClient({ representation: '' });
     const opts = buildPeerRepresentationQuery(client, 'ws', 'p');
 
     expect(opts.queryKey).toEqual(['workspace', 'ws', 'peer', 'p', 'representation']);
@@ -49,22 +49,10 @@ describe('buildPeerRepresentationQuery', () => {
     ]);
   });
 
-  it('passes through already-normalized representation data', async () => {
-    const normalized: RepresentationResponse = {
-      items: [
-        {
-          id: 'r1',
-          topic: 'coffee',
-          content: 'likes oat milk',
-          confidence: 0.9,
-          createdAt: '2026-01-01T00:00:00Z',
-        },
-      ],
-      topics: ['coffee'],
-    };
-    const client = mockClient(normalized);
+  it('returns empty items for an empty OSS representation', async () => {
+    const client = mockClient({ representation: '' });
     const opts = buildPeerRepresentationQuery(client, 'ws', 'p');
 
-    expect(await opts.queryFn()).toEqual(normalized);
+    expect(await opts.queryFn()).toEqual({ items: [], topics: [] });
   });
 });

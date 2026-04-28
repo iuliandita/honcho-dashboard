@@ -11,7 +11,11 @@ export interface ApiClientOptions {
 
 export interface ApiClient {
   get<T = unknown>(path: string, params?: Record<string, string | number | boolean | null | undefined>): Promise<T>;
-  post<T = unknown>(path: string, body?: unknown): Promise<T>;
+  post<T = unknown>(
+    path: string,
+    body?: unknown,
+    params?: Record<string, string | number | boolean | null | undefined>,
+  ): Promise<T>;
 }
 
 function buildQuery(params?: Record<string, string | number | boolean | null | undefined>): string {
@@ -42,10 +46,10 @@ export function createApiClient(options: ApiClientOptions = {}): ApiClient {
     get<T>(path: string, params?: Record<string, string | number | boolean | null | undefined>) {
       return request<T>(`${path}${buildQuery(params)}`, { method: 'GET' });
     },
-    post<T>(path: string, body?: unknown) {
-      return request<T>(path, {
+    post<T>(path: string, body?: unknown, params?: Record<string, string | number | boolean | null | undefined>) {
+      return request<T>(`${path}${buildQuery(params)}`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
         body: body !== undefined ? JSON.stringify(body) : undefined,
       });
     },

@@ -4,7 +4,7 @@ import { proxyRoute } from '../../src/server/proxy';
 import { createStubHoncho } from './stub-honcho';
 
 describe('proxy /api/*', () => {
-  it('forwards GET to Honcho with bearer header injected', async () => {
+  it('forwards POST to Honcho with bearer header injected', async () => {
     const stub = createStubHoncho();
     const honchoFetch = (req: Request) => stub.app.fetch(req);
 
@@ -19,13 +19,17 @@ describe('proxy /api/*', () => {
       }),
     );
 
-    const res = await app.request('/api/peers/abc');
+    const res = await app.request('/api/v3/workspaces/ws/peers/abc/representation', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ max_conclusions: null }),
+    });
 
     expect(res.status).toBe(200);
-    expect(await res.json()).toEqual({ id: 'abc', name: 'test-peer' });
+    expect(await res.json()).toEqual({ representation: '' });
     expect(stub.requests).toHaveLength(1);
     expect(stub.requests[0]?.authorization).toBe('Bearer test-token-123');
-    expect(stub.requests[0]?.path).toBe('/peers/abc');
+    expect(stub.requests[0]?.path).toBe('/v3/workspaces/ws/peers/abc/representation');
   });
 
   it('forwards POST body and preserves SSE response', async () => {
@@ -43,10 +47,10 @@ describe('proxy /api/*', () => {
       }),
     );
 
-    const res = await app.request('/api/peers/abc/chat', {
+    const res = await app.request('/api/v3/workspaces/ws/peers/abc/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ query: 'hi' }),
+      body: JSON.stringify({ query: 'hi', stream: true, reasoning_level: 'low' }),
     });
 
     expect(res.status).toBe(200);
@@ -54,7 +58,7 @@ describe('proxy /api/*', () => {
     const body = await res.text();
     expect(body).toContain('"type":"token"');
     expect(body).toContain('"type":"done"');
-    expect(stub.requests[0]?.body).toBe('{"query":"hi"}');
+    expect(stub.requests[0]?.body).toBe('{"query":"hi","stream":true,"reasoning_level":"low"}');
   });
 
   it('returns 502 with traceId when upstream is unreachable', async () => {

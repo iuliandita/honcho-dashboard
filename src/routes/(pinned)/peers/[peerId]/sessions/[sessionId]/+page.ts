@@ -7,7 +7,7 @@ export const load: PageLoad = async ({ fetch, params, parent }) => {
   const client = createApiClient({ fetch });
   const query = buildSessionMessagesQuery(client, workspaceId, params.peerId, params.sessionId);
   const firstPage = await query.queryFn({
-    pageParam: null,
+    pageParam: 1,
     signal: new AbortController().signal,
     queryKey: query.queryKey,
     meta: undefined,

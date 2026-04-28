@@ -7,10 +7,11 @@ interface Props {
 }
 
 const { workspace, selected = false }: Props = $props();
+const name = $derived(typeof workspace.metadata?.name === 'string' ? workspace.metadata.name : workspace.id);
 </script>
 
 <article class="card" class:selected>
-  <span class="name">{workspace.name}</span>
+  <span class="name">{name}</span>
   <span class="id">{workspace.id}</span>
 </article>
 

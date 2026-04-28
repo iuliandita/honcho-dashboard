@@ -3,7 +3,6 @@ import { createApp } from '../../../src/server';
 import {
   fixtureMessageHistory,
   fixturePeers,
-  fixtureProfile,
   fixtureRepresentationMarkdown,
   fixtureSearchResults,
   fixtureSessions,
@@ -12,6 +11,16 @@ import {
 
 type ServerKind = 'dashboard' | 'honcho';
 const PAGE_SIZE = 50;
+
+function page<T>(items: T[], pageNumber = 1, size = PAGE_SIZE) {
+  return {
+    items,
+    total: items.length,
+    page: pageNumber,
+    size,
+    pages: Math.max(1, Math.ceil(items.length / size)),
+  };
+}
 
 function readArg(index: number, name: string): string {
   const value = process.argv[index];
@@ -22,41 +31,43 @@ function readArg(index: number, name: string): string {
 function startHoncho(port: number) {
   const honcho = new Hono();
 
-  honcho.post('/v3/workspaces/list', (c) => c.json(fixtureWorkspaces));
-  honcho.post('/v3/workspaces/:ws/peers/list', (c) => c.json(fixturePeers));
-  honcho.post('/v3/workspaces/:ws/peers/:peer/sessions', (c) => c.json(fixtureSessions));
+  honcho.post('/v3/workspaces/list', (c) => c.json(page(fixtureWorkspaces)));
+  honcho.post('/v3/workspaces/:ws/peers/list', (c) => c.json(page(fixturePeers)));
+  honcho.post('/v3/workspaces/:ws/peers/:peer/sessions', (c) => c.json(page(fixtureSessions)));
   honcho.post('/v3/workspaces/:ws/peers/:peer/representation', (c) =>
     c.json({ representation: fixtureRepresentationMarkdown }),
   );
-  honcho.get('/v3/workspaces/:ws/peers/:peer/profile', (c) => c.json(fixtureProfile));
-  honcho.get('/v3/workspaces/:ws/search', (c) => {
-    const q = c.req.query('q')?.toLowerCase() ?? '';
-    const topic = c.req.query('topic') ?? null;
+  honcho.post('/v3/workspaces/:ws/search', async (c) => {
+    const body = await c.req.json<{ query?: string; filters?: { topic?: string } | null }>();
+    const q = body.query?.toLowerCase() ?? '';
+    const topic = body.filters?.topic ?? null;
 
     const filtered = fixtureSearchResults.filter((result) => {
-      const matchesQuery = q === '' || result.excerpt.toLowerCase().includes(q);
-      const matchesTopic = topic === null || result.topic === topic;
+      const matchesQuery = q === '' || result.content.toLowerCase().includes(q);
+      const matchesTopic = topic === null || result.metadata?.topic === topic;
       return matchesQuery && matchesTopic;
     });
 
-    const allMatching = fixtureSearchResults.filter((result) => q === '' || result.excerpt.toLowerCase().includes(q));
-    const topicFacets = allMatching.reduce<Record<string, number>>((acc, result) => {
-      acc[result.topic] = (acc[result.topic] ?? 0) + 1;
-      return acc;
-    }, {});
-
-    return c.json({ results: filtered, topicFacets });
+    return c.json(filtered);
   });
-  honcho.get('/v3/workspaces/:ws/peers/:peer/sessions/:session/messages', (c) => {
-    const cursor = c.req.query('cursor');
-    const limit = Number.parseInt(c.req.query('limit') ?? String(PAGE_SIZE), 10);
-    const startIdx = cursor ? Number.parseInt(cursor, 10) : 0;
-    const slice = fixtureMessageHistory.slice(startIdx, startIdx + limit);
-    const nextStart = startIdx + slice.length;
-    const nextCursor = nextStart < fixtureMessageHistory.length ? String(nextStart) : null;
-    return c.json({ messages: slice, cursor: nextCursor });
+  honcho.post('/v3/workspaces/:ws/sessions/:session/messages/list', (c) => {
+    const pageNumber = Number.parseInt(c.req.query('page') ?? '1', 10);
+    const size = Number.parseInt(c.req.query('size') ?? String(PAGE_SIZE), 10);
+    const startIdx = (pageNumber - 1) * size;
+    const slice = fixtureMessageHistory.slice(startIdx, startIdx + size);
+    return c.json({
+      items: slice,
+      total: fixtureMessageHistory.length,
+      page: pageNumber,
+      size,
+      pages: Math.max(1, Math.ceil(fixtureMessageHistory.length / size)),
+    });
   });
-  honcho.post('/v3/workspaces/:ws/peers/:peer/chat', () => {
+  honcho.post('/v3/workspaces/:ws/peers/:peer/chat', async (c) => {
+    const body = await c.req.json<{ stream?: boolean; reasoning_level?: string }>();
+    if (body.stream !== true || !body.reasoning_level) {
+      return c.json({ detail: 'stream and reasoning_level are required' }, 422);
+    }
     // Canned scripted response — three tokens then done.
     const stream = new ReadableStream<Uint8Array>({
       async start(controller) {

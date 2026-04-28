@@ -1,38 +1,37 @@
 import type { ApiClient } from '$api/client';
 import { keys } from '$api/keys';
+import type { components } from '$lib/honcho/types';
 import type { QueryFunctionContext } from '@tanstack/query-core';
 
-export interface Message {
-  id: string;
-  role: string;
-  content: string;
-  createdAt: string;
-  metadata?: Record<string, unknown>;
-}
+export type Message = components['schemas']['Message'];
 
 export interface MessagesPage {
   messages: Message[];
-  /** Cursor for the next older page; null when history is exhausted. */
-  cursor: string | null;
+  nextPage: number | null;
 }
 
 const PAGE_SIZE = 50;
+const EMPTY_FILTER: components['schemas']['MessageGet'] = { filters: null };
 
 export function buildSessionMessagesQuery(client: ApiClient, workspaceId: string, peerId: string, sessionId: string) {
   type QueryKey = ReturnType<typeof keys.sessionMessages>;
-  type QueryContext = { pageParam: string | null } & Partial<QueryFunctionContext<QueryKey, string | null>>;
+  type QueryContext = { pageParam: number } & Partial<QueryFunctionContext<QueryKey, number>>;
 
   return {
     queryKey: keys.sessionMessages(workspaceId, peerId, sessionId),
-    queryFn: ({ pageParam }: QueryContext) => {
-      const params: Record<string, string | number> = { limit: PAGE_SIZE };
-      if (pageParam) params.cursor = pageParam;
-      return client.get<MessagesPage>(
-        `/v3/workspaces/${workspaceId}/peers/${peerId}/sessions/${sessionId}/messages`,
-        params,
+    queryFn: async ({ pageParam }: QueryContext) => {
+      const pageNumber = pageParam ?? 1;
+      const page = await client.post<components['schemas']['Page_Message_']>(
+        `/v3/workspaces/${workspaceId}/sessions/${sessionId}/messages/list`,
+        EMPTY_FILTER,
+        { page: pageNumber, size: PAGE_SIZE, reverse: true },
       );
+      return {
+        messages: page.items,
+        nextPage: page.page < page.pages ? page.page + 1 : null,
+      };
     },
-    initialPageParam: null as string | null,
-    getNextPageParam: (last: MessagesPage): string | undefined => last.cursor ?? undefined,
+    initialPageParam: 1,
+    getNextPageParam: (last: MessagesPage): number | undefined => last.nextPage ?? undefined,
   };
 }

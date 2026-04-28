@@ -4,16 +4,17 @@ import { formatAbsolute, normalizeRole } from './format';
 
 interface Props {
   message: Message;
+  peerId: string;
 }
 
-const { message }: Props = $props();
-const role = $derived(normalizeRole(message.role));
+const { message, peerId }: Props = $props();
+const role = $derived(normalizeRole(message.peer_id === peerId ? 'user' : 'assistant'));
 </script>
 
 <article class="bubble" data-role={role}>
   <header class="meta">
     <span class="role">{role}</span>
-    <span class="ts" title={message.createdAt}>{formatAbsolute(message.createdAt)}</span>
+    <span class="ts" title={message.created_at}>{formatAbsolute(message.created_at)}</span>
   </header>
   <pre class="content">{message.content}</pre>
 </article>

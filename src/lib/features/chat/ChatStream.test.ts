@@ -199,7 +199,10 @@ describe('ChatStream', () => {
 
     expect(fetchMock).toHaveBeenCalledWith(
       '/api/v3/workspaces/ws-alpha/peers/peer-7/chat',
-      expect.objectContaining({ method: 'POST' }),
+      expect.objectContaining({
+        method: 'POST',
+        body: JSON.stringify({ query: 'q', stream: true, reasoning_level: 'low' }),
+      }),
     );
   });
 });
