@@ -1,7 +1,7 @@
 <script lang="ts">
 import { createApiClient } from '$api/client';
-import { buildPeerRepresentationQuery } from '$features/representation/api';
 import RepresentationGrid from '$features/representation/RepresentationGrid.svelte';
+import { buildPeerRepresentationQuery } from '$features/representation/api';
 import EmptyState from '$ui/primitives/EmptyState.svelte';
 import Pane from '$ui/primitives/Pane.svelte';
 import PaneHeader from '$ui/primitives/PaneHeader.svelte';

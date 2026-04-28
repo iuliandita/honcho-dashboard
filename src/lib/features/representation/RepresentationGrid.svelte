@@ -1,9 +1,9 @@
 <script lang="ts">
 import EmptyState from '$ui/primitives/EmptyState.svelte';
-import type { RepresentationResponse } from './api';
-import { filterByTopic } from './filter';
 import RepresentationCard from './RepresentationCard.svelte';
 import TopicChip from './TopicChip.svelte';
+import type { RepresentationResponse } from './api';
+import { filterByTopic } from './filter';
 
 interface Props {
   data: RepresentationResponse;
