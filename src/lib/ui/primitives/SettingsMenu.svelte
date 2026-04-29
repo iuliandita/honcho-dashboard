@@ -1,7 +1,8 @@
 <script lang="ts">
 import { type MessageKey, localeOptions, t } from '$lib/i18n';
 import type { AppSettings } from '$lib/settings/AppSettings.svelte';
-import { FONT_SCALES, THEMES } from '$lib/settings/preferences';
+import { FONT_SCALES, type FontScale, type Locale, THEMES, type Theme } from '$lib/settings/preferences';
+import type { IconName } from '$ui/pixel';
 import Icon from '$ui/pixel/Icon.svelte';
 
 interface Props {
@@ -13,6 +14,22 @@ interface Props {
 const { settings, authEnabled, onLogout }: Props = $props();
 // biome-ignore lint/style/useConst: button handlers reassign this Svelte rune state from markup.
 let open = $state(false);
+
+const themeIcons: Record<Theme, IconName> = {
+  dark: 'moon',
+  light: 'sun',
+};
+
+const fontScaleLabels: Record<FontScale, string> = {
+  small: 'S',
+  normal: 'N',
+  large: 'L',
+  'extra-large': 'XL',
+};
+
+function localeCode(locale: Locale): string {
+  return locale.toUpperCase();
+}
 </script>
 
 <div class="settings">
@@ -21,43 +38,68 @@ let open = $state(false);
     class="trigger"
     aria-expanded={open}
     aria-label={t(settings.locale, 'settings.open')}
+    title={t(settings.locale, 'settings.open')}
     onclick={() => (open = !open)}
   >
-    <Icon name="settings" size={14} />
-    <span>{localeOptions.find((option) => option.locale === settings.locale)?.label ?? 'English'}</span>
+    <Icon name="settings" size={16} />
   </button>
 
   {#if open}
     <div class="panel">
-      <label>
-        <span>{t(settings.locale, 'settings.theme')}</span>
-        <select value={settings.theme} onchange={(event) => settings.setTheme(event.currentTarget.value as never)}>
+      <fieldset>
+        <legend>{t(settings.locale, 'settings.theme')}</legend>
+        <div class="segment two">
           {#each THEMES as theme}
-            <option value={theme}>{t(settings.locale, `settings.theme.${theme}` as MessageKey)}</option>
+            <button
+              type="button"
+              class="icon-choice"
+              class:active={settings.theme === theme}
+              aria-label={t(settings.locale, `settings.theme.${theme}` as MessageKey)}
+              aria-pressed={settings.theme === theme}
+              title={t(settings.locale, `settings.theme.${theme}` as MessageKey)}
+              onclick={() => settings.setTheme(theme)}
+            >
+              <Icon name={themeIcons[theme]} size={18} />
+            </button>
           {/each}
-        </select>
-      </label>
+        </div>
+      </fieldset>
 
-      <label>
-        <span>{t(settings.locale, 'settings.fontScale')}</span>
-        <select
-          value={settings.fontScale}
-          onchange={(event) => settings.setFontScale(event.currentTarget.value as never)}
-        >
+      <fieldset>
+        <legend>{t(settings.locale, 'settings.fontScale')}</legend>
+        <div class="segment four">
           {#each FONT_SCALES as scale}
-            <option value={scale}>{t(settings.locale, `settings.fontScale.${scale}` as MessageKey)}</option>
+            <button
+              type="button"
+              class:active={settings.fontScale === scale}
+              aria-label={t(settings.locale, `settings.fontScale.${scale}` as MessageKey)}
+              aria-pressed={settings.fontScale === scale}
+              title={t(settings.locale, `settings.fontScale.${scale}` as MessageKey)}
+              onclick={() => settings.setFontScale(scale)}
+            >
+              {fontScaleLabels[scale]}
+            </button>
           {/each}
-        </select>
-      </label>
+        </div>
+      </fieldset>
 
-      <label>
-        <span>{t(settings.locale, 'settings.language')}</span>
-        <select value={settings.locale} onchange={(event) => settings.setLocale(event.currentTarget.value as never)}>
+      <fieldset>
+        <legend>{t(settings.locale, 'settings.language')}</legend>
+        <div class="segment two">
           {#each localeOptions as option}
-            <option value={option.locale}>{option.label}</option>
+            <button
+              type="button"
+              class:active={settings.locale === option.locale}
+              aria-label={option.label}
+              aria-pressed={settings.locale === option.locale}
+              title={option.label}
+              onclick={() => settings.setLocale(option.locale)}
+            >
+              {localeCode(option.locale)}
+            </button>
           {/each}
-        </select>
-      </label>
+        </div>
+      </fieldset>
 
       {#if authEnabled && onLogout}
         <button type="button" class="logout" onclick={onLogout}>{t(settings.locale, 'settings.logout')}</button>
@@ -72,11 +114,12 @@ let open = $state(false);
   }
 
   .trigger {
-    min-width: 44px;
-    min-height: 44px;
+    width: 44px;
+    height: 44px;
+    padding: 0;
     display: inline-flex;
     align-items: center;
-    gap: 0.4rem;
+    justify-content: center;
     border: 1px solid var(--color-border);
     background: transparent;
     color: var(--color-fg);
@@ -96,30 +139,92 @@ let open = $state(false);
     top: calc(100% + 0.5rem);
     z-index: 10;
     width: min(18rem, calc(100vw - 2rem));
-    padding: 0.75rem;
+    padding: 0.625rem;
     border: 1px solid var(--color-border);
     background: var(--color-surface);
     display: grid;
-    gap: 0.75rem;
+    gap: 0.625rem;
   }
 
-  label {
+  fieldset {
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+
+  legend {
+    margin: 0 0 0.35rem;
+    padding: 0;
     display: grid;
-    gap: 0.25rem;
     color: var(--color-fg-muted);
     font-size: var(--text-xs);
+    line-height: 1.2;
   }
 
-  select,
+  .segment {
+    display: grid;
+    gap: 1px;
+    border: 1px solid var(--color-border);
+    background: var(--color-border);
+  }
+
+  .segment.two {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .segment.four {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .segment button,
   .logout {
     min-height: 44px;
-    border: 1px solid var(--color-border);
+    border: 0;
     background: var(--color-bg);
     color: var(--color-fg);
     font: inherit;
+    font-size: var(--text-xs);
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .segment button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    letter-spacing: 0.02em;
+  }
+
+  .icon-choice :global(.pixel) {
+    color: currentColor;
+  }
+
+  .segment button:hover {
+    color: var(--color-yellow-500);
+  }
+
+  .segment button:focus-visible,
+  .logout:focus-visible,
+  .trigger:focus-visible {
+    outline: 2px solid var(--color-yellow-500);
+    outline-offset: 2px;
+  }
+
+  .segment button.active {
+    background: color-mix(in oklch, var(--color-yellow-500) 12%, var(--color-bg));
+    color: var(--color-yellow-500);
   }
 
   .logout {
+    border: 1px solid var(--color-border);
     cursor: pointer;
+  }
+
+  @media (max-width: 520px) {
+    .segment.four {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
   }
 </style>

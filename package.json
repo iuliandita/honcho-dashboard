@@ -1,12 +1,12 @@
 {
   "name": "honcho-dashboard",
-  "version": "1.6.1",
+  "version": "1.6.2",
   "description": "Self-hosted web inspector for the OSS Honcho server",
   "type": "module",
   "private": false,
   "license": "MIT",
   "scripts": {
-    "dev": "vite dev",
+    "dev": "bun run scripts/dev.ts",
     "build": "svelte-kit sync && vite build && bun build src/server/index.ts --target=bun --outdir=dist --minify",
     "preview": "vite preview",
     "start": "bun run dist/index.js",

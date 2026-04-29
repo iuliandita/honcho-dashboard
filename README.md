@@ -46,7 +46,7 @@ docker run --rm -p 3000:3000 \
   -e DASHBOARD_AUTH_MODE=password \
   -e DASHBOARD_AUTH_PASSWORD=choose-a-strong-operator-password \
   -e DASHBOARD_SESSION_SECRET=choose-a-long-random-session-secret \
-  ghcr.io/iuliandita/honcho-dashboard:1.6.1
+  ghcr.io/iuliandita/honcho-dashboard:1.6.2
 ```
 
 Open <http://localhost:3000>.
@@ -59,7 +59,8 @@ bun run codegen
 bun run dev
 ```
 
-Set `HONCHO_API_BASE` and `HONCHO_ADMIN_TOKEN` in `.env` or your shell before starting the app.
+Set `HONCHO_API_BASE` and `HONCHO_ADMIN_TOKEN` in `.env` or your shell before starting the app. The dev command
+starts the Hono BFF on port `3001` and Vite on port `5173`; open <http://127.0.0.1:5173>.
 
 ## Testing
 
@@ -106,8 +107,8 @@ for English or German, with English as the fallback. Font scale can be changed f
 - Plain Kubernetes manifests: [`deploy/k8s/`](./deploy/k8s/)
 - Helm chart: [`deploy/helm/honcho-dashboard/`](./deploy/helm/honcho-dashboard/)
 
-Release image tags omit the leading `v`: use `ghcr.io/iuliandita/honcho-dashboard:1.6.1` for Git tag
-`v1.6.1`.
+Release image tags omit the leading `v`: use `ghcr.io/iuliandita/honcho-dashboard:1.6.2` for Git tag
+`v1.6.2`.
 
 ## License
 

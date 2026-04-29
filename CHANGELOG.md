@@ -6,6 +6,20 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [1.6.2] - 2026-04-29
+
+### Fixed
+
+- Settings chrome now stays aligned with the main content width on large
+  displays, and the dashboard title links back home.
+- The local `bun run dev` command now starts both the Hono BFF and Vite so
+  `/api/runtime-config` does not fail on a frontend-only dev server.
+
+### Changed
+
+- The settings menu now uses compact icon and segmented controls for theme,
+  font size, and language selection.
+
 ## [1.6.1] - 2026-04-29
 
 ### Changed
