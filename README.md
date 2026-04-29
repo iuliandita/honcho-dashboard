@@ -98,6 +98,21 @@ Dashboard auth is intentionally a single shared operator password, not user acco
 the Hono BFF protects proxied Honcho API requests and issues a signed, HTTP-only session cookie. Prefer
 `DASHBOARD_AUTH_PASSWORD_HASH`; `DASHBOARD_AUTH_PASSWORD` is available for simple local or private installs.
 
+### Workspace modes
+
+The dashboard runs in one of two modes, decided once at startup from `HONCHO_WORKSPACE_ID`:
+
+- **Picker mode** (default): `HONCHO_WORKSPACE_ID` is unset. The UI lists all workspaces visible to the
+  admin token and lets the operator pick one. `GET /api/runtime-config` returns `{"workspaceId": null, ...}`,
+  and the startup log shows `workspace=picker`. The `null` is intentional - it is how the client detects
+  picker mode - not a misconfiguration.
+- **Pinned mode**: `HONCHO_WORKSPACE_ID=<id>` is set. The UI skips the picker and routes straight to that
+  workspace. `GET /api/runtime-config` returns `{"workspaceId": "<id>", ...}`, and the startup log shows
+  `workspace=<id>`.
+
+Use pinned mode for single-tenant deployments where the dashboard should always land in the same workspace;
+use picker mode when one operator inspects multiple workspaces from the same Honcho server.
+
 Client preferences are stored in browser localStorage. Theme uses a stored override first, then browser
 preference, with dark as the fallback. Language uses a stored override first, then browser language detection
 for English or German, with English as the fallback. Font scale can be changed from the settings menu.

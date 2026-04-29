@@ -15,6 +15,14 @@ import { runtimeConfigRoute } from './runtime-config';
 import { staticRoute } from './static';
 
 const VERSION = packageJson.version;
+
+// Hono's access logger paints status codes with ANSI escapes, which is noise in K8s and
+// structured log pipelines. Disable colors in non-TTY contexts; honor NO_COLOR/FORCE_COLOR=0.
+// Hono's logger reads NO_COLOR from process.env per request, so setting it here is sufficient.
+if (!process.env.NO_COLOR && (process.env.FORCE_COLOR === '0' || !process.stdout?.isTTY)) {
+  process.env.NO_COLOR = '1';
+}
+
 function contentSecurityPolicy(nonce: string): string {
   return [
     "default-src 'self'",
@@ -36,6 +44,13 @@ const SECURITY_HEADERS = {
   'Referrer-Policy': 'no-referrer',
   'X-Frame-Options': 'DENY',
 } as const;
+
+const STATIC_ASSET_EXT = /\.(?:css|js|map|png|jpe?g|gif|svg|ico|webp|avif|woff2?|ttf|eot|otf|txt|xml|json)$/i;
+
+// Kubernetes liveness/readiness probes and static asset fetches dominate access logs without adding signal.
+function shouldSkipAccessLog(path: string): boolean {
+  return path === '/healthz' || path.startsWith('/_app/') || STATIC_ASSET_EXT.test(path);
+}
 
 export interface AppConfig {
   apiBase: string;
@@ -143,7 +158,11 @@ export function createApp(overrides?: Partial<AppConfig>): Hono<AppBindings> {
   });
 
   if (process.env.LOG_LEVEL !== 'silent') {
-    app.use('*', logger());
+    const accessLogger = logger();
+    app.use('*', async (c, next) => {
+      if (shouldSkipAccessLog(c.req.path)) return next();
+      return accessLogger(c, next);
+    });
   }
 
   app.route('/', healthRoute);
@@ -165,10 +184,49 @@ export function createApp(overrides?: Partial<AppConfig>): Hono<AppBindings> {
   return app;
 }
 
+const USAGE = [
+  'Usage: honcho-dashboard [--help] [--version]',
+  '',
+  'Self-hosted web inspector for the Honcho OSS server.',
+  '',
+  'Options:',
+  '  -h, --help     Print this message and exit.',
+  '  -V, --version  Print the version and exit.',
+  '',
+  'Configuration is provided via environment variables. Required:',
+  '  HONCHO_API_BASE       http(s) URL of the upstream Honcho API',
+  '  HONCHO_ADMIN_TOKEN    Bearer token used for proxied admin requests',
+  '',
+  'Optional:',
+  '  PORT                  Listen port (default 3000)',
+  '  HONCHO_WORKSPACE_ID   Default workspace surfaced to the UI',
+  '  HONCHO_PROXY_TIMEOUT  Upstream timeout in seconds (default 15)',
+  '  BUILD_DIR             Path to the static UI bundle (default ./build)',
+  '  DASHBOARD_AUTH_MODE   Auth mode: off | password (default off)',
+  '',
+].join('\n');
+
 // Entry point when run directly via `bun run dist/index.js`.
 if (import.meta.main) {
+  const argv = process.argv.slice(2);
+  if (argv.includes('--help') || argv.includes('-h')) {
+    process.stdout.write(USAGE);
+    process.exit(0);
+  }
+  if (argv.includes('--version') || argv.includes('-V')) {
+    process.stdout.write(`${VERSION}\n`);
+    process.exit(0);
+  }
   const app = createApp();
   const port = readListenPort();
   Bun.serve({ port, fetch: app.fetch });
-  console.warn(`honcho-dashboard listening on :${port}`);
+  const version = process.env.HONCHO_DASHBOARD_VERSION ?? VERSION;
+  const sha = process.env.HONCHO_DASHBOARD_GIT_SHA ?? 'unknown';
+  const built = process.env.HONCHO_DASHBOARD_BUILD_TIME ?? 'unknown';
+  const auth = process.env.DASHBOARD_AUTH_MODE ?? 'off';
+  // Surface workspace mode so operators can confirm picker-vs-pinned without curling /api/runtime-config.
+  const workspace = process.env.HONCHO_WORKSPACE_ID ?? 'picker';
+  console.warn(
+    `honcho-dashboard listening on :${port} version=${version} sha=${sha} built=${built} auth=${auth} workspace=${workspace}`,
+  );
 }

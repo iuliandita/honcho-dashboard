@@ -6,6 +6,7 @@ import { createStubHoncho } from './stub-honcho';
 describe('createApp', () => {
   afterEach(() => {
     vi.unstubAllEnvs();
+    vi.unstubAllGlobals();
   });
 
   it('mounts /healthz, /api/runtime-config, and proxy', async () => {
@@ -113,6 +114,68 @@ describe('createApp', () => {
         buildDir: './build',
       }),
     ).toThrow(/apiBase must be an http\(s\) URL/);
+  });
+
+  it('skips access logs for /healthz and static assets', async () => {
+    vi.stubGlobal('Bun', {
+      file: () => ({
+        exists: async () => false,
+      }),
+    });
+
+    const stub = createStubHoncho();
+    const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+    try {
+      const app = createApp({
+        apiBase: 'http://stub.local',
+        adminToken: 'test-token',
+        workspaceId: 'ws-abc',
+        version: '0.1.0',
+        timeoutMs: 1000,
+        buildDir: './build',
+        fetch: (req) => stub.app.fetch(req),
+      });
+
+      await app.request('/healthz');
+      await app.request('/_app/chunk.abc.js');
+      await app.request('/favicon.ico');
+      const logsAfterQuiet = logSpy.mock.calls.map((args) => String(args[0] ?? ''));
+      expect(logsAfterQuiet.some((line) => line.includes('/healthz'))).toBe(false);
+      expect(logsAfterQuiet.some((line) => line.includes('/_app/chunk.abc.js'))).toBe(false);
+      expect(logsAfterQuiet.some((line) => line.includes('/favicon.ico'))).toBe(false);
+
+      await app.request('/api/runtime-config');
+      const logsAfterReal = logSpy.mock.calls.map((args) => String(args[0] ?? ''));
+      expect(logsAfterReal.some((line) => line.includes('/api/runtime-config'))).toBe(true);
+    } finally {
+      logSpy.mockRestore();
+    }
+  });
+
+  it('omits ANSI color escapes from access logs in non-TTY environments', async () => {
+    const stub = createStubHoncho();
+    const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+    try {
+      const app = createApp({
+        apiBase: 'http://stub.local',
+        adminToken: 'test-token',
+        workspaceId: 'ws-abc',
+        version: '0.1.0',
+        timeoutMs: 1000,
+        buildDir: './build',
+        fetch: (req) => stub.app.fetch(req),
+      });
+
+      await app.request('/api/runtime-config');
+      const lines = logSpy.mock.calls.map((args) => String(args[0] ?? ''));
+      expect(lines.length).toBeGreaterThan(0);
+      const ansiEscapeStart = `${String.fromCharCode(27)}[`;
+      for (const line of lines) {
+        expect(line.includes(ansiEscapeStart)).toBe(false);
+      }
+    } finally {
+      logSpy.mockRestore();
+    }
   });
 
   it('protects proxied Honcho API routes when password auth is enabled', async () => {
