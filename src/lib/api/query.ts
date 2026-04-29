@@ -18,12 +18,7 @@ export function postQuery<T>(
   return params ? client.post<T>(path, body, params) : client.post<T>(path, body);
 }
 
-export async function fetchAllPages<T>(
-  client: ApiClient,
-  path: string,
-  body = EMPTY_FILTER,
-  signal?: AbortSignal,
-): Promise<T[]> {
+export async function fetchAllPages<T>(client: ApiClient, path: string, signal?: AbortSignal): Promise<T[]> {
   const items: T[] = [];
   let pageNumber = 1;
   let totalPages = 1;
@@ -32,7 +27,7 @@ export async function fetchAllPages<T>(
     const page = await postQuery<{ items: T[]; page: number; pages: number }>(
       client,
       path,
-      body,
+      EMPTY_FILTER,
       { page: pageNumber, size: DEFAULT_PAGE_SIZE },
       signal,
     );
