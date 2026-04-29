@@ -27,6 +27,17 @@ describe('buildPeerRepresentationQuery', () => {
     expect(client.post).toHaveBeenCalledWith('/v3/workspaces/ws/peers/p/representation', { max_conclusions: null });
   });
 
+  it('encodes workspace and peer IDs in representation API paths', async () => {
+    const client = mockClient({ representation: '' });
+    const opts = buildPeerRepresentationQuery(client, 'ws /#?', 'peer /#?');
+
+    await opts.queryFn();
+
+    expect(client.post).toHaveBeenCalledWith('/v3/workspaces/ws%20%2F%23%3F/peers/peer%20%2F%23%3F/representation', {
+      max_conclusions: null,
+    });
+  });
+
   it('normalizes markdown headings into topic cards', async () => {
     const client = mockClient({
       representation: '## coffee\n- prefers oat milk\n- medium roast\n\n## sleep\nlate riser',

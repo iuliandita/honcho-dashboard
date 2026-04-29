@@ -16,7 +16,7 @@ test.describe('profile flow', () => {
   });
 
   test('renders synthesized OSS representation markdown', async ({ page }) => {
-    await page.goto(`${dashboard.url}/peers/peer-1/profile`);
+    await page.goto(`${dashboard.url}/peers/peer-xss/profile`);
 
     await expect(page.getByRole('heading', { level: 2, name: 'coffee' })).toBeVisible();
     await expect(page.getByText('prefers oat milk')).toBeVisible();
@@ -33,6 +33,9 @@ test.describe('profile flow', () => {
   });
 
   test('strips inline scripts from rendered markdown', async ({ page }) => {
+    await page.addInitScript(() => {
+      (window as Window & { __profileXss?: boolean }).__profileXss = false;
+    });
     await page.goto(`${dashboard.url}/peers/peer-1/profile`);
 
     await expect(page.getByText('prefers oat milk')).toBeVisible();
@@ -40,5 +43,6 @@ test.describe('profile flow', () => {
     expect(html).not.toMatch(/<script[\s>]/);
     expect(html).not.toContain('javascript:');
     expect(html).not.toContain('alert(1)');
+    expect(await page.evaluate(() => (window as Window & { __profileXss?: boolean }).__profileXss)).toBe(false);
   });
 });

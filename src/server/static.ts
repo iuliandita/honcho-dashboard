@@ -1,4 +1,5 @@
 import { Hono } from 'hono';
+import type { AppBindings } from './bindings';
 
 export interface StaticConfig {
   /** Path to the SvelteKit build output (typically `./build`). */
@@ -19,7 +20,7 @@ export interface StaticConfig {
  *  - Path traversal (`..`, NUL, control bytes) returns 404 without touching the filesystem.
  */
 export function staticRoute(config: StaticConfig) {
-  return new Hono().get('*', async (c) => {
+  return new Hono<AppBindings>().get('*', async (c) => {
     let requested: string;
     try {
       requested = decodeURIComponent(c.req.path);
@@ -40,13 +41,16 @@ export function staticRoute(config: StaticConfig) {
       const cacheControl = tryPath.startsWith('/_app/') ? 'public, max-age=31536000, immutable' : 'no-cache';
       const headers = new Headers({ 'Cache-Control': cacheControl });
       if (file.type) headers.set('Content-Type', file.type);
+      if (tryPath === '/index.html') {
+        return new Response(await htmlWithNonce(file, c.get('scriptNonce') ?? ''), { headers });
+      }
       return new Response(file, { headers });
     }
 
     // SPA fallback - any unmatched path serves index.html so the client router takes over.
     const index = Bun.file(`${config.buildDir}/index.html`);
     if (await index.exists()) {
-      return new Response(index, {
+      return new Response(await htmlWithNonce(index, c.get('scriptNonce') ?? ''), {
         headers: {
           'Cache-Control': 'no-cache',
           'Content-Type': 'text/html; charset=utf-8',
@@ -56,4 +60,9 @@ export function staticRoute(config: StaticConfig) {
 
     return c.text('Build not found. Run `bun run build`.', 500);
   });
+}
+
+async function htmlWithNonce(file: Blob, nonce: string): Promise<string> {
+  const html = await file.text();
+  return html.replaceAll('<script>', `<script nonce="${nonce}">`);
 }

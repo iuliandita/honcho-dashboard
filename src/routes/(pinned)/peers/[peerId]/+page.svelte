@@ -4,6 +4,7 @@ import PaneList from '$features/browser/PaneList.svelte';
 import SessionCard from '$features/browser/SessionCard.svelte';
 import { type SessionSummary, buildSessionsQuery } from '$features/browser/api';
 import { t } from '$lib/i18n';
+import { sessionPath } from '$lib/routing/paths';
 import type { AppSettings } from '$lib/settings/AppSettings.svelte';
 import Pane from '$ui/primitives/Pane.svelte';
 import PaneHeader from '$ui/primitives/PaneHeader.svelte';
@@ -34,7 +35,7 @@ const query = createQuery({
     loading={$query.isLoading}
     error={$query.error}
     empty={{ title: t(settings.locale, 'browser.noSessions') }}
-    hrefFor={(session) => `/peers/${data.peerId}/sessions/${session.id}`}
+    hrefFor={(session) => sessionPath(data.peerId, session.id)}
   >
     {#snippet row(item: SessionSummary)}
       <SessionCard session={item} />

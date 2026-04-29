@@ -1,6 +1,7 @@
 import type { ApiClient } from '$api/client';
 import { keys } from '$api/keys';
 import type { components } from '$lib/honcho/types';
+import { honchoApiPaths } from '$lib/routing/paths';
 
 export interface RepresentationItem {
   id: string;
@@ -67,7 +68,7 @@ export function buildPeerRepresentationQuery(client: ApiClient, workspaceId: str
     queryKey: keys.peerRepresentation(workspaceId, peerId),
     queryFn: async ({ signal }: QueryContext = {}) => {
       const body: components['schemas']['PeerRepresentationGet'] = { max_conclusions: null };
-      const path = `/v3/workspaces/${workspaceId}/peers/${peerId}/representation`;
+      const path = honchoApiPaths.peerRepresentation(workspaceId, peerId);
       const raw = await (signal
         ? client.post<components['schemas']['RepresentationResponse']>(path, body, undefined, { signal })
         : client.post<components['schemas']['RepresentationResponse']>(path, body));

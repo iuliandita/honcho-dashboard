@@ -72,6 +72,18 @@ describe('buildPeersQuery', () => {
       { page: 1, size: 50 },
     );
   });
+
+  it('encodes workspace IDs in peer-list API paths', async () => {
+    const client = mockClient({ items: [], total: 0, page: 1, size: 50, pages: 1 });
+
+    await buildPeersQuery(client, 'ws /#?').queryFn();
+
+    expect(client.post).toHaveBeenCalledWith(
+      '/v3/workspaces/ws%20%2F%23%3F/peers/list',
+      { filters: null },
+      { page: 1, size: 50 },
+    );
+  });
 });
 
 describe('buildSessionsQuery', () => {
@@ -94,6 +106,18 @@ describe('buildSessionsQuery', () => {
     expect(result).toEqual(data.items);
     expect(client.post).toHaveBeenCalledWith(
       '/v3/workspaces/ws-1/peers/peer-1/sessions',
+      { filters: null },
+      { page: 1, size: 50 },
+    );
+  });
+
+  it('encodes workspace and peer IDs in session-list API paths', async () => {
+    const client = mockClient({ items: [], total: 0, page: 1, size: 50, pages: 1 });
+
+    await buildSessionsQuery(client, 'ws /#?', 'peer /#?').queryFn();
+
+    expect(client.post).toHaveBeenCalledWith(
+      '/v3/workspaces/ws%20%2F%23%3F/peers/peer%20%2F%23%3F/sessions',
       { filters: null },
       { page: 1, size: 50 },
     );

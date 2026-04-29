@@ -1,6 +1,7 @@
 import { Hono } from 'hono';
 import { createApp } from '../../../src/server';
 import {
+  fixtureMaliciousRepresentationMarkdown,
   fixtureMessageHistory,
   fixturePeers,
   fixtureRepresentationMarkdown,
@@ -35,7 +36,10 @@ function startHoncho(port: number) {
   honcho.post('/v3/workspaces/:ws/peers/list', (c) => c.json(page(fixturePeers)));
   honcho.post('/v3/workspaces/:ws/peers/:peer/sessions', (c) => c.json(page(fixtureSessions)));
   honcho.post('/v3/workspaces/:ws/peers/:peer/representation', (c) =>
-    c.json({ representation: fixtureRepresentationMarkdown }),
+    c.json({
+      representation:
+        c.req.param('peer') === 'peer-xss' ? fixtureMaliciousRepresentationMarkdown : fixtureRepresentationMarkdown,
+    }),
   );
   honcho.post('/v3/workspaces/:ws/search', async (c) => {
     const body = await c.req.json<{ query?: string; filters?: { topic?: string } | null }>();
@@ -174,7 +178,7 @@ function startDashboard(port: number) {
     apiBase,
     adminToken,
     workspaceId: workspaceIdArg === '__NULL__' ? null : workspaceIdArg,
-    version: '0.1.0-test',
+    version: process.env.HONCHO_DASHBOARD_VERSION ?? '0.1.0-test',
     timeoutMs: 5000,
     buildDir: './build',
   });

@@ -2,7 +2,9 @@ import { existsSync, readFileSync } from 'node:fs';
 import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { Hono } from 'hono';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import type { AppBindings } from '../../src/server/bindings';
 import { staticRoute } from '../../src/server/static';
 
 describe('staticRoute', () => {
@@ -21,7 +23,7 @@ describe('staticRoute', () => {
     });
 
     buildDir = await mkdtemp(join(tmpdir(), 'honcho-dashboard-static-'));
-    await writeFile(join(buildDir, 'index.html'), '<div id="app">shell</div>');
+    await writeFile(join(buildDir, 'index.html'), '<div id="app"><script>bootstrap()</script></div>');
     await mkdir(join(buildDir, '_app'));
     await writeFile(join(buildDir, '_app', 'abc.js'), 'console.log("chunk");');
   });
@@ -67,7 +69,21 @@ describe('staticRoute', () => {
     expect(response.status).toBe(200);
     expect(response.headers.get('Cache-Control')).toBe('no-cache');
     expect(response.headers.get('Content-Type')).toContain('text/html');
-    expect(await response.text()).toBe('<div id="app">shell</div>');
+    expect(await response.text()).toBe('<div id="app"><script nonce="">bootstrap()</script></div>');
+  });
+
+  it('injects the CSP nonce into inline SvelteKit bootstrap scripts', async () => {
+    const app = new Hono<AppBindings>();
+    app.use('*', async (c, next) => {
+      c.set('scriptNonce', 'test-nonce');
+      await next();
+    });
+    app.route('/', staticRoute({ buildDir }));
+
+    const response = await app.request('/');
+
+    expect(response.status).toBe(200);
+    expect(await response.text()).toContain('<script nonce="test-nonce">bootstrap()</script>');
   });
 
   it('returns 500 when the build directory is missing', async () => {

@@ -8,6 +8,12 @@ on:
 permissions:
   contents: read
 
+env:
+  BUN_VERSION: '1.3.11'
+  GITLEAKS_VERSION: '8.24.2'
+  SEMGREP_VERSION: '1.101.0'
+  TRIVY_VERSION: '0.58.2'
+
 jobs:
   lint-test-build:
     runs-on: ubuntu-latest
@@ -17,7 +23,7 @@ jobs:
 
       - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
         with:
-          bun-version: latest
+          bun-version: ${{ env.BUN_VERSION }}
 
       - name: Cache Bun dependencies
         uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
@@ -27,6 +33,9 @@ jobs:
 
       - name: Install
         run: bun install --frozen-lockfile
+
+      - name: Verify Bun version
+        run: test "$(bun --version)" = "$BUN_VERSION"
 
       - name: Codegen
         run: |
@@ -53,7 +62,7 @@ jobs:
 
       - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
         with:
-          bun-version: latest
+          bun-version: ${{ env.BUN_VERSION }}
 
       - name: Cache Bun dependencies
         uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
@@ -63,6 +72,9 @@ jobs:
 
       - name: Install
         run: bun install --frozen-lockfile
+
+      - name: Verify Bun version
+        run: test "$(bun --version)" = "$BUN_VERSION"
 
       - name: Codegen
         run: |
@@ -100,13 +112,11 @@ jobs:
         with:
           version: v3.16.0
 
-      - name: Install yq
-        run: |
-          sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
-          sudo chmod +x /usr/local/bin/yq
-
       - name: Helm lint
         run: helm lint deploy/helm/honcho-dashboard
+
+      - name: Install YAML parser
+        run: python -m pip install --user PyYAML==6.0.2
 
       - name: Render Helm to YAML
         run: |
@@ -119,13 +129,50 @@ jobs:
             > /tmp/helm-rendered/all.yaml
 
       - name: Verify Helm output is valid YAML
-        run: yq eval -e '.kind' /tmp/helm-rendered/all.yaml > /dev/null
+        run: |
+          python - <<'PY'
+          import yaml
+          with open('/tmp/helm-rendered/all.yaml', encoding='utf-8') as f:
+              docs = [doc for doc in yaml.safe_load_all(f) if doc]
+          assert docs and all('kind' in doc for doc in docs)
+          PY
 
       - name: Verify plain manifests parse
         run: |
-          for f in deploy/k8s/*.yaml; do
-            yq eval -e '.kind' "$f" > /dev/null
-          done
+          python - <<'PY'
+          import glob
+          import yaml
+          for path in glob.glob('deploy/k8s/*.yaml'):
+              with open(path, encoding='utf-8') as f:
+                  docs = [doc for doc in yaml.safe_load_all(f) if doc]
+              assert docs and all('kind' in doc for doc in docs), path
+          PY
+
+  security-scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+
+      - name: Install gitleaks
+        run: |
+          curl -sSfL "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz" -o /tmp/gitleaks.tar.gz
+          tar -xzf /tmp/gitleaks.tar.gz -C /tmp gitleaks
+          sudo install /tmp/gitleaks /usr/local/bin/gitleaks
+
+      - name: Secret scan
+        run: gitleaks dir . --redact --verbose
+
+      - name: Install semgrep
+        run: python -m pip install --user "semgrep==${SEMGREP_VERSION}"
+
+      - name: SAST scan
+        run: semgrep scan --config auto --error .
+
+      - name: Filesystem vulnerability scan
+        run: |
+          docker run --rm -v "$PWD:/src" "aquasec/trivy:${TRIVY_VERSION}" \
+            fs --scanners vuln --severity HIGH,CRITICAL --exit-code 1 --no-progress /src
 
   docker-build:
     runs-on: ubuntu-latest

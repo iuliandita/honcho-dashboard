@@ -28,7 +28,7 @@ service:
   port: 3000
 
 ingress:
-  enabled: true
+  enabled: false                      # enable only after setting dashboard auth or trusted reverse-proxy auth
   className: nginx
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-prod
@@ -69,8 +69,9 @@ tolerations: []
 affinity: {}
 
 metrics:
-  enabled: false                      # set true to render a Prometheus Operator ServiceMonitor
-  path: /metrics                      # scrape path; the dashboard does not yet expose /metrics
-  interval: 30s
-  scrapeTimeout: 10s
-  additionalLabels: {}                # extra labels for the ServiceMonitor (e.g. release: kube-prometheus-stack)
+  serviceMonitorScaffold:
+    enabled: false                    # scaffold only: dashboard does not expose /metrics in v1.6
+    path: /metrics
+    interval: 30s
+    scrapeTimeout: 10s
+    additionalLabels: {}              # extra labels for the ServiceMonitor (e.g. release: kube-prometheus-stack)
