@@ -1,0 +1,88 @@
+# DO NOT APPLY THIS FILE AS-IS -- example only.
+# Replace namespace labels, pod selectors, and ports for your cluster before
+# adding this file to a Kustomize overlay.
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: honcho-dashboard-default-deny
+  labels:
+    app.kubernetes.io/name: honcho-dashboard
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: honcho-dashboard
+  policyTypes:
+    - Ingress
+    - Egress
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: honcho-dashboard-allow-ingress
+  labels:
+    app.kubernetes.io/name: honcho-dashboard
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: honcho-dashboard
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: ingress-nginx
+      ports:
+        - protocol: TCP
+          port: 3000
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: honcho-dashboard-allow-honcho-api
+  labels:
+    app.kubernetes.io/name: honcho-dashboard
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: honcho-dashboard
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: honcho
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: honcho
+      ports:
+        - protocol: TCP
+          port: 80
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: honcho-dashboard-allow-kube-dns
+  labels:
+    app.kubernetes.io/name: honcho-dashboard
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: honcho-dashboard
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+          podSelector:
+            matchLabels:
+              k8s-app: kube-dns
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53

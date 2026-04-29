@@ -46,7 +46,7 @@ docker run --rm -p 3000:3000 \
   -e DASHBOARD_AUTH_MODE=password \
   -e DASHBOARD_AUTH_PASSWORD=choose-a-strong-operator-password \
   -e DASHBOARD_SESSION_SECRET=choose-a-long-random-session-secret \
-  ghcr.io/iuliandita/honcho-dashboard:latest
+  ghcr.io/iuliandita/honcho-dashboard:1.6.1
 ```
 
 Open <http://localhost:3000>.
@@ -105,6 +105,9 @@ for English or German, with English as the fallback. Font scale can be changed f
 
 - Plain Kubernetes manifests: [`deploy/k8s/`](./deploy/k8s/)
 - Helm chart: [`deploy/helm/honcho-dashboard/`](./deploy/helm/honcho-dashboard/)
+
+Release image tags omit the leading `v`: use `ghcr.io/iuliandita/honcho-dashboard:1.6.1` for Git tag
+`v1.6.1`.
 
 ## License
 

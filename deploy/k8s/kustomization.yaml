@@ -7,13 +7,17 @@ resources:
   - ingress.yaml
   - configmap.yaml
   # secret.example.yaml is NOT included; operators provide their own secret.
+  # networkpolicy.example.yaml is NOT included by default. Add it from an
+  # overlay after replacing namespace and Honcho API selectors for your cluster.
   # servicemonitor.yaml is NOT included by default. Add it here in an overlay
   # if the Prometheus Operator is installed and you want metrics scraping.
 
-commonLabels:
-  app.kubernetes.io/name: honcho-dashboard
-  app.kubernetes.io/managed-by: kustomize
+labels:
+  - pairs:
+      app.kubernetes.io/name: honcho-dashboard
+      app.kubernetes.io/managed-by: kustomize
+    includeSelectors: true
 
 images:
-  - name: ghcr.io/REPLACE_ME/honcho-dashboard
-    newTag: latest
+  - name: ghcr.io/iuliandita/honcho-dashboard
+    newTag: 1.6.1

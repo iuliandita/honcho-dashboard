@@ -6,6 +6,24 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [1.6.1] - 2026-04-29
+
+### Changed
+
+- Plain Kubernetes manifests now default to the published GHCR image
+  repository and `1.6.1` release image tag instead of a `REPLACE_ME`
+  `latest` placeholder.
+- Plain Kubernetes and Helm deployment docs now call out that image tags omit
+  the leading `v` used by Git release tags.
+- Plain Kubernetes docs now cover external TLS termination behind a reverse
+  proxy and production-style password auth with
+  `DASHBOARD_AUTH_PASSWORD_HASH`.
+
+### Added
+
+- Plain Kubernetes default-deny `NetworkPolicy` example for ingress-nginx,
+  Honcho API egress, and kube-dns egress.
+
 ## [1.6.0] - 2026-04-29
 
 ### Added

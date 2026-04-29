@@ -54,6 +54,13 @@ dashboard shell and proxied Honcho API requests, but it is intentionally not a m
 `ingress.enabled` defaults to `false`; enable ingress only after setting shared-password auth or equivalent
 reverse-proxy authentication. `/healthz` stays public for probes.
 
+Release image tags omit the leading `v`: set `image.tag=1.6.1` for Git tag `v1.6.1`. Leaving `image.tag`
+empty uses `.Chart.AppVersion`, which also omits the leading `v`.
+
+The default ingress values assume ingress-nginx and cert-manager-managed TLS. If TLS is terminated by an
+external reverse proxy instead, remove the cert-manager annotation and set `ingress.tls=[]`, or leave
+`ingress.enabled=false` and route the external proxy to the chart's ClusterIP Service.
+
 ## Values reference
 
 See [`values.yaml`](./values.yaml) for documented defaults and [`values.schema.json`](./values.schema.json)
@@ -75,7 +82,7 @@ for validation.
 | `secret.adminToken` | `""` | Admin token (required when `create=true`) |
 | `secret.existingSecretName` | `""` | Reference an external secret instead |
 | `ingress.enabled` | `false` | Provision ingress; enable only with dashboard or reverse-proxy auth |
-| `metrics.serviceMonitorScaffold.enabled` | `false` | Render scaffold-only ServiceMonitor; dashboard does not expose `/metrics` |
+| `metrics.serviceMonitorScaffold.enabled` | `false` | Render scaffold-only ServiceMonitor |
 | `metrics.serviceMonitorScaffold.path` | `/metrics` | Future scrape path; scaffold only until metrics exist |
 | `metrics.serviceMonitorScaffold.interval` | `30s` | ServiceMonitor scrape interval |
 | `metrics.serviceMonitorScaffold.scrapeTimeout` | `10s` | ServiceMonitor scrape timeout |
