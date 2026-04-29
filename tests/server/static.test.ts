@@ -1,3 +1,4 @@
+import { Blob } from 'node:buffer';
 import { existsSync, readFileSync } from 'node:fs';
 import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';

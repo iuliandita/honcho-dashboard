@@ -6,15 +6,19 @@
     "useIgnoreFile": true
   },
   "files": {
-    "ignore": [
-      "build/",
-      "dist/",
-      ".svelte-kit/",
-      "node_modules/",
-      "src/lib/honcho/types.ts",
-      "src/lib/honcho/openapi.json",
-      "deploy/helm/**/*.yaml"
+    "includes": [
+      "**",
+      "!**/build/",
+      "!**/dist/",
+      "!**/.svelte-kit/",
+      "!**/node_modules/",
+      "!**/src/lib/honcho/types.ts",
+      "!**/src/lib/honcho/openapi.json",
+      "!**/deploy/helm/**/*.yaml"
     ]
+  },
+  "assist": {
+    "enabled": false
   },
   "formatter": {
     "enabled": true,
@@ -37,6 +41,11 @@
       "suspicious": {
         "noConsole": { "level": "warn", "options": { "allow": ["error", "warn"] } }
       }
+    }
+  },
+  "css": {
+    "parser": {
+      "tailwindDirectives": true
     }
   },
   "javascript": {

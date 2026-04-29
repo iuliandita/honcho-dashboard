@@ -29,10 +29,10 @@ function makeByteStreamingResponse(chunks: Uint8Array[], headers: Record<string,
 }
 
 describe('ChatStream', () => {
-  let mockInvalidate: ReturnType<typeof vi.fn>;
+  let mockInvalidate: ReturnType<typeof vi.fn<(peerId: string) => Promise<void>>>;
 
   beforeEach(() => {
-    mockInvalidate = vi.fn(async () => undefined);
+    mockInvalidate = vi.fn<(peerId: string) => Promise<void>>(async () => undefined);
   });
 
   afterEach(() => {
