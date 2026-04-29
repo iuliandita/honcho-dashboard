@@ -56,4 +56,45 @@ describe('createApp', () => {
 
     expect(() => createApp()).toThrow(/HONCHO_API_BASE/);
   });
+
+  it('protects proxied Honcho API routes when password auth is enabled', async () => {
+    const stub = createStubHoncho();
+    const app = createApp({
+      apiBase: 'http://stub.local',
+      adminToken: 'test-token',
+      workspaceId: 'ws-abc',
+      version: '0.1.0',
+      timeoutMs: 1000,
+      buildDir: './build',
+      authConfig: {
+        mode: 'password',
+        password: 'secret',
+        sessionSecret: '0123456789abcdef0123456789abcdef',
+        sessionTtlSeconds: 60,
+        cookieName: 'test_session',
+      },
+      fetch: (req) => stub.app.fetch(req),
+    });
+
+    const blocked = await app.request('/api/v3/workspaces/ws-abc/peers/abc/representation', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ max_conclusions: null }),
+    });
+    expect(blocked.status).toBe(401);
+
+    const login = await app.request('/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password: 'secret' }),
+    });
+
+    const proxied = await app.request('/api/v3/workspaces/ws-abc/peers/abc/representation', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Cookie: login.headers.get('Set-Cookie') ?? '' },
+      body: JSON.stringify({ max_conclusions: null }),
+    });
+
+    expect(proxied.status).toBe(200);
+  });
 });
