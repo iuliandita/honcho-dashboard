@@ -1,8 +1,13 @@
 <script lang="ts">
 import { page } from '$app/state';
+import { t } from '$lib/i18n';
+import type { AppSettings } from '$lib/settings/AppSettings.svelte';
 import Divider from '$ui/ascii/Divider.svelte';
 import ErrorMark from '$ui/ascii/ErrorMark.svelte';
 import Icon from '$ui/pixel/Icon.svelte';
+import { getContext } from 'svelte';
+
+const settings = getContext<AppSettings>('app-settings');
 </script>
 
 <div class="error-page">
@@ -16,7 +21,7 @@ import Icon from '$ui/pixel/Icon.svelte';
 
   <h1>
     <Icon name="alert" size={16} />
-    <span>fault</span>
+    <span>{t(settings.locale, 'error.fault')}</span>
   </h1>
 
   {#if page.error}
@@ -24,11 +29,11 @@ import Icon from '$ui/pixel/Icon.svelte';
 
     <dl class="meta">
       {#if page.error.status}
-        <dt>status</dt>
+        <dt>{t(settings.locale, 'error.status')}</dt>
         <dd><code>{page.error.status}</code></dd>
       {/if}
       {#if page.error.traceId}
-        <dt>trace</dt>
+        <dt>{t(settings.locale, 'error.traceId')}</dt>
         <dd>
           <code>{page.error.traceId}</code>
         </dd>
@@ -43,7 +48,7 @@ import Icon from '$ui/pixel/Icon.svelte';
   <p class="actions">
     <a href="/">
       <Icon name="chevron-right" size={12} />
-      return to root
+      {t(settings.locale, 'error.returnRoot')}
     </a>
   </p>
 </div>

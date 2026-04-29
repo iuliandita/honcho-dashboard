@@ -31,4 +31,11 @@ test.describe('settings preferences', () => {
     await page.goto(`${dashboard.url}/peers`);
     await expect(page.locator('html')).toHaveAttribute('lang', 'de');
   });
+
+  test('persists German locale in the running app', async ({ page }) => {
+    await page.addInitScript(() => localStorage.setItem('locale', 'de'));
+    await page.goto(`${dashboard.url}/peers`);
+    await expect(page.locator('html')).toHaveAttribute('lang', 'de');
+    await expect(page.getByRole('link', { name: 'Suche' })).toBeVisible();
+  });
 });

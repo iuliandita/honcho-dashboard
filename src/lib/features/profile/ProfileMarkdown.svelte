@@ -1,7 +1,10 @@
 <script lang="ts">
 import { formatAbsolute, formatRelative } from '$features/messages/format';
+import { t } from '$lib/i18n';
+import type { AppSettings } from '$lib/settings/AppSettings.svelte';
 import EmptyProfile from '$ui/ascii/EmptyProfile.svelte';
 import EmptyState from '$ui/primitives/EmptyState.svelte';
+import { getContext } from 'svelte';
 import type { ProfileResponse } from './api';
 import { renderMarkdown } from './markdown';
 
@@ -10,19 +13,20 @@ interface Props {
 }
 
 const { profile }: Props = $props();
+const settings = getContext<AppSettings>('app-settings');
 const html = $derived(renderMarkdown(profile.markdown));
 const trimmed = $derived(profile.markdown.trim());
 </script>
 
 {#if !trimmed}
-  <EmptyState title="no profile yet" description="this peer has no rolling summary; activity will populate it server-side">
+  <EmptyState title={t(settings.locale, 'profile.emptyYet')} description={t(settings.locale, 'profile.empty.description')}>
     {#snippet art()}<EmptyProfile />{/snippet}
   </EmptyState>
 {:else}
   <article class="profile">
     {#if profile.updatedAt}
       <p class="meta">
-        updated <span title={profile.updatedAt}>{formatRelative(profile.updatedAt)}</span>
+        {t(settings.locale, 'profile.updated')} <span title={profile.updatedAt}>{formatRelative(profile.updatedAt)}</span>
         / <span class="abs">{formatAbsolute(profile.updatedAt)}</span>
       </p>
     {/if}

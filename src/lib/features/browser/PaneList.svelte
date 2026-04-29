@@ -1,8 +1,10 @@
 <script lang="ts" generics="T extends { id: string }">
 import type { HonchoApiError } from '$api/errors';
+import { t } from '$lib/i18n';
+import type { AppSettings } from '$lib/settings/AppSettings.svelte';
 import EmptyState from '$ui/primitives/EmptyState.svelte';
 import ErrorState from '$ui/primitives/ErrorState.svelte';
-import type { Snippet } from 'svelte';
+import { getContext, type Snippet } from 'svelte';
 
 interface Props {
   items: T[];
@@ -31,11 +33,12 @@ const {
   onSelect,
   onRetry,
 }: Props = $props();
+const settings = getContext<AppSettings>('app-settings');
 </script>
 
 <div class="pane-body">
   {#if loading && items.length === 0}
-    <p class="state-row" role="status">loading…</p>
+    <p class="state-row" role="status">{t(settings.locale, 'state.loading')}...</p>
   {:else if error}
     <div class="state-block">
       <ErrorState {error} context={empty.title} {onRetry} />

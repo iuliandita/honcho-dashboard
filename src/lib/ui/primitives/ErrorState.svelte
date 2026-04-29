@@ -1,4 +1,8 @@
 <script lang="ts">
+import { t } from '$lib/i18n';
+import type { AppSettings } from '$lib/settings/AppSettings.svelte';
+import { getContext } from 'svelte';
+
 interface DisplayError {
   message: string;
   status?: number;
@@ -19,20 +23,24 @@ interface Props {
 
 const {
   error,
-  title = 'request failed',
+  title,
   context,
   onRetry,
   onClear,
-  retryLabel = 'retry',
-  clearLabel = 'clear',
+  retryLabel,
+  clearLabel,
 }: Props = $props();
 
+const settings = getContext<AppSettings>('app-settings');
 const hasMeta = $derived(Boolean(error.status || error.traceId || error.upstream));
+const displayTitle = $derived(title ?? t(settings.locale, 'error.requestFailed'));
+const displayRetryLabel = $derived(retryLabel ?? t(settings.locale, 'error.retry'));
+const displayClearLabel = $derived(clearLabel ?? t(settings.locale, 'error.clear'));
 </script>
 
 <section class="error-state" role="alert" aria-live="assertive">
   <div class="copy">
-    <p class="label">{title}</p>
+    <p class="label">{displayTitle}</p>
     <p class="message">{error.message}</p>
     {#if error.detail && error.detail !== error.message}
       <p class="detail">{error.detail}</p>
@@ -42,19 +50,19 @@ const hasMeta = $derived(Boolean(error.status || error.traceId || error.upstream
   {#if hasMeta || context}
     <dl class="meta">
       {#if context}
-        <dt>context</dt>
+        <dt>{t(settings.locale, 'error.context')}</dt>
         <dd>{context}</dd>
       {/if}
       {#if error.status !== undefined}
-        <dt>status</dt>
+        <dt>{t(settings.locale, 'error.status')}</dt>
         <dd><code>{error.status}</code></dd>
       {/if}
       {#if error.upstream}
-        <dt>upstream</dt>
+        <dt>{t(settings.locale, 'error.upstream')}</dt>
         <dd><code>{error.upstream}</code></dd>
       {/if}
       {#if error.traceId}
-        <dt>trace</dt>
+        <dt>{t(settings.locale, 'error.traceId')}</dt>
         <dd><code>{error.traceId}</code></dd>
       {/if}
     </dl>
@@ -63,10 +71,10 @@ const hasMeta = $derived(Boolean(error.status || error.traceId || error.upstream
   {#if onRetry || onClear}
     <div class="actions">
       {#if onRetry}
-        <button type="button" class="action primary" onclick={onRetry}>{retryLabel}</button>
+        <button type="button" class="action primary" onclick={onRetry}>{displayRetryLabel}</button>
       {/if}
       {#if onClear}
-        <button type="button" class="action" onclick={onClear}>{clearLabel}</button>
+        <button type="button" class="action" onclick={onClear}>{displayClearLabel}</button>
       {/if}
     </div>
   {/if}

@@ -1,6 +1,8 @@
 <script lang="ts">
 import { page } from '$app/state';
-import type { Snippet } from 'svelte';
+import { t, type MessageKey } from '$lib/i18n';
+import type { AppSettings } from '$lib/settings/AppSettings.svelte';
+import { getContext, type Snippet } from 'svelte';
 
 interface Props {
   workspaceId?: string;
@@ -9,13 +11,14 @@ interface Props {
 }
 
 const { workspaceId, peerId, children }: Props = $props();
+const settings = getContext<AppSettings>('app-settings');
 
 const basePath = $derived(workspaceId ? `/workspaces/${workspaceId}/peers/${peerId}` : `/peers/${peerId}`);
 const tabs = [
-  { id: 'sessions', label: 'sessions' },
-  { id: 'representation', label: 'representation' },
-  { id: 'profile', label: 'profile' },
-  { id: 'chat', label: 'chat' },
+  { id: 'sessions', labelKey: 'nav.sessions' },
+  { id: 'representation', labelKey: 'nav.representation' },
+  { id: 'profile', labelKey: 'nav.profile' },
+  { id: 'chat', labelKey: 'nav.chat' },
 ] as const;
 
 function hrefFor(tabId: string): string {
@@ -32,17 +35,17 @@ function isActive(tabId: string): boolean {
 <div class="peer-chrome">
   <p class="trail">
     {#if workspaceId}
-      <a href="/workspaces">workspaces</a> ·
-      <a href={`/workspaces/${workspaceId}`}><code>{workspaceId}</code></a> · peers · <code>{peerId}</code>
+      <a href="/workspaces">{t(settings.locale, 'nav.workspaces')}</a> ·
+      <a href={`/workspaces/${workspaceId}`}><code>{workspaceId}</code></a> · {t(settings.locale, 'nav.peers')} · <code>{peerId}</code>
     {:else}
-      <a href="/peers">peers</a> · <code>{peerId}</code>
+      <a href="/peers">{t(settings.locale, 'nav.peers')}</a> · <code>{peerId}</code>
     {/if}
   </p>
 
   <nav class="tabs">
     {#each tabs as tab (tab.id)}
       <a class="tab" class:active={isActive(tab.id)} href={hrefFor(tab.id)} aria-current={isActive(tab.id) ? 'page' : undefined}
-        >{tab.label}</a
+        >{t(settings.locale, tab.labelKey as MessageKey)}</a
       >
     {/each}
   </nav>

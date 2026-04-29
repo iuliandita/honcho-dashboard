@@ -10,6 +10,10 @@ export const localeOptions: Array<{ locale: Locale; label: string }> = [
   { locale: 'de', label: 'Deutsch' },
 ];
 
-export function t(locale: Locale, key: MessageKey): string {
-  return catalogs[locale][key] ?? catalogs.en[key];
+export function t(locale: Locale, key: MessageKey, values: Record<string, string | number> = {}): string {
+  let message: string = catalogs[locale][key] ?? catalogs.en[key];
+  for (const [name, value] of Object.entries(values)) {
+    message = message.replaceAll(`{${name}}`, String(value));
+  }
+  return message;
 }

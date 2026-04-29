@@ -1,7 +1,9 @@
 <script lang="ts">
 import { page } from '$app/state';
 import Icon from '$ui/pixel/Icon.svelte';
-import type { Snippet } from 'svelte';
+import { t } from '$lib/i18n';
+import type { AppSettings } from '$lib/settings/AppSettings.svelte';
+import { getContext, type Snippet } from 'svelte';
 import type { LayoutData } from './$types';
 
 interface Props {
@@ -10,21 +12,22 @@ interface Props {
 }
 
 const { data, children }: Props = $props();
+const settings = getContext<AppSettings>('app-settings');
 
 const isSearch = $derived(page.url.pathname.startsWith('/search'));
 </script>
 
 <section class="pinned-mode">
-  <nav class="ws-nav" aria-label="pinned workspace">
+  <nav class="ws-nav" aria-label={t(settings.locale, 'common.pinnedWorkspace')}>
     <p class="banner">
       <Icon name="dot" size={10} />
-      <span class="label">pinned</span>
+      <span class="label">{t(settings.locale, 'mode.pinned')}</span>
       <span class="sep" aria-hidden="true">·</span>
-      <span class="ws-id">workspace <code>{data.workspaceId}</code></span>
+      <span class="ws-id">{t(settings.locale, 'common.workspace')} <code>{data.workspaceId}</code></span>
     </p>
     <a class="search-link" class:active={isSearch} href="/search" aria-current={isSearch ? 'page' : undefined}>
       <Icon name="search" size={12} />
-      <span>search</span>
+      <span>{t(settings.locale, 'nav.search')}</span>
     </a>
   </nav>
   {@render children()}
