@@ -7,6 +7,7 @@ PRODUCT.md
 # Local-only docs (scratch, briefs, screenshots)
 DESIGN.md
 docs/local/
+docs/superpowers/
 
 # Brainstorming visual companion sessions (mockups, server state)
 .superpowers/
