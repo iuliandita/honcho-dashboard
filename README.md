@@ -27,6 +27,9 @@ Honcho to derive updated peer context, but the dashboard does not edit or delete
 - Per-peer profile view with sanitized markdown rendering.
 - Dialectic chat panel over Honcho's streaming `/peers/{peer_id}/chat` endpoint.
 - Workspace semantic search with debounced query input and topic filtering.
+- Optional shared-password dashboard auth with signed HTTP-only sessions.
+- Browser-aware theme and English/German language detection, stored per browser.
+- Font scale presets: small, normal, large, and extra large.
 - Docker image, Docker Compose example, plain Kubernetes manifests, and Helm chart.
 
 ## Quickstart
@@ -57,12 +60,26 @@ Set `HONCHO_API_BASE` and `HONCHO_ADMIN_TOKEN` in `.env` or your shell before st
 | `HONCHO_API_BASE` | yes | Base URL of the Honcho API (e.g. `https://honcho.example.com`) |
 | `HONCHO_ADMIN_TOKEN` | yes | Admin bearer token; never leaves the dashboard process |
 | `HONCHO_WORKSPACE_ID` | no | If set, pins the dashboard to a single workspace |
+| `DASHBOARD_AUTH_MODE` | no | `off` (default) or `password` |
+| `DASHBOARD_AUTH_PASSWORD_HASH` | no | Preferred shared-password verifier for password mode |
+| `DASHBOARD_AUTH_PASSWORD` | no | Plaintext shared password, accepted for simple deployments |
+| `DASHBOARD_SESSION_SECRET` | password mode | Secret used to sign HTTP-only dashboard sessions |
+| `DASHBOARD_SESSION_TTL_SECONDS` | no | Session lifetime in seconds. Default `43200`. |
+| `DASHBOARD_SESSION_COOKIE` | no | Session cookie name. Default `honcho_dashboard_session`. |
 | `PORT` | no | Listen port. Default `3000`. |
 | `LOG_LEVEL` | no | `info` (default) or `debug`; `silent` is for tests |
 | `HONCHO_PROXY_TIMEOUT` | no | Upstream timeout in seconds. Default `15`. |
 | `BUILD_DIR` | no | Advanced override for the static build directory. Default `./build`. |
 
 `docker-compose.yml` also requires `POSTGRES_PASSWORD` for its bundled Honcho/Postgres example.
+
+Dashboard auth is intentionally a single shared operator password, not user accounts or RBAC. When enabled,
+the Hono BFF protects proxied Honcho API requests and issues a signed, HTTP-only session cookie. Prefer
+`DASHBOARD_AUTH_PASSWORD_HASH`; `DASHBOARD_AUTH_PASSWORD` is available for simple local or private installs.
+
+Client preferences are stored in browser localStorage. Theme uses a stored override first, then browser
+preference, with dark as the fallback. Language uses a stored override first, then browser language detection
+for English or German, with English as the fallback. Font scale can be changed from the settings menu.
 
 ## Deploy
 

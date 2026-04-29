@@ -1,5 +1,7 @@
 <script lang="ts">
 import { keys } from '$api/keys';
+import { t } from '$lib/i18n';
+import { getLocaleContext } from '$lib/settings/context';
 import EmptyState from '$ui/primitives/EmptyState.svelte';
 import ErrorState from '$ui/primitives/ErrorState.svelte';
 import { useQueryClient } from '@tanstack/svelte-query';
@@ -11,6 +13,7 @@ interface Props {
 }
 
 const { peerId, workspaceId }: Props = $props();
+const settings = getLocaleContext();
 
 const queryClient = useQueryClient();
 
@@ -56,11 +59,11 @@ function handleKeydown(e: KeyboardEvent) {
 </script>
 
 <div class="chat-panel">
-  <div class="output" role="region" aria-label="chat response" aria-live="polite">
+  <div class="output" role="region" aria-label={t(settings.locale, 'chat.response')} aria-live="polite">
     {#if !stream.tokens && !stream.error && !stream.isStreaming}
       <EmptyState
-        title="ask honcho about this peer"
-        description="this calls /peers/{peerId}/chat: natural-language queries against the peer's learned state"
+        title={t(settings.locale, 'chat.empty')}
+        description={t(settings.locale, 'chat.empty.description')}
       />
     {:else if stream.error}
       <div class="error-stack">
@@ -69,7 +72,7 @@ function handleKeydown(e: KeyboardEvent) {
         {/if}
         <ErrorState
           error={stream.error}
-          title="chat failed"
+          title={t(settings.locale, 'chat.failed')}
           context={`/peers/${peerId}/chat`}
           onRetry={lastQuery ? retryLastQuery : undefined}
           onClear={() => stream.reset()}
@@ -78,9 +81,9 @@ function handleKeydown(e: KeyboardEvent) {
     {:else}
       <article class="response">
         <header>
-          <span class="label">honcho</span>
+          <span class="label">{t(settings.locale, 'chat.assistant')}</span>
           {#if stream.isStreaming}
-            <span class="streaming">streaming…</span>
+            <span class="streaming">{t(settings.locale, 'chat.streaming')}</span>
           {:else if stream.expectedEnd}
             <span class="done">
               {stream.tokens.length} chars
@@ -103,17 +106,17 @@ function handleKeydown(e: KeyboardEvent) {
   >
     <textarea
       class="input"
-      aria-label="ask honcho about this peer"
-      placeholder={stream.isStreaming ? 'streaming…' : 'ask about this peer'}
+      aria-label={t(settings.locale, 'chat.prompt')}
+      placeholder={stream.isStreaming ? t(settings.locale, 'chat.streaming') : t(settings.locale, 'chat.prompt.short')}
       bind:value={inputValue}
       onkeydown={handleKeydown}
       disabled={stream.isStreaming}
       rows="2"
     ></textarea>
     {#if stream.isStreaming}
-      <button type="button" class="cancel" onclick={() => stream.cancel()}>cancel</button>
+      <button type="button" class="cancel" onclick={() => stream.cancel()}>{t(settings.locale, 'chat.cancel')}</button>
     {:else}
-      <button type="submit" class="send" disabled={!inputValue.trim()}>send</button>
+      <button type="submit" class="send" disabled={!inputValue.trim()}>{t(settings.locale, 'chat.send')}</button>
     {/if}
   </form>
 </div>

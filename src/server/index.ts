@@ -1,11 +1,15 @@
 import { Hono } from 'hono';
 import { logger } from 'hono/logger';
+import type { AuthConfig } from './auth/config';
+import { readAuthConfig } from './auth/config';
+import { authMiddleware } from './auth/middleware';
+import { authRoute } from './auth/route';
 import { healthRoute } from './health';
 import { proxyRoute } from './proxy';
 import { runtimeConfigRoute } from './runtime-config';
 import { staticRoute } from './static';
 
-const VERSION = '1.0.0';
+const VERSION = '1.5.0';
 const SECURITY_HEADERS = {
   'Content-Security-Policy': [
     "default-src 'self'",
@@ -32,6 +36,7 @@ export interface AppConfig {
   version: string;
   timeoutMs: number;
   buildDir: string;
+  authConfig: AuthConfig;
   /** Test-only fetch injection. */
   fetch?: (input: Request) => Response | Promise<Response>;
 }
@@ -58,6 +63,7 @@ export function createApp(overrides?: Partial<AppConfig>): Hono {
     version: VERSION,
     timeoutMs: Number.parseInt(readEnvOptional('HONCHO_PROXY_TIMEOUT') ?? '15', 10) * 1000,
     buildDir: process.env.BUILD_DIR ?? './build',
+    authConfig: readAuthConfig(),
     apiBase,
     adminToken,
     ...overrides,
@@ -77,8 +83,10 @@ export function createApp(overrides?: Partial<AppConfig>): Hono {
   }
 
   app.route('/', healthRoute);
+  app.route('/', authRoute(config.authConfig));
   // Keep runtime config before the /api/* proxy so the dashboard's own bootstrap endpoint is never forwarded.
   app.route('/', runtimeConfigRoute({ workspaceId: config.workspaceId, version: config.version }));
+  app.use('/api/v3/*', authMiddleware(config.authConfig));
   app.route(
     '/',
     proxyRoute({

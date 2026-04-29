@@ -1,4 +1,6 @@
 <script lang="ts">
+import { t } from '$lib/i18n';
+import { getLocaleContext } from '$lib/settings/context';
 import EmptyMemory from '$ui/ascii/EmptyMemory.svelte';
 import EmptyState from '$ui/primitives/EmptyState.svelte';
 import RepresentationCard from './RepresentationCard.svelte';
@@ -11,6 +13,7 @@ interface Props {
 }
 
 const { data }: Props = $props();
+const settings = getLocaleContext();
 let selectedTopic = $state<string | null>(null);
 
 const topicCounts = $derived.by((): Map<string, number> => {
@@ -30,7 +33,7 @@ function setTopic(topic: string | null) {
 </script>
 
 <div class="representation">
-  <nav class="filter-bar" aria-label="filter by topic">
+  <nav class="filter-bar" aria-label={t(settings.locale, 'search.topicFilter')}>
     <TopicChip topic={null} selected={selectedTopic === null} count={data.items.length} onClick={setTopic} />
     {#each topics as topic (topic)}
       <TopicChip {topic} selected={selectedTopic === topic} count={topicCounts.get(topic) ?? 0} onClick={setTopic} />
@@ -39,8 +42,10 @@ function setTopic(topic: string | null) {
 
   {#if filtered.length === 0}
     <EmptyState
-      title={selectedTopic === null ? 'no representation yet' : `no items for topic: ${selectedTopic}`}
-      description="this peer has no learned state under this filter"
+      title={selectedTopic === null
+        ? t(settings.locale, 'representation.emptyYet')
+        : t(settings.locale, 'representation.emptyForTopic', { topic: selectedTopic })}
+      description={t(settings.locale, 'representation.empty.description')}
     >
       {#snippet art()}<EmptyMemory />{/snippet}
     </EmptyState>

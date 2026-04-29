@@ -139,6 +139,36 @@
   color-scheme: dark light;
 }
 
+:root[data-font-scale="small"] {
+  --text-2xs: 0.625rem;
+  --text-xs: 0.6875rem;
+  --text-sm: 0.75rem;
+  --text-base: 0.8125rem;
+  --text-lg: 0.9375rem;
+  --text-xl: 1.0625rem;
+  --text-2xl: 1.25rem;
+}
+
+:root[data-font-scale="large"] {
+  --text-2xs: 0.75rem;
+  --text-xs: 0.8125rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+}
+
+:root[data-font-scale="extra-large"] {
+  --text-2xs: 0.8125rem;
+  --text-xs: 0.875rem;
+  --text-sm: 1rem;
+  --text-base: 1.125rem;
+  --text-lg: 1.25rem;
+  --text-xl: 1.4375rem;
+  --text-2xl: 1.75rem;
+}
+
 html,
 body {
   height: 100dvh;

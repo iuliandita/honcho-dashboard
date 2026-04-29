@@ -1,4 +1,6 @@
 <script lang="ts">
+import { t } from '$lib/i18n';
+import { getLocaleContext } from '$lib/settings/context';
 import { onDestroy } from 'svelte';
 
 interface Props {
@@ -11,6 +13,7 @@ interface Props {
 }
 
 let { value = $bindable(''), onCommit, onValueChange, debounceMs = 250 }: Props = $props();
+const settings = getLocaleContext();
 
 let commitTimer: ReturnType<typeof setTimeout> | null = null;
 
@@ -52,12 +55,12 @@ function handleKeydown(e: KeyboardEvent) {
 </script>
 
 <label class="search-input">
-  <span class="sr-only">search this workspace</span>
+  <span class="sr-only">{t(settings.locale, 'search.label')}</span>
   <span class="prompt" aria-hidden="true">&gt;</span>
   <input
     type="search"
-    placeholder="search this workspace..."
-    aria-label="search this workspace"
+    placeholder={t(settings.locale, 'search.placeholder')}
+    aria-label={t(settings.locale, 'search.label')}
     aria-describedby="workspace-search-help"
     {value}
     oninput={handleInput}
@@ -65,7 +68,7 @@ function handleKeydown(e: KeyboardEvent) {
     autocomplete="off"
     spellcheck="false"
   />
-  <span id="workspace-search-help" class="hint">enter to commit / esc to clear</span>
+  <span id="workspace-search-help" class="hint">{t(settings.locale, 'search.help')}</span>
 </label>
 
 <style>

@@ -1,7 +1,9 @@
 <script lang="ts">
 import { page } from '$app/state';
+import { t } from '$lib/i18n';
+import type { AppSettings } from '$lib/settings/AppSettings.svelte';
 import Icon from '$ui/pixel/Icon.svelte';
-import type { Snippet } from 'svelte';
+import { type Snippet, getContext } from 'svelte';
 import type { LayoutData } from './$types';
 
 interface Props {
@@ -10,19 +12,20 @@ interface Props {
 }
 
 const { data, children }: Props = $props();
+const settings = getContext<AppSettings>('app-settings');
 
 const searchHref = $derived(`/workspaces/${data.workspaceId}/search`);
 const isSearch = $derived(page.url.pathname === searchHref);
 </script>
 
 <div class="ws-chrome">
-  <nav class="ws-nav" aria-label="workspace">
+  <nav class="ws-nav" aria-label={t(settings.locale, 'common.workspace')}>
     <p class="trail">
-      <a href="/workspaces">workspaces</a> · <code>{data.workspaceId}</code>
+      <a href="/workspaces">{t(settings.locale, 'nav.workspaces')}</a> · <code>{data.workspaceId}</code>
     </p>
     <a class="search-link" class:active={isSearch} href={searchHref}>
       <Icon name="search" size={12} />
-      <span>search</span>
+      <span>{t(settings.locale, 'nav.search')}</span>
     </a>
   </nav>
   {@render children()}

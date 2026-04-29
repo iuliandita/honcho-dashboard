@@ -1,5 +1,7 @@
 <script lang="ts">
 import TopicChip from '$features/representation/TopicChip.svelte';
+import { t } from '$lib/i18n';
+import { getLocaleContext } from '$lib/settings/context';
 import EmptyArchive from '$ui/ascii/EmptyArchive.svelte';
 import EmptySearch from '$ui/ascii/EmptySearch.svelte';
 import EmptyState from '$ui/primitives/EmptyState.svelte';
@@ -18,20 +20,29 @@ interface Props {
 }
 
 const { hrefForResult, query, selectedTopic, onTopicChange, queryStore }: Props = $props();
+const settings = getLocaleContext();
 </script>
 
 <div class="search-results">
   {#if !query.trim()}
-    <EmptyState title="type to search" description="searches across all peers in this workspace">
+    <EmptyState
+      title={t(settings.locale, 'search.emptyQuery')}
+      description={t(settings.locale, 'search.emptyQuery.description')}
+    >
       {#snippet art()}<EmptySearch />{/snippet}
     </EmptyState>
   {:else if $queryStore.isLoading}
-    <p class="state">searching...</p>
+    <p class="state">{t(settings.locale, 'search.loading')}</p>
   {:else if $queryStore.isError}
-    <ErrorState error={$queryStore.error} title="search failed" context={query} onRetry={() => $queryStore.refetch()} />
+    <ErrorState
+      error={$queryStore.error}
+      title={t(settings.locale, 'search.failed')}
+      context={query}
+      onRetry={() => $queryStore.refetch()}
+    />
   {:else if $queryStore.data}
     {#if $queryStore.data.topicFacets && Object.keys($queryStore.data.topicFacets).length > 0}
-      <nav class="facets" aria-label="filter by topic">
+      <nav class="facets" aria-label={t(settings.locale, 'search.topicFilter')}>
         <TopicChip
           topic={null}
           selected={selectedTopic === null}
@@ -46,10 +57,10 @@ const { hrefForResult, query, selectedTopic, onTopicChange, queryStore }: Props 
 
     {#if $queryStore.data.results.length === 0}
       <EmptyState
-        title="no results"
+        title={t(settings.locale, 'search.empty')}
         description={selectedTopic
-          ? `nothing for "${query}" under topic ${selectedTopic}`
-          : `nothing for "${query}" in this workspace`}
+          ? t(settings.locale, 'search.emptyTopic.description', { query, topic: selectedTopic })
+          : t(settings.locale, 'search.empty.description', { query })}
       >
         {#snippet art()}<EmptyArchive />{/snippet}
       </EmptyState>

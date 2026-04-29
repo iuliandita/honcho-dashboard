@@ -28,8 +28,21 @@ helm install dashboard ./deploy/helm/honcho-dashboard \
 rm /tmp/honcho-admin-token
 ```
 
-The dashboard is an admin-token BFF. Keep it on a trusted operator network; without per-user auth, any
-same-origin POST in a reachable browser session can drive Honcho with the configured admin token.
+Enable shared-password auth by setting `dashboardAuth.mode=password` and providing
+`dashboardAuth.sessionSecret` plus either `dashboardAuth.passwordHash` (preferred) or
+`dashboardAuth.password`:
+
+```bash
+helm install dashboard ./deploy/helm/honcho-dashboard \
+  --set honcho.apiBase=https://honcho.example.com \
+  --set-file secret.adminToken=/tmp/honcho-admin-token \
+  --set dashboardAuth.mode=password \
+  --set dashboardAuth.sessionSecret="$DASHBOARD_SESSION_SECRET" \
+  --set-file dashboardAuth.passwordHash=/tmp/honcho-dashboard-password-hash
+```
+
+The dashboard is an admin-token BFF. Keep it on a trusted operator network. Shared-password auth protects the
+dashboard shell and proxied Honcho API requests, but it is intentionally not a multi-user or role-based system.
 
 ## Values reference
 
@@ -43,6 +56,11 @@ for validation.
 | `honcho.apiBase` | `https://REPLACE_ME-honcho.example.com` | Honcho API base URL (required) |
 | `honcho.workspaceId` | `""` | Pin dashboard to one workspace; empty = picker mode |
 | `honcho.proxyTimeout` | `15` | Upstream timeout (seconds) |
+| `dashboardAuth.mode` | `off` | `off` or `password` |
+| `dashboardAuth.password` | `""` | Plaintext shared password for simple installs |
+| `dashboardAuth.passwordHash` | `""` | Preferred password hash for production-like installs |
+| `dashboardAuth.sessionSecret` | `""` | Required when password auth is enabled |
+| `dashboardAuth.sessionTtlSeconds` | `43200` | Signed session cookie lifetime |
 | `secret.create` | `true` | Create the admin-token secret in-chart |
 | `secret.adminToken` | `""` | Admin token (required when `create=true`) |
 | `secret.existingSecretName` | `""` | Reference an external secret instead |

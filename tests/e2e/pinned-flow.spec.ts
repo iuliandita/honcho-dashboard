@@ -36,12 +36,14 @@ test.describe('pinned mode flow', () => {
     await expect(page.getByRole('link', { name: 'chat' })).toBeVisible();
   });
 
-  test('theme toggle exposes the action it will take', async ({ page }) => {
+  test('settings menu changes the active theme', async ({ page }) => {
     await page.goto(dashboard.url);
 
-    await expect(page.getByRole('button', { name: 'switch to light theme' })).toBeVisible();
-    await page.getByRole('button', { name: 'switch to light theme' }).click();
-    await expect(page.getByRole('button', { name: 'switch to dark theme' })).toBeVisible();
+    await page.getByRole('button', { name: 'settings' }).click();
+    await page.getByLabel('theme').selectOption('dark');
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+    await page.getByLabel('theme').selectOption('light');
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
   });
 
   test('runtime-config endpoint reflects HONCHO_WORKSPACE_ID', async ({ request }) => {

@@ -1,20 +1,23 @@
 <script lang="ts">
+import { t } from '$lib/i18n';
+import type { AppSettings } from '$lib/settings/AppSettings.svelte';
 import Icon from '$ui/pixel/Icon.svelte';
-import type { Snippet } from 'svelte';
+import { type Snippet, getContext } from 'svelte';
 
 interface Props {
   children: Snippet;
 }
 
 const { children }: Props = $props();
+const settings = getContext<AppSettings>('app-settings');
 </script>
 
 <section class="picker-mode">
   <p class="banner">
     <Icon name="dot" size={10} />
-    <span class="label">picker</span>
+    <span class="label">{t(settings.locale, 'mode.picker')}</span>
     <span class="sep" aria-hidden="true">·</span>
-    <span>no workspace pinned</span>
+    <span>{t(settings.locale, 'mode.picker.description')}</span>
   </p>
   {@render children()}
 </section>

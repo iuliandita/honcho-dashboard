@@ -8,6 +8,13 @@ honcho:
   workspaceId: ''                     # empty = picker mode
   proxyTimeout: 15
 
+dashboardAuth:
+  mode: 'off'                         # off or password
+  password: ''                        # plaintext option for simple installs
+  passwordHash: ''                    # preferred for production-like installs
+  sessionSecret: ''                   # required when mode=password
+  sessionTtlSeconds: 43200
+
 logLevel: info
 port: 3000
 

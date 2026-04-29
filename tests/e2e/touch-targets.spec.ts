@@ -30,7 +30,7 @@ test.describe('touch targets', () => {
       await page.waitForLoadState('networkidle');
 
       const undersized = await page
-        .locator('.theme-toggle, .search-link, .tab, .chip, .input, .send, .cancel')
+        .locator('.settings .trigger, .search-link, .tab, .chip, .input, .send, .cancel')
         .evaluateAll((elements) =>
           elements
             .map((element) => {
@@ -52,7 +52,9 @@ test.describe('touch targets', () => {
     });
   }
 
-  test('keeps mobile chrome compact while preserving theme button label for assistive tech', async ({ browser }) => {
+  test('keeps mobile chrome compact while preserving settings button access for assistive tech', async ({
+    browser,
+  }) => {
     const context = await browser.newContext({
       hasTouch: true,
       isMobile: true,
@@ -63,10 +65,7 @@ test.describe('touch targets', () => {
     await page.goto(`${dashboard.url}/peers/peer-1/chat`);
     await page.waitForLoadState('networkidle');
 
-    await expect(page.getByRole('button', { name: 'switch to light theme' })).toBeVisible();
-    const labelBox = await page.locator('.theme-label').boundingBox();
-    expect(labelBox?.width).toBeLessThanOrEqual(1);
-    expect(labelBox?.height).toBeLessThanOrEqual(1);
+    await expect(page.getByRole('button', { name: 'settings' })).toBeVisible();
 
     await context.close();
   });

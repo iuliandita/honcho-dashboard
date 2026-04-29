@@ -1,4 +1,6 @@
 <script lang="ts">
+import { t } from '$lib/i18n';
+import { getLocaleContext } from '$lib/settings/context';
 import EmptyArchive from '$ui/ascii/EmptyArchive.svelte';
 import EmptyState from '$ui/primitives/EmptyState.svelte';
 import ErrorState from '$ui/primitives/ErrorState.svelte';
@@ -15,6 +17,7 @@ interface Props {
 }
 
 const { query, peerId }: Props = $props();
+const settings = getLocaleContext();
 
 // Honcho returns newest-first pages; keep the first page's newest item visible
 // while prepending older pages above it as scrollback loads.
@@ -60,28 +63,33 @@ onMount(() => {
 <div
   class="message-list pane-body"
   role="log"
-  aria-label="session messages"
+  aria-label={t(settings.locale, 'messages.log')}
   aria-live="polite"
   tabindex="0"
   onscroll={onScroll}
 >
   {#if $query.isLoading && messages.length === 0}
-    <p class="state-row" role="status">loading messages…</p>
+    <p class="state-row" role="status">{t(settings.locale, 'messages.loading')}</p>
   {:else if $query.isError}
     <div class="state-block">
-      <ErrorState error={$query.error} title="messages failed" context={`peer ${peerId}`} onRetry={() => $query.refetch()} />
+      <ErrorState
+        error={$query.error}
+        title={t(settings.locale, 'messages.failed')}
+        context={`${t(settings.locale, 'common.peer')} ${peerId}`}
+        onRetry={() => $query.refetch()}
+      />
     </div>
   {:else if messages.length === 0}
-    <EmptyState title="no messages in this session">
+    <EmptyState title={t(settings.locale, 'messages.empty')}>
       {#snippet art()}<EmptyArchive />{/snippet}
     </EmptyState>
   {:else}
     <div bind:this={topSentinel} class="sentinel" aria-hidden="true">
       {#if $query.isFetchingNextPage}
-        <p class="state-row">loading older…</p>
+        <p class="state-row">{t(settings.locale, 'messages.loadingOlder')}</p>
       {/if}
       {#if !$query.hasNextPage}
-        <p class="state-row faint">- start of history -</p>
+        <p class="state-row faint">{t(settings.locale, 'messages.startOfHistory')}</p>
       {/if}
     </div>
     {#each messages as message (message.id)}

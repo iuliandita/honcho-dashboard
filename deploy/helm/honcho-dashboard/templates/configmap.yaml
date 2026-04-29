@@ -9,6 +9,8 @@ data:
   PORT: {{ .Values.port | quote }}
   LOG_LEVEL: {{ .Values.logLevel | quote }}
   HONCHO_PROXY_TIMEOUT: {{ .Values.honcho.proxyTimeout | quote }}
+  DASHBOARD_AUTH_MODE: {{ .Values.dashboardAuth.mode | quote }}
+  DASHBOARD_SESSION_TTL_SECONDS: {{ .Values.dashboardAuth.sessionTtlSeconds | quote }}
   {{- if .Values.honcho.workspaceId }}
   HONCHO_WORKSPACE_ID: {{ .Values.honcho.workspaceId | quote }}
   {{- end }}
