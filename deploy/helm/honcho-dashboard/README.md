@@ -54,7 +54,7 @@ dashboard shell and proxied Honcho API requests, but it is intentionally not a m
 `ingress.enabled` defaults to `false`; enable ingress only after setting shared-password auth or equivalent
 reverse-proxy authentication. `/healthz` stays public for probes.
 
-Release image tags omit the leading `v`: set `image.tag=1.6.2` for Git tag `v1.6.2`. Leaving `image.tag`
+Release image tags omit the leading `v`: set `image.tag=1.6.3` for Git tag `v1.6.3`. Leaving `image.tag`
 empty uses `.Chart.AppVersion`, which also omits the leading `v`.
 
 The default ingress values assume ingress-nginx and cert-manager-managed TLS. If TLS is terminated by an

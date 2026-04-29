@@ -6,6 +6,21 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [1.6.3] - 2026-04-29
+
+### Fixed
+
+- Reduced health-check and static-asset log noise, disabled ANSI color escapes
+  for non-TTY logs, and added startup build metadata for container runs.
+- Documented runtime config workspace picker behavior when no workspace is
+  preselected.
+- Kept the dependency refresh compatible with current TypeScript, Vitest,
+  Biome, and Svelte test environments.
+
+### Changed
+
+- Updated Bun dependency group and release image references.
+
 ## [1.6.2] - 2026-04-29
 
 ### Fixed
