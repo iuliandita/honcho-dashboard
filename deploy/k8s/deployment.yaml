@@ -25,7 +25,7 @@ spec:
           type: RuntimeDefault
       containers:
         - name: dashboard
-          image: ghcr.io/REPLACE_ME/honcho-dashboard:latest
+          image: ghcr.io/iuliandita/honcho-dashboard:1.6.1
           imagePullPolicy: IfNotPresent
           ports:
             - name: http
