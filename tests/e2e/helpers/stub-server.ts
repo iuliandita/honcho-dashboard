@@ -22,6 +22,7 @@ export interface DashboardOptions {
   adminToken?: string;
   workspaceId?: string | null;
   port?: number;
+  env?: Record<string, string>;
 }
 
 function waitForReady(child: E2eProcess): Promise<string> {
@@ -99,10 +100,10 @@ async function stopProcess(child: E2eProcess): Promise<void> {
   });
 }
 
-async function startProcess(args: string[]): Promise<StartedServer> {
+async function startProcess(args: string[], env: Record<string, string> = {}): Promise<StartedServer> {
   const child = spawn('bun', ['run', serverEntry(), ...args], {
     cwd: process.cwd(),
-    env: { ...process.env, LOG_LEVEL: 'silent' },
+    env: { ...process.env, LOG_LEVEL: 'silent', ...env },
     stdio: ['ignore', 'pipe', 'pipe'],
   });
   const url = await waitForReady(child);
@@ -118,11 +119,14 @@ export function startStubHoncho(port = 0): Promise<StartedServer> {
 }
 
 export function startDashboard(options: DashboardOptions): Promise<StartedServer> {
-  return startProcess([
-    'dashboard',
-    String(options.port ?? 0),
-    options.apiBase,
-    options.adminToken ?? 'test-token',
-    options.workspaceId ?? '__NULL__',
-  ]);
+  return startProcess(
+    [
+      'dashboard',
+      String(options.port ?? 0),
+      options.apiBase,
+      options.adminToken ?? 'test-token',
+      options.workspaceId ?? '__NULL__',
+    ],
+    options.env ?? {},
+  );
 }

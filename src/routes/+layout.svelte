@@ -3,6 +3,7 @@ import '$ui/fonts.css';
 import '$ui/tokens.css';
 import BrandMark from '$ui/ascii/BrandMark.svelte';
 import Icon from '$ui/pixel/Icon.svelte';
+import AuthGate from '$lib/auth/AuthGate.svelte';
 import { AppSettings } from '$lib/settings/AppSettings.svelte';
 import SettingsMenu from '$ui/primitives/SettingsMenu.svelte';
 import { QueryClient, QueryClientProvider } from '@tanstack/svelte-query';
@@ -15,7 +16,7 @@ interface Props {
   children: Snippet;
 }
 
-const { data, children }: Props = $props();
+const { data, children: pageContent }: Props = $props();
 const settings = new AppSettings();
 setContext('app-settings', settings);
 
@@ -33,22 +34,26 @@ $effect(() => settings.apply());
 </script>
 
 <QueryClientProvider client={queryClient}>
-  <header class="chrome">
-    <h1 class="sr-only">honcho-dashboard</h1>
-    <span class="brand"><BrandMark /></span>
-    <span class="rule" aria-hidden="true">─ ─ ─</span>
-    <span class="version">v{data.runtimeConfig.version}</span>
-    {#if data.runtimeConfig.workspaceId}
-      <span class="rule" aria-hidden="true">─ ─ ─</span>
-      <span class="ws"><Icon name="user" size={12} /> {data.runtimeConfig.workspaceId}</span>
-    {/if}
-    <span class="spacer"></span>
-    <SettingsMenu {settings} authEnabled={false} />
-  </header>
+  <AuthGate {settings}>
+    {#snippet children(auth)}
+      <header class="chrome">
+        <h1 class="sr-only">honcho-dashboard</h1>
+        <span class="brand"><BrandMark /></span>
+        <span class="rule" aria-hidden="true">─ ─ ─</span>
+        <span class="version">v{data.runtimeConfig.version}</span>
+        {#if data.runtimeConfig.workspaceId}
+          <span class="rule" aria-hidden="true">─ ─ ─</span>
+          <span class="ws"><Icon name="user" size={12} /> {data.runtimeConfig.workspaceId}</span>
+        {/if}
+        <span class="spacer"></span>
+        <SettingsMenu {settings} authEnabled={auth.enabled} onLogout={auth.logout} />
+      </header>
 
-  <main class="main">
-    {@render children()}
-  </main>
+      <main class="main">
+        {@render pageContent()}
+      </main>
+    {/snippet}
+  </AuthGate>
 </QueryClientProvider>
 
 <style>
