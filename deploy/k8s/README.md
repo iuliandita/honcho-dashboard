@@ -28,8 +28,8 @@ Edit `configmap.yaml` and `ingress.yaml` to replace `REPLACE_ME` placeholders be
 `DASHBOARD_AUTH_MODE=password` in `configmap.yaml` when using the password Secret values above.
 `secret.example.yaml` is documentation only and is intentionally excluded from `kustomization.yaml`.
 
-The default image is `ghcr.io/iuliandita/honcho-dashboard:1.6.1`. Release image tags omit the leading `v`
-even though Git tags include it: use image tag `1.6.1` for Git tag `v1.6.1`.
+The default image is `ghcr.io/iuliandita/honcho-dashboard:1.6.2`. Release image tags omit the leading `v`
+even though Git tags include it: use image tag `1.6.2` for Git tag `v1.6.2`.
 
 `servicemonitor.yaml` is also excluded by default. Add it from an overlay if the Prometheus Operator is
 installed and you want ServiceMonitor discovery; the dashboard does not expose `/metrics` yet.

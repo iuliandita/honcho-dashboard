@@ -37,16 +37,18 @@ $effect(() => settings.apply());
   <AuthGate {settings}>
     {#snippet children(auth)}
       <header class="chrome">
-        <h1 class="sr-only">honcho-dashboard</h1>
-        <span class="brand"><BrandMark /></span>
-        <span class="rule" aria-hidden="true">─ ─ ─</span>
-        <span class="version">v{data.runtimeConfig.version}</span>
-        {#if data.runtimeConfig.workspaceId}
+        <div class="chrome-inner">
+          <h1 class="sr-only">honcho-dashboard</h1>
+          <a class="brand" href="/" aria-label="honcho-dashboard"><BrandMark /></a>
           <span class="rule" aria-hidden="true">─ ─ ─</span>
-          <span class="ws"><Icon name="user" size={12} /> {data.runtimeConfig.workspaceId}</span>
-        {/if}
-        <span class="spacer"></span>
-        <SettingsMenu {settings} authEnabled={auth.enabled} onLogout={auth.logout} />
+          <span class="version">v{data.runtimeConfig.version}</span>
+          {#if data.runtimeConfig.workspaceId}
+            <span class="rule" aria-hidden="true">─ ─ ─</span>
+            <span class="ws"><Icon name="user" size={12} /> {data.runtimeConfig.workspaceId}</span>
+          {/if}
+          <span class="spacer"></span>
+          <SettingsMenu {settings} authEnabled={auth.enabled} onLogout={auth.logout} />
+        </div>
       </header>
 
       <main class="main">
@@ -58,12 +60,19 @@ $effect(() => settings.apply());
 
 <style>
   .chrome {
+    border-bottom: 1px solid var(--color-border);
+    background: var(--color-surface);
+  }
+
+  .chrome-inner {
     display: flex;
     align-items: center;
     gap: 0.75rem;
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
     padding: 0.5rem 1rem;
-    border-bottom: 1px solid var(--color-border);
-    background: var(--color-surface);
     font-size: var(--text-sm);
     min-height: 32px;
   }
@@ -73,6 +82,11 @@ $effect(() => settings.apply());
     font-weight: 700;
     letter-spacing: 0;
     line-height: 1;
+    text-decoration: none;
+  }
+
+  .brand:hover {
+    color: var(--color-yellow-400);
   }
 
   .rule {
@@ -126,6 +140,9 @@ $effect(() => settings.apply());
 
   @media (max-width: 640px) {
     .chrome {
+      padding: 0;
+    }
+    .chrome-inner {
       gap: 0.5rem;
       padding: 0.35rem 0.875rem;
     }

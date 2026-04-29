@@ -23,4 +23,6 @@ export const iconNames = [
   'external-link',
   'copy',
   'settings',
+  'moon',
+  'sun',
 ] as const;
