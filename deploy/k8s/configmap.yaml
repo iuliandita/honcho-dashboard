@@ -9,4 +9,6 @@ data:
   PORT: '3000'
   LOG_LEVEL: 'info'
   HONCHO_PROXY_TIMEOUT: '15'
+  DASHBOARD_AUTH_MODE: 'off'          # set to 'password' to enable shared-password auth
+  DASHBOARD_SESSION_TTL_SECONDS: '43200'
   # HONCHO_WORKSPACE_ID: 'ws-default'  # uncomment to pin to one workspace

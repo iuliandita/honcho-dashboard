@@ -42,10 +42,7 @@ export function readStoredLocale(storage: StorageLike | null | undefined): Local
   return isOneOf(value, LOCALES) ? value : null;
 }
 
-export function detectInitialTheme(
-  stored: Theme | null,
-  matchMedia: MatchMediaLike | null | undefined,
-): Theme {
+export function detectInitialTheme(stored: Theme | null, matchMedia: MatchMediaLike | null | undefined): Theme {
   if (stored) return stored;
   if (matchMedia?.('(prefers-color-scheme: light)').matches) return 'light';
   if (matchMedia?.('(prefers-color-scheme: dark)').matches) return 'dark';

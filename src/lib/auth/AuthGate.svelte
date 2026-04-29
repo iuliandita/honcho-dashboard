@@ -2,8 +2,8 @@
 import { invalidateAll } from '$app/navigation';
 import type { AppSettings } from '$lib/settings/AppSettings.svelte';
 import type { Snippet } from 'svelte';
-import { fetchAuthStatus, login, logout } from './api';
 import LoginScreen from './LoginScreen.svelte';
+import { fetchAuthStatus, login, logout } from './api';
 
 export interface AuthControls {
   enabled: boolean;

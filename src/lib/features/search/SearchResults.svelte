@@ -1,7 +1,7 @@
 <script lang="ts">
-import { t } from '$lib/i18n';
-import type { AppSettings } from '$lib/settings/AppSettings.svelte';
 import TopicChip from '$features/representation/TopicChip.svelte';
+import { t } from '$lib/i18n';
+import { getLocaleContext } from '$lib/settings/context';
 import EmptyArchive from '$ui/ascii/EmptyArchive.svelte';
 import EmptySearch from '$ui/ascii/EmptySearch.svelte';
 import EmptyState from '$ui/primitives/EmptyState.svelte';
@@ -9,7 +9,6 @@ import ErrorState from '$ui/primitives/ErrorState.svelte';
 import type { CreateQueryResult } from '@tanstack/svelte-query';
 import ResultCard from './ResultCard.svelte';
 import type { SearchResponse, SearchResult } from './api';
-import { getContext } from 'svelte';
 
 interface Props {
   /** Resolves a result to a clickable URL. Mode-specific (pinned vs picker). */
@@ -21,7 +20,7 @@ interface Props {
 }
 
 const { hrefForResult, query, selectedTopic, onTopicChange, queryStore }: Props = $props();
-const settings = getContext<AppSettings>('app-settings');
+const settings = getLocaleContext();
 </script>
 
 <div class="search-results">

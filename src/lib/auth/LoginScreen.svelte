@@ -9,6 +9,7 @@ interface Props {
 }
 
 const { settings, onSubmit }: Props = $props();
+// biome-ignore lint/style/useConst: bind:value reassigns this Svelte rune state from markup.
 let password = $state('');
 let error = $state(false);
 let pending = $state(false);

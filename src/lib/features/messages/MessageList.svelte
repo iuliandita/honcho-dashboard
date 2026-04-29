@@ -1,12 +1,12 @@
 <script lang="ts">
-import EmptyArchive from '$ui/ascii/EmptyArchive.svelte';
 import { t } from '$lib/i18n';
-import type { AppSettings } from '$lib/settings/AppSettings.svelte';
+import { getLocaleContext } from '$lib/settings/context';
+import EmptyArchive from '$ui/ascii/EmptyArchive.svelte';
 import EmptyState from '$ui/primitives/EmptyState.svelte';
 import ErrorState from '$ui/primitives/ErrorState.svelte';
 import type { InfiniteData } from '@tanstack/query-core';
 import type { CreateInfiniteQueryResult } from '@tanstack/svelte-query';
-import { getContext, onMount } from 'svelte';
+import { onMount } from 'svelte';
 import MessageBubble from './MessageBubble.svelte';
 import type { Message, MessagesPage } from './api';
 
@@ -17,7 +17,7 @@ interface Props {
 }
 
 const { query, peerId }: Props = $props();
-const settings = getContext<AppSettings>('app-settings');
+const settings = getLocaleContext();
 
 // Honcho returns newest-first pages; keep the first page's newest item visible
 // while prepending older pages above it as scrollback loads.

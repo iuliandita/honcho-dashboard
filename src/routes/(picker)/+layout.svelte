@@ -1,8 +1,8 @@
 <script lang="ts">
-import Icon from '$ui/pixel/Icon.svelte';
 import { t } from '$lib/i18n';
 import type { AppSettings } from '$lib/settings/AppSettings.svelte';
-import { getContext, type Snippet } from 'svelte';
+import Icon from '$ui/pixel/Icon.svelte';
+import { type Snippet, getContext } from 'svelte';
 
 interface Props {
   children: Snippet;

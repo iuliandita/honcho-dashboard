@@ -1,7 +1,6 @@
 <script lang="ts">
 import { t } from '$lib/i18n';
-import type { AppSettings } from '$lib/settings/AppSettings.svelte';
-import { getContext } from 'svelte';
+import { getLocaleContext } from '$lib/settings/context';
 import { onDestroy } from 'svelte';
 
 interface Props {
@@ -14,7 +13,7 @@ interface Props {
 }
 
 let { value = $bindable(''), onCommit, onValueChange, debounceMs = 250 }: Props = $props();
-const settings = getContext<AppSettings>('app-settings');
+const settings = getLocaleContext();
 
 let commitTimer: ReturnType<typeof setTimeout> | null = null;
 

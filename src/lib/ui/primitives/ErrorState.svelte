@@ -1,7 +1,6 @@
 <script lang="ts">
 import { t } from '$lib/i18n';
-import type { AppSettings } from '$lib/settings/AppSettings.svelte';
-import { getContext } from 'svelte';
+import { getLocaleContext } from '$lib/settings/context';
 
 interface DisplayError {
   message: string;
@@ -21,17 +20,9 @@ interface Props {
   clearLabel?: string;
 }
 
-const {
-  error,
-  title,
-  context,
-  onRetry,
-  onClear,
-  retryLabel,
-  clearLabel,
-}: Props = $props();
+const { error, title, context, onRetry, onClear, retryLabel, clearLabel }: Props = $props();
 
-const settings = getContext<AppSettings>('app-settings');
+const settings = getLocaleContext();
 const hasMeta = $derived(Boolean(error.status || error.traceId || error.upstream));
 const displayTitle = $derived(title ?? t(settings.locale, 'error.requestFailed'));
 const displayRetryLabel = $derived(retryLabel ?? t(settings.locale, 'error.retry'));

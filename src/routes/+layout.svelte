@@ -1,10 +1,10 @@
 <script lang="ts">
 import '$ui/fonts.css';
 import '$ui/tokens.css';
-import BrandMark from '$ui/ascii/BrandMark.svelte';
-import Icon from '$ui/pixel/Icon.svelte';
 import AuthGate from '$lib/auth/AuthGate.svelte';
 import { AppSettings } from '$lib/settings/AppSettings.svelte';
+import BrandMark from '$ui/ascii/BrandMark.svelte';
+import Icon from '$ui/pixel/Icon.svelte';
 import SettingsMenu from '$ui/primitives/SettingsMenu.svelte';
 import { QueryClient, QueryClientProvider } from '@tanstack/svelte-query';
 import { setContext } from 'svelte';

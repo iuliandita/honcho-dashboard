@@ -1,8 +1,8 @@
 <script lang="ts">
 import { page } from '$app/state';
-import { t, type MessageKey } from '$lib/i18n';
+import { type MessageKey, t } from '$lib/i18n';
 import type { AppSettings } from '$lib/settings/AppSettings.svelte';
-import { getContext, type Snippet } from 'svelte';
+import { type Snippet, getContext } from 'svelte';
 
 interface Props {
   workspaceId?: string;

@@ -1,11 +1,11 @@
 <script lang="ts">
 import { createApiClient } from '$api/client';
 import { page } from '$app/state';
-import { t } from '$lib/i18n';
-import type { AppSettings } from '$lib/settings/AppSettings.svelte';
 import PaneList from '$features/browser/PaneList.svelte';
 import PeerCard from '$features/browser/PeerCard.svelte';
 import { type PeerSummary, buildPeersQuery } from '$features/browser/api';
+import { t } from '$lib/i18n';
+import type { AppSettings } from '$lib/settings/AppSettings.svelte';
 import Pane from '$ui/primitives/Pane.svelte';
 import PaneHeader from '$ui/primitives/PaneHeader.svelte';
 import { createQuery } from '@tanstack/svelte-query';

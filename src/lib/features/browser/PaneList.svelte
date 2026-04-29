@@ -1,10 +1,10 @@
 <script lang="ts" generics="T extends { id: string }">
 import type { HonchoApiError } from '$api/errors';
 import { t } from '$lib/i18n';
-import type { AppSettings } from '$lib/settings/AppSettings.svelte';
+import { getLocaleContext } from '$lib/settings/context';
 import EmptyState from '$ui/primitives/EmptyState.svelte';
 import ErrorState from '$ui/primitives/ErrorState.svelte';
-import { getContext, type Snippet } from 'svelte';
+import type { Snippet } from 'svelte';
 
 interface Props {
   items: T[];
@@ -33,7 +33,7 @@ const {
   onSelect,
   onRetry,
 }: Props = $props();
-const settings = getContext<AppSettings>('app-settings');
+const settings = getLocaleContext();
 </script>
 
 <div class="pane-body">

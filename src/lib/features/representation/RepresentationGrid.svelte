@@ -1,20 +1,19 @@
 <script lang="ts">
 import { t } from '$lib/i18n';
-import type { AppSettings } from '$lib/settings/AppSettings.svelte';
+import { getLocaleContext } from '$lib/settings/context';
 import EmptyMemory from '$ui/ascii/EmptyMemory.svelte';
 import EmptyState from '$ui/primitives/EmptyState.svelte';
 import RepresentationCard from './RepresentationCard.svelte';
 import TopicChip from './TopicChip.svelte';
 import type { RepresentationResponse } from './api';
 import { filterByTopic } from './filter';
-import { getContext } from 'svelte';
 
 interface Props {
   data: RepresentationResponse;
 }
 
 const { data }: Props = $props();
-const settings = getContext<AppSettings>('app-settings');
+const settings = getLocaleContext();
 let selectedTopic = $state<string | null>(null);
 
 const topicCounts = $derived.by((): Map<string, number> => {

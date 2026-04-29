@@ -1,7 +1,7 @@
 <script lang="ts">
+import ChatPanel from '$features/chat/ChatPanel.svelte';
 import { t } from '$lib/i18n';
 import type { AppSettings } from '$lib/settings/AppSettings.svelte';
-import ChatPanel from '$features/chat/ChatPanel.svelte';
 import Pane from '$ui/primitives/Pane.svelte';
 import PaneHeader from '$ui/primitives/PaneHeader.svelte';
 import { getContext } from 'svelte';

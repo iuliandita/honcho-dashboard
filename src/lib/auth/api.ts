@@ -25,9 +25,9 @@ export async function login(password: string, options: AuthApiOptions = {}) {
   const fetcher = options.fetch ?? fetch;
   return parse<{ authenticated: true }>(
     await fetcher('/api/auth/login', {
-    method: 'POST',
-    headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
-    body: JSON.stringify({ password }),
+      method: 'POST',
+      headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password }),
     }),
   );
 }

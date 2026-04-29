@@ -50,7 +50,8 @@ export const de = {
   'chat.send': 'Senden',
   'chat.cancel': 'Abbrechen',
   'chat.empty': 'Honcho zu diesem Peer fragen',
-  'chat.empty.description': 'Ruft /peers/{peerId}/chat auf: natürlichsprachliche Fragen zum gelernten Zustand des Peers',
+  'chat.empty.description':
+    'Ruft /peers/{peerId}/chat auf: natürlichsprachliche Fragen zum gelernten Zustand des Peers',
   'chat.failed': 'Chat fehlgeschlagen',
   'chat.assistant': 'Honcho',
   'chat.streaming': 'Streaming...',

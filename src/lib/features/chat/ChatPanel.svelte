@@ -1,11 +1,10 @@
 <script lang="ts">
 import { keys } from '$api/keys';
 import { t } from '$lib/i18n';
-import type { AppSettings } from '$lib/settings/AppSettings.svelte';
+import { getLocaleContext } from '$lib/settings/context';
 import EmptyState from '$ui/primitives/EmptyState.svelte';
 import ErrorState from '$ui/primitives/ErrorState.svelte';
 import { useQueryClient } from '@tanstack/svelte-query';
-import { getContext } from 'svelte';
 import { ChatStream } from './ChatStream.svelte';
 
 interface Props {
@@ -14,7 +13,7 @@ interface Props {
 }
 
 const { peerId, workspaceId }: Props = $props();
-const settings = getContext<AppSettings>('app-settings');
+const settings = getLocaleContext();
 
 const queryClient = useQueryClient();
 

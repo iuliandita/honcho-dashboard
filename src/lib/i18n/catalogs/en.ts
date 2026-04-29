@@ -50,7 +50,8 @@ export const en = {
   'chat.send': 'send',
   'chat.cancel': 'cancel',
   'chat.empty': 'ask honcho about this peer',
-  'chat.empty.description': "this calls /peers/{peerId}/chat: natural-language queries against the peer's learned state",
+  'chat.empty.description':
+    "this calls /peers/{peerId}/chat: natural-language queries against the peer's learned state",
   'chat.failed': 'chat failed',
   'chat.assistant': 'honcho',
   'chat.streaming': 'streaming...',

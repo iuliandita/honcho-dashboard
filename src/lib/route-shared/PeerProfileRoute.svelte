@@ -1,9 +1,9 @@
 <script lang="ts">
 import { createApiClient } from '$api/client';
-import { t } from '$lib/i18n';
-import type { AppSettings } from '$lib/settings/AppSettings.svelte';
 import ProfileMarkdown from '$features/profile/ProfileMarkdown.svelte';
 import { type ProfileResponse, buildPeerProfileQuery } from '$features/profile/api';
+import { t } from '$lib/i18n';
+import type { AppSettings } from '$lib/settings/AppSettings.svelte';
 import EmptyProfile from '$ui/ascii/EmptyProfile.svelte';
 import EmptyState from '$ui/primitives/EmptyState.svelte';
 import ErrorState from '$ui/primitives/ErrorState.svelte';

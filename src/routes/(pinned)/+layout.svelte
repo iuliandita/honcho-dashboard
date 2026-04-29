@@ -1,9 +1,9 @@
 <script lang="ts">
 import { page } from '$app/state';
-import Icon from '$ui/pixel/Icon.svelte';
 import { t } from '$lib/i18n';
 import type { AppSettings } from '$lib/settings/AppSettings.svelte';
-import { getContext, type Snippet } from 'svelte';
+import Icon from '$ui/pixel/Icon.svelte';
+import { type Snippet, getContext } from 'svelte';
 import type { LayoutData } from './$types';
 
 interface Props {

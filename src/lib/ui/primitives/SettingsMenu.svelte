@@ -1,5 +1,5 @@
 <script lang="ts">
-import { t, type MessageKey, localeOptions } from '$lib/i18n';
+import { type MessageKey, localeOptions, t } from '$lib/i18n';
 import type { AppSettings } from '$lib/settings/AppSettings.svelte';
 import { FONT_SCALES, THEMES } from '$lib/settings/preferences';
 import Icon from '$ui/pixel/Icon.svelte';
@@ -11,6 +11,7 @@ interface Props {
 }
 
 const { settings, authEnabled, onLogout }: Props = $props();
+// biome-ignore lint/style/useConst: button handlers reassign this Svelte rune state from markup.
 let open = $state(false);
 </script>
 

@@ -1,9 +1,9 @@
 <script lang="ts">
 import { createApiClient } from '$api/client';
-import { t } from '$lib/i18n';
-import type { AppSettings } from '$lib/settings/AppSettings.svelte';
 import RepresentationGrid from '$features/representation/RepresentationGrid.svelte';
 import { type RepresentationResponse, buildPeerRepresentationQuery } from '$features/representation/api';
+import { t } from '$lib/i18n';
+import type { AppSettings } from '$lib/settings/AppSettings.svelte';
 import EmptyMemory from '$ui/ascii/EmptyMemory.svelte';
 import EmptyState from '$ui/primitives/EmptyState.svelte';
 import ErrorState from '$ui/primitives/ErrorState.svelte';

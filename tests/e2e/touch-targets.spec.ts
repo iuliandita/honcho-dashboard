@@ -52,7 +52,9 @@ test.describe('touch targets', () => {
     });
   }
 
-  test('keeps mobile chrome compact while preserving settings button access for assistive tech', async ({ browser }) => {
+  test('keeps mobile chrome compact while preserving settings button access for assistive tech', async ({
+    browser,
+  }) => {
     const context = await browser.newContext({
       hasTouch: true,
       isMobile: true,

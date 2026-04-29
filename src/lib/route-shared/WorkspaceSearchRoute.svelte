@@ -2,11 +2,11 @@
 import { createApiClient } from '$api/client';
 import { replaceState } from '$app/navigation';
 import { page } from '$app/state';
-import { t } from '$lib/i18n';
-import type { AppSettings } from '$lib/settings/AppSettings.svelte';
 import SearchInput from '$features/search/SearchInput.svelte';
 import SearchResults from '$features/search/SearchResults.svelte';
 import { type SearchResponse, type SearchResult, buildWorkspaceSearchQuery } from '$features/search/api';
+import { t } from '$lib/i18n';
+import type { AppSettings } from '$lib/settings/AppSettings.svelte';
 import Pane from '$ui/primitives/Pane.svelte';
 import PaneHeader from '$ui/primitives/PaneHeader.svelte';
 import { createQuery } from '@tanstack/svelte-query';

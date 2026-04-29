@@ -1,5 +1,5 @@
-import { getCookie } from 'hono/cookie';
 import type { MiddlewareHandler } from 'hono';
+import { getCookie } from 'hono/cookie';
 import type { AuthConfig } from './config';
 import { verifySessionCookie } from './session';
 

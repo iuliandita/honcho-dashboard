@@ -19,5 +19,9 @@ applying. `secret.example.yaml` is documentation only and is intentionally exclu
 `servicemonitor.yaml` is also excluded by default. Add it from an overlay if the Prometheus Operator is
 installed and you want ServiceMonitor discovery; the dashboard does not expose `/metrics` yet.
 
-The dashboard is an admin-token BFF. Keep it on a trusted operator network; without per-user auth, any
-same-origin POST in a reachable browser session can drive Honcho with the configured admin token.
+Optional shared-password auth is configured with `DASHBOARD_AUTH_MODE=password`. Set
+`DASHBOARD_SESSION_SECRET` and either `DASHBOARD_AUTH_PASSWORD_HASH` (preferred) or
+`DASHBOARD_AUTH_PASSWORD` in the Secret. Leave `DASHBOARD_AUTH_MODE=off` for trusted-network-only installs.
+
+The dashboard is an admin-token BFF. Keep it on a trusted operator network. Shared-password auth protects the
+dashboard shell and proxied Honcho API requests, but it is intentionally not a multi-user or role-based system.

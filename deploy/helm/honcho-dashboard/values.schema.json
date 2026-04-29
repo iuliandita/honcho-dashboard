@@ -23,6 +23,16 @@
     },
     "logLevel": { "type": "string", "enum": ["info", "debug"] },
     "port": { "type": "integer", "minimum": 1, "maximum": 65535 },
+    "dashboardAuth": {
+      "type": "object",
+      "properties": {
+        "mode": { "type": "string", "enum": ["off", "password"] },
+        "password": { "type": "string" },
+        "passwordHash": { "type": "string" },
+        "sessionSecret": { "type": "string" },
+        "sessionTtlSeconds": { "type": "integer", "minimum": 60, "maximum": 2592000 }
+      }
+    },
     "secret": {
       "type": "object",
       "properties": {
