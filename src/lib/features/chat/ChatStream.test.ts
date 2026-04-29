@@ -15,6 +15,19 @@ function makeStreamingResponse(chunks: string[], headers: Record<string, string>
   });
 }
 
+function makeByteStreamingResponse(chunks: Uint8Array[], headers: Record<string, string> = {}): Response {
+  const body = new ReadableStream<Uint8Array>({
+    start(controller) {
+      for (const c of chunks) controller.enqueue(c);
+      controller.close();
+    },
+  });
+  return new Response(body, {
+    status: 200,
+    headers: { 'Content-Type': 'text/event-stream', ...headers },
+  });
+}
+
 describe('ChatStream', () => {
   let mockInvalidate: ReturnType<typeof vi.fn>;
 
@@ -66,6 +79,70 @@ describe('ChatStream', () => {
     expect(mockInvalidate).toHaveBeenCalledWith('p');
   });
 
+  it('streams Honcho OpenAI-style delta events', async () => {
+    const fetchMock = vi.fn(async () =>
+      makeStreamingResponse([
+        'data: {"delta":{"content":"hello "},"done":false}\n\n',
+        'data: {"delta":{"content":"world"},"done":false}\n\n',
+        'data: {"done":true}\n\n',
+      ]),
+    );
+
+    const stream = new ChatStream({
+      workspaceId: 'ws',
+      peerId: 'p',
+      invalidatePeer: mockInvalidate,
+      fetch: fetchMock,
+    });
+    await stream.send('greet');
+
+    expect(stream.tokens).toBe('hello world');
+    expect(stream.expectedEnd).toBe(true);
+    expect(stream.error).toBeNull();
+    expect(mockInvalidate).toHaveBeenCalledWith('p');
+  });
+
+  it('ignores tokens after done event', async () => {
+    const fetchMock = vi.fn(async () =>
+      makeStreamingResponse([
+        'data: {"type":"token","data":"before"}\n\n',
+        'data: {"type":"done"}\n\n',
+        'data: {"type":"token","data":"after"}\n\n',
+      ]),
+    );
+
+    const stream = new ChatStream({
+      workspaceId: 'ws',
+      peerId: 'p',
+      invalidatePeer: mockInvalidate,
+      fetch: fetchMock,
+    });
+    await stream.send('greet');
+
+    expect(stream.tokens).toBe('before');
+    expect(stream.expectedEnd).toBe(true);
+    expect(stream.error).toBeNull();
+  });
+
+  it('reassembles multi-byte UTF-8 split across chunks', async () => {
+    const enc = new TextEncoder();
+    const payload = enc.encode('data: {"type":"token","data":"café"}\n\ndata: {"type":"done"}\n\n');
+    const splitAt = payload.findIndex((byte) => byte === 0xc3) + 1;
+    const fetchMock = vi.fn(async () => makeByteStreamingResponse([payload.slice(0, splitAt), payload.slice(splitAt)]));
+
+    const stream = new ChatStream({
+      workspaceId: 'ws',
+      peerId: 'p',
+      invalidatePeer: mockInvalidate,
+      fetch: fetchMock,
+    });
+    await stream.send('greet');
+
+    expect(stream.tokens).toBe('café');
+    expect(stream.expectedEnd).toBe(true);
+    expect(stream.error).toBeNull();
+  });
+
   it('records error on error event', async () => {
     const fetchMock = vi.fn(async () =>
       makeStreamingResponse([
@@ -89,6 +166,22 @@ describe('ChatStream', () => {
     expect(mockInvalidate).not.toHaveBeenCalled();
   });
 
+  it('preserves trace ID on streamed error events', async () => {
+    const fetchMock = vi.fn(async () =>
+      makeStreamingResponse(['data: {"type":"error","data":"upstream lost"}\n\n'], { 'X-Trace-Id': 'trace-1' }),
+    );
+
+    const stream = new ChatStream({
+      workspaceId: 'ws',
+      peerId: 'p',
+      invalidatePeer: mockInvalidate,
+      fetch: fetchMock,
+    });
+    await stream.send('greet');
+
+    expect(stream.error?.traceId).toBe('trace-1');
+  });
+
   it('marks stream as unexpectedly ended when reader closes without done', async () => {
     const fetchMock = vi.fn(async () => makeStreamingResponse(['data: {"type":"token","data":"abrupt"}\n\n']));
 
@@ -104,6 +197,7 @@ describe('ChatStream', () => {
     expect(stream.streamEnded).toBe(true);
     expect(stream.expectedEnd).toBe(false);
     expect(stream.error?.message).toMatch(/interrupted/i);
+    expect(stream.error?.upstream).toBe('honcho');
   });
 
   it('records HonchoApiError on non-200 response', async () => {
@@ -199,7 +293,10 @@ describe('ChatStream', () => {
 
     expect(fetchMock).toHaveBeenCalledWith(
       '/api/v3/workspaces/ws-alpha/peers/peer-7/chat',
-      expect.objectContaining({ method: 'POST' }),
+      expect.objectContaining({
+        method: 'POST',
+        body: JSON.stringify({ query: 'q', stream: true, reasoning_level: 'low' }),
+      }),
     );
   });
 });

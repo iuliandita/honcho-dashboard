@@ -29,6 +29,14 @@ test.describe('representation flow', () => {
     await expect(allChip).toContainText('5');
   });
 
+  test('keeps representation content in the pane scroll region', async ({ page }) => {
+    await page.goto(`${dashboard.url}/peers/peer-1/representation`);
+
+    const scrollRegion = page.locator('.pane.scrollable .pane-body');
+    await expect(scrollRegion).toBeVisible();
+    await expect(scrollRegion).toHaveCSS('overflow-y', 'auto');
+  });
+
   test('clicking topic chip filters reactively', async ({ page }) => {
     await page.goto(`${dashboard.url}/peers/peer-1/representation`);
 

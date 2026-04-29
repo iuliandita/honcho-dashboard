@@ -1,14 +1,26 @@
 import type { ApiClient } from '$api/client';
 import { keys } from '$api/keys';
+import type { components } from '$lib/honcho/types';
 
 export interface ProfileResponse {
   markdown: string;
   updatedAt: string | null;
 }
 
+interface QueryContext {
+  signal?: AbortSignal;
+}
+
 export function buildPeerProfileQuery(client: ApiClient, workspaceId: string, peerId: string) {
   return {
     queryKey: keys.peerProfile(workspaceId, peerId),
-    queryFn: () => client.get<ProfileResponse>(`/v3/workspaces/${workspaceId}/peers/${peerId}/profile`),
+    queryFn: async ({ signal }: QueryContext = {}) => {
+      const body: components['schemas']['PeerRepresentationGet'] = { max_conclusions: null };
+      const path = `/v3/workspaces/${workspaceId}/peers/${peerId}/representation`;
+      const response = await (signal
+        ? client.post<components['schemas']['RepresentationResponse']>(path, body, undefined, { signal })
+        : client.post<components['schemas']['RepresentationResponse']>(path, body));
+      return { markdown: response.representation, updatedAt: null };
+    },
   };
 }

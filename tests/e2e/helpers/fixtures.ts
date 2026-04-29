@@ -1,39 +1,61 @@
-import type { SearchResult } from '../../../src/lib/features/search/api';
+import type { components } from '../../../src/lib/honcho/types';
 
 export const fixtureWorkspaces = [
-  { id: 'ws-alpha', name: 'alpha' },
-  { id: 'ws-beta', name: 'beta' },
+  { id: 'ws-alpha', metadata: { name: 'alpha' }, configuration: {}, created_at: '2026-04-28T10:00:00Z' },
+  { id: 'ws-beta', metadata: { name: 'beta' }, configuration: {}, created_at: '2026-04-28T10:01:00Z' },
 ];
 
 export const fixturePeers = [
-  { id: 'peer-1', name: 'hermes' },
-  { id: 'peer-2', name: 'iris' },
+  {
+    id: 'peer-1',
+    workspace_id: 'ws-alpha',
+    metadata: { name: 'hermes' },
+    configuration: {},
+    created_at: '2026-04-28T10:02:00Z',
+  },
+  {
+    id: 'peer-2',
+    workspace_id: 'ws-alpha',
+    metadata: { name: 'iris' },
+    configuration: {},
+    created_at: '2026-04-28T10:03:00Z',
+  },
 ];
 
 export const fixtureSessions = [
-  { id: 'sess-1', updatedAt: '2026-04-28T12:34:56Z', messageCount: 42 },
-  { id: 'sess-2', updatedAt: '2026-04-28T11:22:33Z', messageCount: 7 },
+  {
+    id: 'sess-1',
+    is_active: true,
+    workspace_id: 'ws-alpha',
+    metadata: {},
+    configuration: {},
+    created_at: '2026-04-28T12:34:56Z',
+  },
+  {
+    id: 'sess-2',
+    is_active: true,
+    workspace_id: 'ws-alpha',
+    metadata: {},
+    configuration: {},
+    created_at: '2026-04-28T11:22:33Z',
+  },
 ];
 
-export interface FixtureMessage {
-  id: string;
-  role: 'user' | 'assistant' | 'system';
-  content: string;
-  createdAt: string;
-}
-
 /** Generates 120 messages, alternating roles, in reverse chronological order. */
-export function generateMessageHistory(): FixtureMessage[] {
-  const messages: FixtureMessage[] = [];
+export function generateMessageHistory(): components['schemas']['Message'][] {
+  const messages: components['schemas']['Message'][] = [];
   const start = new Date('2026-04-28T12:00:00Z').getTime();
 
   for (let i = 0; i < 120; i++) {
-    const roles = ['user', 'assistant'] as const;
     messages.push({
       id: `m-${String(i).padStart(3, '0')}`,
-      role: roles[i % 2] ?? 'user',
+      peer_id: i % 2 === 0 ? 'peer-1' : 'assistant-peer',
+      session_id: 'sess-1',
+      workspace_id: 'ws-alpha',
       content: `message body ${i} - body of message ${i} which is testing scroll-back to previous pages`,
-      createdAt: new Date(start - i * 60_000).toISOString(),
+      metadata: {},
+      created_at: new Date(start - i * 60_000).toISOString(),
+      token_count: 10,
     });
   }
 
@@ -93,59 +115,35 @@ export const fixtureRepresentationMarkdown = fixtureRepresentation.topics
   })
   .join('\n\n');
 
-export const fixtureProfile = {
-  markdown: `# hermes
-
-A peer who treats async-first communication as a default. Prefers writing over calls.
-
-## habits
-
-- **morning**: late riser, productive after 10am
-- **work**: remote, async-first, deep-focus blocks
-- **coffee**: oat milk, medium roast
-
-## interests
-
-Topics that come up across sessions:
-
-- distributed systems
-- self-hosted tooling
-- the [Honcho project](https://honcho.dev)
-
-> "if it's not in the repo, it didn't happen"
-
-<script>alert(1)</script>
-[unsafe](javascript:alert(1))
-`,
-  updatedAt: '2026-04-28T12:00:00Z',
-};
-
-export const fixtureSearchResults: SearchResult[] = [
+export const fixtureSearchResults: components['schemas']['Message'][] = [
   {
     id: 's1',
-    peerId: 'peer-1',
-    peerName: 'hermes',
-    topic: 'coffee',
-    excerpt: 'prefers oat milk in coffee',
-    score: 0.92,
-    updatedAt: '2026-04-20T10:00:00Z',
+    peer_id: 'peer-1',
+    session_id: 'sess-1',
+    workspace_id: 'ws-alpha',
+    content: 'prefers oat milk in coffee',
+    metadata: { peer_name: 'hermes', topic: 'coffee', score: 0.92 },
+    created_at: '2026-04-20T10:00:00Z',
+    token_count: 5,
   },
   {
     id: 's2',
-    peerId: 'peer-2',
-    peerName: 'iris',
-    topic: 'coffee',
-    excerpt: 'drinks coffee mostly in the morning',
-    score: 0.78,
-    updatedAt: '2026-04-21T11:00:00Z',
+    peer_id: 'peer-2',
+    session_id: 'sess-2',
+    workspace_id: 'ws-alpha',
+    content: 'drinks coffee mostly in the morning',
+    metadata: { peer_name: 'iris', topic: 'coffee', score: 0.78 },
+    created_at: '2026-04-21T11:00:00Z',
+    token_count: 6,
   },
   {
     id: 's3',
-    peerId: 'peer-1',
-    peerName: 'hermes',
-    topic: 'work',
-    excerpt: 'coffee chats cover remote work, async-first communication',
-    score: 0.65,
-    updatedAt: '2026-04-22T09:00:00Z',
+    peer_id: 'peer-1',
+    session_id: 'sess-1',
+    workspace_id: 'ws-alpha',
+    content: 'coffee chats cover remote work, async-first communication',
+    metadata: { peer_name: 'hermes', topic: 'work', score: 0.65 },
+    created_at: '2026-04-22T09:00:00Z',
+    token_count: 8,
   },
 ];

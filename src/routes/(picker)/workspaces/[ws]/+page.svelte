@@ -1,6 +1,5 @@
 <script lang="ts">
 import { createApiClient } from '$api/client';
-import { goto } from '$app/navigation';
 import { page } from '$app/state';
 import PaneList from '$features/browser/PaneList.svelte';
 import PeerCard from '$features/browser/PeerCard.svelte';
@@ -26,10 +25,6 @@ const query = $derived.by(() =>
     initialData: data.peers,
   }),
 );
-
-function open(peer: PeerSummary) {
-  goto(`/workspaces/${workspaceId}/peers/${peer.id}`);
-}
 </script>
 
 <Pane scrollable>
@@ -39,7 +34,7 @@ function open(peer: PeerSummary) {
     loading={$query.isLoading}
     error={$query.error}
     empty={{ title: 'no peers in this workspace' }}
-    onSelect={open}
+    hrefFor={(peer) => `/workspaces/${workspaceId}/peers/${peer.id}`}
   >
     {#snippet row(item: PeerSummary)}
       <PeerCard peer={item} />

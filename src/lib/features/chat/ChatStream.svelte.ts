@@ -1,5 +1,6 @@
 import type { ClientFetch } from '$api/client';
 import { HonchoApiError, parseErrorBody } from '$api/errors';
+import type { components } from '$lib/honcho/types';
 import type { ChatEvent } from './events';
 import { createSseParser } from './parse-sse';
 
@@ -50,13 +51,18 @@ export class ChatStream {
 
     const fetcher = this.config.fetch ?? globalThis.fetch;
     const url = `/api/v3/workspaces/${this.config.workspaceId}/peers/${this.config.peerId}/chat`;
+    const body: components['schemas']['DialecticOptions'] = {
+      query,
+      stream: true,
+      reasoning_level: 'low',
+    };
 
     let response: Response;
     try {
       response = await fetcher(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Accept: 'text/event-stream' },
-        body: JSON.stringify({ query }),
+        body: JSON.stringify(body),
         signal: this.abortController.signal,
       });
     } catch (err) {
@@ -91,6 +97,7 @@ export class ChatStream {
     const reader = response.body.getReader();
     const decoder = new TextDecoder();
     const parser = createSseParser();
+    const traceId = response.headers.get('X-Trace-Id') ?? '';
 
     try {
       while (true) {
@@ -98,37 +105,41 @@ export class ChatStream {
         if (done) break;
 
         const chunk = decoder.decode(value, { stream: true });
-        for (const ev of parser.push(chunk)) this.handleEvent(ev);
+        for (const ev of parser.push(chunk)) {
+          this.handleEvent(ev, traceId);
+          if (this.expectedEnd || this.error) break;
+        }
         if (this.expectedEnd || this.error) break;
       }
 
-      for (const ev of parser.flush()) this.handleEvent(ev);
+      if (!this.expectedEnd && !this.error) {
+        for (const ev of parser.flush()) {
+          this.handleEvent(ev, traceId);
+          if (this.expectedEnd || this.error) break;
+        }
+      }
 
       if (!this.expectedEnd && !this.error) {
         this.error = new HonchoApiError('stream interrupted before completion', {
           status: 0,
-          traceId: response.headers.get('X-Trace-Id') ?? '',
-          upstream: 'proxy',
+          traceId,
+          upstream: 'honcho',
         });
       }
     } catch (err) {
       if (err instanceof DOMException && err.name === 'AbortError') {
-        // cancelled deliberately — leave error null
+        // cancelled deliberately - leave error null
       } else {
         this.error = new HonchoApiError(err instanceof Error ? err.message : 'stream read failure', {
           status: 0,
-          traceId: response.headers.get('X-Trace-Id') ?? '',
+          traceId,
           upstream: 'proxy',
         });
       }
     } finally {
       this.streamEnded = true;
       this.endedAt = Date.now();
-      try {
-        reader.releaseLock();
-      } catch {
-        // already released
-      }
+      reader.releaseLock();
       this.abortController = null;
 
       if (this.expectedEnd && !this.error) {
@@ -141,7 +152,7 @@ export class ChatStream {
     this.abortController?.abort();
   }
 
-  private handleEvent(event: ChatEvent): void {
+  private handleEvent(event: ChatEvent, traceId: string): void {
     switch (event.type) {
       case 'token':
         this.tokens += event.data;
@@ -152,7 +163,7 @@ export class ChatStream {
       case 'error':
         this.error = new HonchoApiError(event.data, {
           status: 0,
-          traceId: '',
+          traceId,
           upstream: 'honcho',
         });
         break;

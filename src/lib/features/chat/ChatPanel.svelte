@@ -1,6 +1,7 @@
 <script lang="ts">
 import { keys } from '$api/keys';
 import EmptyState from '$ui/primitives/EmptyState.svelte';
+import ErrorState from '$ui/primitives/ErrorState.svelte';
 import { useQueryClient } from '@tanstack/svelte-query';
 import { ChatStream } from './ChatStream.svelte';
 
@@ -31,12 +32,19 @@ $effect(() => {
 });
 
 let inputValue = $state('');
+let lastQuery = $state('');
 
 async function submit() {
   const q = inputValue.trim();
   if (!q || stream.isStreaming) return;
+  lastQuery = q;
   inputValue = '';
   await stream.send(q);
+}
+
+async function retryLastQuery() {
+  if (!lastQuery || stream.isStreaming) return;
+  await stream.send(lastQuery);
 }
 
 function handleKeydown(e: KeyboardEvent) {
@@ -52,18 +60,21 @@ function handleKeydown(e: KeyboardEvent) {
     {#if !stream.tokens && !stream.error && !stream.isStreaming}
       <EmptyState
         title="ask honcho about this peer"
-        description="this calls /peers/{peerId}/chat — natural-language queries against the peer's learned state"
+        description="this calls /peers/{peerId}/chat: natural-language queries against the peer's learned state"
       />
     {:else if stream.error}
-      <article class="response error">
-        <header>error · status {stream.error.status}</header>
-        <pre class="content">{stream.tokens}</pre>
-        <p class="error-message">{stream.error.message}</p>
-        {#if stream.error.traceId}
-          <p class="trace">trace: <code>{stream.error.traceId}</code></p>
+      <div class="error-stack">
+        {#if stream.tokens}
+          <pre class="content partial">{stream.tokens}</pre>
         {/if}
-        <button type="button" class="retry" onclick={() => stream.reset()}>clear</button>
-      </article>
+        <ErrorState
+          error={stream.error}
+          title="chat failed"
+          context={`/peers/${peerId}/chat`}
+          onRetry={lastQuery ? retryLastQuery : undefined}
+          onClear={() => stream.reset()}
+        />
+      </div>
     {:else}
       <article class="response">
         <header>
@@ -92,6 +103,7 @@ function handleKeydown(e: KeyboardEvent) {
   >
     <textarea
       class="input"
+      aria-label="ask honcho about this peer"
       placeholder={stream.isStreaming ? 'streaming…' : 'ask about this peer'}
       bind:value={inputValue}
       onkeydown={handleKeydown}
@@ -124,11 +136,8 @@ function handleKeydown(e: KeyboardEvent) {
     flex-direction: column;
     gap: 0.5rem;
     padding: 0.75rem 1rem;
-    border-left: 3px solid var(--color-yellow-500);
-    background: var(--color-surface);
-  }
-  .response.error {
-    border-left-color: var(--color-error);
+    border: 1px solid var(--color-yellow-500);
+    background: color-mix(in oklab, var(--color-yellow-500) 6%, var(--color-surface));
   }
   .response header {
     display: flex;
@@ -139,9 +148,6 @@ function handleKeydown(e: KeyboardEvent) {
     text-transform: uppercase;
     letter-spacing: 0.04em;
     font-weight: 700;
-  }
-  .response.error header {
-    color: var(--color-error);
   }
   .label { color: var(--color-yellow-500); }
   .streaming {
@@ -170,31 +176,14 @@ function handleKeydown(e: KeyboardEvent) {
     color: var(--color-yellow-500);
     animation: var(--animate-cursor-blink);
   }
-  .error-message {
-    margin: 0;
-    color: var(--color-error);
-    font-size: var(--text-sm);
+  .error-stack {
+    display: grid;
+    gap: 0.75rem;
   }
-  .trace {
-    margin: 0;
-    color: var(--color-fg-faint);
-    font-size: var(--text-xs);
-  }
-  .trace code {
-    color: var(--color-yellow-500);
-  }
-  .retry {
-    align-self: flex-start;
-    background: transparent;
-    color: var(--color-fg);
+  .partial {
+    padding: 0.75rem 1rem;
     border: 1px solid var(--color-border);
-    padding: 0.25rem 0.6rem;
-    font-family: inherit;
-    font-size: var(--text-xs);
-    cursor: pointer;
-  }
-  .retry:hover {
-    border-color: var(--color-yellow-500);
+    background: var(--color-surface);
   }
 
   .input-row {
@@ -202,7 +191,7 @@ function handleKeydown(e: KeyboardEvent) {
     gap: 0.5rem;
     padding: 0.75rem 1rem;
     border-top: 1px solid var(--color-border);
-    background: var(--color-bg);
+    background: var(--color-surface);
   }
   .input {
     flex: 1;
@@ -229,6 +218,8 @@ function handleKeydown(e: KeyboardEvent) {
     color: var(--color-yellow-500);
     border: 1px solid var(--color-yellow-500);
     padding: 0.5rem 1rem;
+    min-width: 44px;
+    min-height: 44px;
     font-family: inherit;
     font-size: var(--text-sm);
     cursor: pointer;
@@ -237,4 +228,20 @@ function handleKeydown(e: KeyboardEvent) {
   .send:disabled { opacity: 0.4; cursor: not-allowed; }
   .cancel { color: var(--color-error); border-color: var(--color-error); }
   .cancel:hover { background: color-mix(in oklab, var(--color-error) 12%, transparent); }
+
+  @media (max-width: 480px) {
+    .output {
+      padding: 0.75rem;
+    }
+    .input-row {
+      padding: 0.75rem;
+    }
+    .input {
+      min-height: 3rem;
+    }
+    .send,
+    .cancel {
+      padding-inline: 0.85rem;
+    }
+  }
 </style>

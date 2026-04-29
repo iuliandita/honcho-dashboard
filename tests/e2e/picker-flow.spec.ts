@@ -38,6 +38,7 @@ test.describe('picker mode flow', () => {
 
   test('deep URL boots straight to peer view', async ({ page }) => {
     await page.goto(`${dashboard.url}/workspaces/ws-alpha/peers/peer-1`);
+    await expect(page).toHaveURL(/\/workspaces\/ws-alpha\/peers\/peer-1$/);
     await expect(page.getByText('sess-1')).toBeVisible();
   });
 

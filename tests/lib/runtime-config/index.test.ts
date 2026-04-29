@@ -37,6 +37,20 @@ describe('fetchRuntimeConfig', () => {
 
     await expect(fetchRuntimeConfig({ fetch: fetchMock })).rejects.toThrow();
   });
+
+  it('preserves trace context on non-200 response', async () => {
+    const fetchMock = async () =>
+      new Response(JSON.stringify({ error: 'down', status: 500, upstream: 'proxy', traceId: 'trace-runtime' }), {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' },
+      });
+
+    await expect(fetchRuntimeConfig({ fetch: fetchMock })).rejects.toMatchObject({
+      status: 500,
+      traceId: 'trace-runtime',
+      upstream: 'proxy',
+    });
+  });
 });
 
 describe('workspaceMode', () => {

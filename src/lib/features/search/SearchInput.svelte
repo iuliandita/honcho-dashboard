@@ -1,6 +1,5 @@
 <script lang="ts">
 import { onDestroy } from 'svelte';
-import { debounce } from './debounce';
 
 interface Props {
   /** Bound input value (instant). */
@@ -13,44 +12,60 @@ interface Props {
 
 let { value = $bindable(''), onCommit, onValueChange, debounceMs = 250 }: Props = $props();
 
-// The debounce wrapper is created once for this input's lifetime.
-// svelte-ignore state_referenced_locally
-const debounced = debounce((q: string) => onCommit(q), debounceMs);
+let commitTimer: ReturnType<typeof setTimeout> | null = null;
 
-onDestroy(() => debounced.cancel());
+function cancelCommit() {
+  if (commitTimer) {
+    clearTimeout(commitTimer);
+    commitTimer = null;
+  }
+}
+
+function scheduleCommit(query: string) {
+  cancelCommit();
+  commitTimer = setTimeout(() => {
+    commitTimer = null;
+    onCommit(query);
+  }, debounceMs);
+}
+
+onDestroy(cancelCommit);
 
 function handleInput(e: Event) {
   const target = e.target as HTMLInputElement;
   value = target.value;
   onValueChange?.(target.value);
-  debounced(target.value);
+  scheduleCommit(target.value);
 }
 
 function handleKeydown(e: KeyboardEvent) {
   if (e.key === 'Enter') {
-    debounced.cancel();
+    cancelCommit();
     onCommit(value);
   } else if (e.key === 'Escape') {
     value = '';
     onValueChange?.('');
-    debounced.cancel();
+    cancelCommit();
     onCommit('');
   }
 }
 </script>
 
 <label class="search-input">
+  <span class="sr-only">search this workspace</span>
   <span class="prompt" aria-hidden="true">&gt;</span>
   <input
     type="search"
     placeholder="search this workspace..."
+    aria-label="search this workspace"
+    aria-describedby="workspace-search-help"
     {value}
     oninput={handleInput}
     onkeydown={handleKeydown}
     autocomplete="off"
     spellcheck="false"
   />
-  <span class="hint">enter to commit / esc to clear</span>
+  <span id="workspace-search-help" class="hint">enter to commit / esc to clear</span>
 </label>
 
 <style>
@@ -66,6 +81,18 @@ function handleKeydown(e: KeyboardEvent) {
 
   .search-input:focus-within {
     border-color: var(--color-yellow-500);
+  }
+
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
   }
 
   .prompt {

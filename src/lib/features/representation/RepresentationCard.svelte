@@ -1,6 +1,6 @@
 <script lang="ts">
 import { formatAbsolute } from '$features/messages/format';
-import PixelIcon from '$ui/pixel/PixelIcon.svelte';
+import Icon from '$ui/pixel/Icon.svelte';
 import type { RepresentationItem } from './api';
 
 interface Props {
@@ -12,7 +12,7 @@ const { item }: Props = $props();
 
 <article class="card">
   <header>
-    <span class="topic"><PixelIcon name="topic" size={12} /> {item.topic}</span>
+    <span class="topic"><Icon name="topic" size={12} /> {item.topic}</span>
     {#if item.confidence !== undefined}
       <span class="confidence">{(item.confidence * 100).toFixed(0)}%</span>
     {/if}

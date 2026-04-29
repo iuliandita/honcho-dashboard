@@ -1,6 +1,7 @@
 <script lang="ts">
 import EmptyArchive from '$ui/ascii/EmptyArchive.svelte';
 import EmptyState from '$ui/primitives/EmptyState.svelte';
+import ErrorState from '$ui/primitives/ErrorState.svelte';
 import type { InfiniteData } from '@tanstack/query-core';
 import type { CreateInfiniteQueryResult } from '@tanstack/svelte-query';
 import { onMount } from 'svelte';
@@ -10,15 +11,16 @@ import type { Message, MessagesPage } from './api';
 interface Props {
   /** TanStack infinite query store. */
   query: CreateInfiniteQueryResult<InfiniteData<MessagesPage>, Error>;
+  peerId: string;
 }
 
-const { query }: Props = $props();
+const { query, peerId }: Props = $props();
 
 // Honcho returns newest-first pages; keep the first page's newest item visible
 // while prepending older pages above it as scrollback loads.
 const messages = $derived.by((): Message[] => {
   const pages = $query.data?.pages ?? [];
-  return pages.flatMap((page) => [...page.messages].reverse()).reverse();
+  return [...pages].reverse().flatMap((page) => [...page.messages].reverse());
 });
 
 // biome-ignore lint/style/useConst: bind:this assigns the element after mount.
@@ -54,11 +56,21 @@ onMount(() => {
 });
 </script>
 
-<div class="message-list pane-body" role="log" aria-live="polite" onscroll={onScroll}>
+<!-- svelte-ignore a11y_no_noninteractive_tabindex (scrollable log region must be keyboard focusable) -->
+<div
+  class="message-list pane-body"
+  role="log"
+  aria-label="session messages"
+  aria-live="polite"
+  tabindex="0"
+  onscroll={onScroll}
+>
   {#if $query.isLoading && messages.length === 0}
     <p class="state-row" role="status">loading messages…</p>
   {:else if $query.isError}
-    <p class="state-row error" role="alert">error: {$query.error?.message}</p>
+    <div class="state-block">
+      <ErrorState error={$query.error} title="messages failed" context={`peer ${peerId}`} onRetry={() => $query.refetch()} />
+    </div>
   {:else if messages.length === 0}
     <EmptyState title="no messages in this session">
       {#snippet art()}<EmptyArchive />{/snippet}
@@ -69,11 +81,11 @@ onMount(() => {
         <p class="state-row">loading older…</p>
       {/if}
       {#if !$query.hasNextPage}
-        <p class="state-row faint">— start of history —</p>
+        <p class="state-row faint">- start of history -</p>
       {/if}
     </div>
     {#each messages as message (message.id)}
-      <MessageBubble {message} />
+      <MessageBubble {message} {peerId} />
     {/each}
   {/if}
 </div>
@@ -95,8 +107,8 @@ onMount(() => {
     color: var(--color-fg-muted);
     text-align: center;
   }
-  .state-row.error {
-    color: var(--color-error);
+  .state-block {
+    padding: 1rem;
   }
   .state-row.faint {
     color: var(--color-fg-faint);

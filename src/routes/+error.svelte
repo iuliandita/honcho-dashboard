@@ -60,7 +60,7 @@ import Icon from '$ui/pixel/Icon.svelte';
     font-size: var(--text-base);
     line-height: 1.0;
     margin: 0 0 1rem 0;
-    /* Glow when there's room — purely decorative. */
+    /* Glow when there's room - purely decorative. */
     text-shadow: 0 0 8px color-mix(in oklch, var(--color-yellow-500) 50%, transparent);
   }
 

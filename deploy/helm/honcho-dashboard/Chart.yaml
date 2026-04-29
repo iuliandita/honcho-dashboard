@@ -4,14 +4,14 @@ description: Self-hosted web inspector for the OSS Honcho server
 type: application
 version: 1.0.0
 appVersion: 1.0.0
-home: https://github.com/REPLACE_ME/honcho-dashboard
+home: https://github.com/iuliandita/honcho-dashboard
 sources:
-  - https://github.com/REPLACE_ME/honcho-dashboard
+  - https://github.com/iuliandita/honcho-dashboard
 keywords:
   - honcho
   - memory
   - dashboard
   - inspector
 maintainers:
-  - name: REPLACE_ME
+  - name: iuliandita
 icon: ''

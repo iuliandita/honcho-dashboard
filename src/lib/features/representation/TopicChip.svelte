@@ -55,7 +55,8 @@ const label = $derived(topic ?? 'all');
 
   @media (pointer: coarse) {
     .chip {
-      min-height: 2.75rem;
+      min-width: 44px;
+      min-height: 44px;
       padding-inline: 0.8rem;
     }
   }

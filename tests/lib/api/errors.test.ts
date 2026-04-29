@@ -53,6 +53,34 @@ describe('parseErrorBody', () => {
     expect(err.message).toContain('plain error text');
   });
 
+  it('uses Honcho detail bodies as the error message', async () => {
+    const res = new Response(JSON.stringify({ detail: 'invalid reasoning level' }), {
+      status: 422,
+      headers: { 'Content-Type': 'application/json', 'X-Trace-Id': 'trace-4' },
+    });
+
+    const err = await parseErrorBody(res);
+
+    expect(err.status).toBe(422);
+    expect(err.traceId).toBe('trace-4');
+    expect(err.upstream).toBe('honcho');
+    expect(err.message).toBe('invalid reasoning level');
+    expect(err.detail).toBe('invalid reasoning level');
+  });
+
+  it('stringifies structured Honcho detail bodies', async () => {
+    const detail = [{ loc: ['body', 'query'], msg: 'Field required' }];
+    const res = new Response(JSON.stringify({ detail }), {
+      status: 422,
+      headers: { 'Content-Type': 'application/json' },
+    });
+
+    const err = await parseErrorBody(res);
+
+    expect(err.message).toBe(JSON.stringify(detail));
+    expect(err.detail).toBe(JSON.stringify(detail));
+  });
+
   it('handles missing body gracefully', async () => {
     const res = new Response(null, { status: 504, headers: { 'X-Trace-Id': 'trace-3' } });
 

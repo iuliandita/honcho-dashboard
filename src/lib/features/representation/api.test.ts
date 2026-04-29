@@ -1,17 +1,10 @@
-import type { ApiClient } from '$api/client';
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, it } from 'vitest';
+import { mockClient } from '../../../../tests/lib/test-utils';
 import { type RepresentationResponse, buildPeerRepresentationQuery } from './api';
-
-function mockClient<T>(data: T): ApiClient {
-  return {
-    get: vi.fn(async () => data) as ApiClient['get'],
-    post: vi.fn(async () => data) as ApiClient['post'],
-  };
-}
 
 describe('buildPeerRepresentationQuery', () => {
   it('keys by workspace+peer+representation', () => {
-    const client = mockClient<RepresentationResponse>({ items: [], topics: [] });
+    const client = mockClient({ representation: '' });
     const opts = buildPeerRepresentationQuery(client, 'ws', 'p');
 
     expect(opts.queryKey).toEqual(['workspace', 'ws', 'peer', 'p', 'representation']);
@@ -49,22 +42,32 @@ describe('buildPeerRepresentationQuery', () => {
     ]);
   });
 
-  it('passes through already-normalized representation data', async () => {
-    const normalized: RepresentationResponse = {
-      items: [
-        {
-          id: 'r1',
-          topic: 'coffee',
-          content: 'likes oat milk',
-          confidence: 0.9,
-          createdAt: '2026-01-01T00:00:00Z',
-        },
-      ],
-      topics: ['coffee'],
-    };
-    const client = mockClient(normalized);
+  it('preserves topic order across nested headings and blank lines', async () => {
+    const client = mockClient({
+      representation: '# profile\n\n## coffee\n- oat milk\n\n### roast\nmedium roast\n\n## sleep\nlate riser',
+    });
+    const opts = buildPeerRepresentationQuery(client, 'ws', 'p');
+    const result = await opts.queryFn();
+
+    expect(result.topics).toEqual(['coffee', 'roast', 'sleep']);
+    expect(result.items.map((item) => [item.topic, item.content])).toEqual([
+      ['coffee', 'oat milk'],
+      ['roast', 'medium roast'],
+      ['sleep', 'late riser'],
+    ]);
+  });
+
+  it('returns empty items for an empty OSS representation', async () => {
+    const client = mockClient({ representation: '' });
     const opts = buildPeerRepresentationQuery(client, 'ws', 'p');
 
-    expect(await opts.queryFn()).toEqual(normalized);
+    expect(await opts.queryFn()).toEqual({ items: [], topics: [] });
+  });
+
+  it('returns empty items for an unknown representation shape', async () => {
+    const client = mockClient({ unexpected: 'shape' });
+    const opts = buildPeerRepresentationQuery(client, 'ws', 'p');
+
+    expect(await opts.queryFn()).toEqual({ items: [], topics: [] });
   });
 });

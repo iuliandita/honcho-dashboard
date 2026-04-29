@@ -14,7 +14,6 @@ interface Props {
 
 const { data, children }: Props = $props();
 
-// Single QueryClient for the lifetime of the SPA. Stale time is set per-query.
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -25,10 +24,15 @@ const queryClient = new QueryClient({
   },
 });
 
-// Dark default; toggle persists across reload via localStorage.
-let theme = $state<'dark' | 'light'>(
-  typeof localStorage !== 'undefined' ? ((localStorage.getItem('theme') as 'dark' | 'light' | null) ?? 'dark') : 'dark',
-);
+type Theme = 'dark' | 'light';
+
+function readInitialTheme(): Theme {
+  if (typeof localStorage === 'undefined') return 'dark';
+  const stored = localStorage.getItem('theme');
+  return stored === 'dark' || stored === 'light' ? stored : 'dark';
+}
+
+let theme = $state<Theme>(readInitialTheme());
 
 $effect(() => {
   if (typeof document !== 'undefined') {
@@ -44,6 +48,7 @@ function toggleTheme() {
 
 <QueryClientProvider client={queryClient}>
   <header class="chrome">
+    <h1 class="sr-only">honcho-dashboard</h1>
     <span class="brand"><BrandMark /></span>
     <span class="rule" aria-hidden="true">─ ─ ─</span>
     <span class="version">v{data.runtimeConfig.version}</span>
@@ -52,7 +57,12 @@ function toggleTheme() {
       <span class="ws"><Icon name="user" size={12} /> {data.runtimeConfig.workspaceId}</span>
     {/if}
     <span class="spacer"></span>
-    <button type="button" class="theme-toggle" onclick={toggleTheme} aria-label="toggle theme">
+    <button
+      type="button"
+      class="theme-toggle"
+      onclick={toggleTheme}
+      aria-label={theme === 'dark' ? 'switch to light theme' : 'switch to dark theme'}
+    >
       <span class="theme-glyph" aria-hidden="true">{theme === 'dark' ? '◐' : '◑'}</span>
       <span class="theme-label">{theme === 'dark' ? 'light' : 'dark'}</span>
     </button>
@@ -72,7 +82,6 @@ function toggleTheme() {
     border-bottom: 1px solid var(--color-border);
     background: var(--color-surface);
     font-size: var(--text-sm);
-    /* The chrome is only ever 32px tall — kept tight on purpose. */
     min-height: 32px;
   }
 
@@ -80,14 +89,12 @@ function toggleTheme() {
     color: var(--color-yellow-500);
     font-weight: 700;
     letter-spacing: 0;
-    /* Drop the chrome's default vertical centering quirks for ASCII. */
     line-height: 1;
   }
 
   .rule {
     color: var(--color-border);
     font-size: var(--text-xs);
-    /* Hide on narrow screens so the chrome doesn't wrap. */
   }
 
   .version {
@@ -115,6 +122,8 @@ function toggleTheme() {
     color: var(--color-fg);
     border: 1px solid var(--color-border);
     padding: 0.25rem 0.6rem;
+    min-width: 44px;
+    min-height: 44px;
     font-family: inherit;
     font-size: var(--text-xs);
     cursor: pointer;
@@ -135,18 +144,56 @@ function toggleTheme() {
   }
 
   .main {
+    box-sizing: border-box;
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-height: 0;
+    width: 100%;
     padding: 1rem;
     max-width: 1400px;
     margin: 0 auto;
   }
 
-  /* On narrow screens, hide the rule glyphs to keep the chrome a single row. */
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
   @media (max-width: 640px) {
+    .chrome {
+      gap: 0.5rem;
+      padding: 0.35rem 0.875rem;
+    }
     .rule {
       display: none;
     }
     .ws {
       display: none;
+    }
+    .theme-toggle {
+      padding: 0.25rem;
+    }
+    .theme-label {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+    .main {
+      padding: 0.75rem 0.875rem;
     }
   }
 </style>

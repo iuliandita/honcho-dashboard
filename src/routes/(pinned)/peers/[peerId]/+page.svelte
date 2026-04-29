@@ -1,6 +1,5 @@
 <script lang="ts">
 import { createApiClient } from '$api/client';
-import { goto } from '$app/navigation';
 import PaneList from '$features/browser/PaneList.svelte';
 import SessionCard from '$features/browser/SessionCard.svelte';
 import { type SessionSummary, buildSessionsQuery } from '$features/browser/api';
@@ -22,10 +21,6 @@ const query = createQuery({
   ...buildSessionsQuery(client, data.workspaceId, data.peerId),
   initialData: data.sessions,
 });
-
-function open(session: SessionSummary) {
-  goto(`/peers/${data.peerId}/sessions/${session.id}`);
-}
 </script>
 
 <Pane scrollable>
@@ -35,7 +30,7 @@ function open(session: SessionSummary) {
     loading={$query.isLoading}
     error={$query.error}
     empty={{ title: 'no sessions for this peer' }}
-    onSelect={open}
+    hrefFor={(session) => `/peers/${data.peerId}/sessions/${session.id}`}
   >
     {#snippet row(item: SessionSummary)}
       <SessionCard session={item} />

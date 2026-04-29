@@ -1,6 +1,5 @@
 <script lang="ts">
 import { createApiClient } from '$api/client';
-import { goto } from '$app/navigation';
 import PaneList from '$features/browser/PaneList.svelte';
 import PeerCard from '$features/browser/PeerCard.svelte';
 import { type PeerSummary, buildPeersQuery } from '$features/browser/api';
@@ -22,10 +21,6 @@ const query = createQuery({
   ...buildPeersQuery(client, data.workspaceId),
   initialData: data.peers,
 });
-
-function open(peer: PeerSummary) {
-  goto(`/peers/${peer.id}`);
-}
 </script>
 
 <Pane scrollable>
@@ -35,7 +30,7 @@ function open(peer: PeerSummary) {
     loading={$query.isLoading}
     error={$query.error}
     empty={{ title: 'no peers in this workspace' }}
-    onSelect={open}
+    hrefFor={(peer) => `/peers/${peer.id}`}
   >
     {#snippet row(item: PeerSummary)}
       <PeerCard peer={item} />

@@ -1,14 +1,14 @@
 @import "tailwindcss";
 
 /*
- * Design tokens — locked in the frontend-design phase between Plan 1 and Plan 2.
+ * Design tokens - locked in the frontend-design phase between Plan 1 and Plan 2.
  *
  * Visual identity (per brief + spec §7):
  *   amber CRT phosphor on cool near-black; tabular numerals; pixel/ASCII first.
  *
  * Anchor color: yellow-500 (saturated amber, OKLCH hue 88).
  *   The hue subtly drifts from yellow→orange as the ramp darkens, mimicking how
- *   amber phosphor decays — pure yellow at peak luminance, warmer as it fades.
+ *   amber phosphor decays - pure yellow at peak luminance, warmer as it fades.
  *
  * Self-hosted: IBM Plex Mono (SIL OFL). Font faces live in fonts.css so
  * token values stay focused on design primitives.
@@ -22,7 +22,7 @@
   --color-yellow-200: oklch(0.88 0.14 91);
   --color-yellow-300: oklch(0.83 0.17 90);
   --color-yellow-400: oklch(0.78 0.19 89);
-  --color-yellow-500: oklch(0.74 0.2 88); /* primary anchor — amber */
+  --color-yellow-500: oklch(0.74 0.2 88); /* primary anchor - amber */
   --color-yellow-600: oklch(0.66 0.18 86);
   --color-yellow-700: oklch(0.55 0.14 82);
   --color-yellow-800: oklch(0.42 0.1 78);
@@ -35,12 +35,12 @@
   --color-surface-2: oklch(0.2 0.01 280); /* raised panel / hover */
   --color-border: oklch(0.32 0.012 280);
   --color-fg: oklch(0.94 0.005 280);
-  --color-fg-muted: oklch(0.7 0.005 280);
-  --color-fg-faint: oklch(0.5 0.005 280);
+  --color-fg-muted: oklch(0.78 0.005 280);
+  --color-fg-faint: oklch(0.64 0.005 280);
 
   /* ─── Color: status (yellow is reserved as accent, NOT a status hue) ──── */
   --color-error: oklch(0.65 0.22 25); /* red, slight orange */
-  --color-warn: oklch(0.78 0.18 65); /* orange — distinct from amber */
+  --color-warn: oklch(0.78 0.18 65); /* orange - distinct from amber */
   --color-ok: oklch(0.72 0.18 145); /* green, mid-saturation */
 
   /* ─── Typography ─────────────────────────────────────────────────────── */
@@ -49,17 +49,17 @@
   /* IBM Plex Mono ships tabular figures by default; this enforces it via OT. */
   --font-feature-tabular: "tnum", "calt", "ss01";
 
-  /* Type scale — terminal feel: tight, narrow steps, no display hero size.   */
+  /* Type scale - terminal feel: tight, narrow steps, no display hero size.   */
   /* Display character comes from ASCII art, not from a 48px h1.              */
-  --text-2xs: 0.6875rem; /* 11px — diff line nums, hash badges */
+  --text-2xs: 0.6875rem; /* 11px - diff line nums, hash badges */
   --text-xs: 0.75rem; /* 12px */
   --text-sm: 0.8125rem; /* 13px */
-  --text-base: 0.875rem; /* 14px — body */
-  --text-lg: 1rem; /* 16px — section headers */
-  --text-xl: 1.125rem; /* 18px — page titles (kept restrained) */
-  --text-2xl: 1.375rem; /* 22px — style-guide and markdown h1 ceiling */
+  --text-base: 0.875rem; /* 14px - body */
+  --text-lg: 1rem; /* 16px - section headers */
+  --text-xl: 1.125rem; /* 18px - page titles (kept restrained) */
+  --text-2xl: 1.375rem; /* 22px - style-guide and markdown h1 ceiling */
 
-  /* Line heights are tight — terminal rhythm, not docs rhythm. */
+  /* Line heights are tight - terminal rhythm, not docs rhythm. */
   --leading-tight: 1.25;
   --leading-snug: 1.4;
   --leading-relaxed: 1.55;
@@ -105,7 +105,7 @@
     }
   }
   @keyframes scan {
-    /* Subtle horizontal scan line — used on long-loading panels. */
+    /* Subtle horizontal scan line - used on long-loading panels. */
     0% {
       transform: translateY(0%);
     }
@@ -117,14 +117,19 @@
 
 /* ─── Light theme: neutrals invert (warm cream), yellow stays anchor ──── */
 [data-theme="light"] {
-  --color-bg: oklch(0.97 0.012 88); /* warm cream — paper */
+  --color-bg: oklch(0.97 0.012 88); /* warm cream - paper */
   --color-surface: oklch(0.94 0.01 88);
   --color-surface-2: oklch(0.91 0.01 88);
   --color-border: oklch(0.82 0.008 88);
   --color-fg: oklch(0.2 0.005 280);
-  --color-fg-muted: oklch(0.42 0.005 280);
-  --color-fg-faint: oklch(0.58 0.005 280);
-  /* error/warn/ok stay the same — they read on both themes */
+  --color-fg-muted: oklch(0.38 0.005 280);
+  --color-fg-faint: oklch(0.46 0.005 280);
+  --color-yellow-400: oklch(0.5 0.13 84);
+  --color-yellow-500: oklch(0.44 0.12 82);
+  --color-yellow-700: oklch(0.36 0.09 78);
+  --color-error: oklch(0.48 0.18 25);
+  --color-warn: oklch(0.44 0.14 62);
+  --color-ok: oklch(0.43 0.13 145);
 }
 
 /* ─── Root setup ─────────────────────────────────────────────────────── */
@@ -136,6 +141,8 @@
 
 html,
 body {
+  height: 100dvh;
+  margin: 0;
   background: var(--color-bg);
   color: var(--color-fg);
   font-family: var(--font-mono);
@@ -147,7 +154,20 @@ body {
   text-rendering: optimizeLegibility;
 }
 
-/* ASCII art blocks — preserve exact glyph alignment, no transforms. */
+body {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+#app {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+}
+
+/* ASCII art blocks - preserve exact glyph alignment, no transforms. */
 pre.ascii,
 .font-ascii {
   font-family: var(--font-mono);
@@ -159,7 +179,7 @@ pre.ascii,
   line-height: 1.05;
 }
 
-/* Pixel SVGs — never anti-alias. */
+/* Pixel SVGs - never anti-alias. */
 .pixel,
 .pixel svg {
   shape-rendering: crispEdges;
@@ -172,14 +192,14 @@ pre.ascii,
   color: var(--color-bg);
 }
 
-/* Focus rings — amber, square. No blue OS default. */
+/* Focus rings - amber, square. No blue OS default. */
 :focus-visible {
   outline: 2px solid var(--color-yellow-500);
   outline-offset: 2px;
   border-radius: var(--radius-xs);
 }
 
-/* Scrollbar — minimal, themed. (Webkit only; Firefox uses default.) */
+/* Scrollbar - minimal, themed. (Webkit only; Firefox uses default.) */
 ::-webkit-scrollbar {
   width: 10px;
   height: 10px;
@@ -195,7 +215,7 @@ pre.ascii,
   background: var(--color-yellow-700);
 }
 
-/* Reduced motion — kill everything decorative. */
+/* Reduced motion - kill everything decorative. */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

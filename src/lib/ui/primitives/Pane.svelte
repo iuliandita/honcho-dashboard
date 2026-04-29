@@ -17,6 +17,7 @@ const { children, scrollable = false }: Props = $props();
 <style>
   .pane {
     display: flex;
+    flex: 1;
     flex-direction: column;
     background: var(--color-bg);
     border: 1px solid var(--color-border);

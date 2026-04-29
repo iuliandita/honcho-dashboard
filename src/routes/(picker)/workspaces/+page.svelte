@@ -1,6 +1,5 @@
 <script lang="ts">
 import { createApiClient } from '$api/client';
-import { goto } from '$app/navigation';
 import PaneList from '$features/browser/PaneList.svelte';
 import WorkspaceCard from '$features/browser/WorkspaceCard.svelte';
 import { type WorkspaceSummary, buildWorkspacesQuery } from '$features/browser/api';
@@ -22,10 +21,6 @@ const query = createQuery({
   ...buildWorkspacesQuery(client),
   initialData: data.workspaces,
 });
-
-function open(workspace: WorkspaceSummary) {
-  goto(`/workspaces/${workspace.id}`);
-}
 </script>
 
 <Pane scrollable>
@@ -35,7 +30,7 @@ function open(workspace: WorkspaceSummary) {
     loading={$query.isLoading}
     error={$query.error}
     empty={{ title: 'no workspaces', description: 'this admin token has no visible workspaces' }}
-    onSelect={open}
+    hrefFor={(workspace) => `/workspaces/${workspace.id}`}
   >
     {#snippet row(item: WorkspaceSummary)}
       <WorkspaceCard workspace={item} />

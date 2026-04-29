@@ -1,5 +1,6 @@
 import type { ApiClient } from '$api/client';
 import { keys } from '$api/keys';
+import type { components } from '$lib/honcho/types';
 
 export interface RepresentationItem {
   id: string;
@@ -15,29 +16,17 @@ export interface RepresentationResponse {
   topics: string[];
 }
 
-interface HonchoRepresentationResponse {
-  representation: string;
-}
-
-function isRepresentationResponse(value: unknown): value is RepresentationResponse {
-  if (!value || typeof value !== 'object') return false;
-  const maybe = value as Partial<RepresentationResponse>;
-  return Array.isArray(maybe.items) && Array.isArray(maybe.topics);
-}
-
-function isHonchoRepresentationResponse(value: unknown): value is HonchoRepresentationResponse {
-  if (!value || typeof value !== 'object') return false;
-  return typeof (value as Partial<HonchoRepresentationResponse>).representation === 'string';
+interface QueryContext {
+  signal?: AbortSignal;
 }
 
 function cleanContent(line: string): string {
   return line.replace(/^[-*]\s+/, '').trim();
 }
 
-function normalizeRepresentation(raw: unknown): RepresentationResponse {
-  if (isRepresentationResponse(raw)) return raw;
-
-  const representation = isHonchoRepresentationResponse(raw) ? raw.representation.trim() : '';
+function normalizeRepresentation(raw: components['schemas']['RepresentationResponse']): RepresentationResponse {
+  if (typeof raw.representation !== 'string') return { items: [], topics: [] };
+  const representation = raw.representation.trim();
   if (!representation) return { items: [], topics: [] };
 
   let currentTopic = 'general';
@@ -76,10 +65,12 @@ function normalizeRepresentation(raw: unknown): RepresentationResponse {
 export function buildPeerRepresentationQuery(client: ApiClient, workspaceId: string, peerId: string) {
   return {
     queryKey: keys.peerRepresentation(workspaceId, peerId),
-    queryFn: async () => {
-      const raw = await client.post<unknown>(`/v3/workspaces/${workspaceId}/peers/${peerId}/representation`, {
-        max_conclusions: null,
-      });
+    queryFn: async ({ signal }: QueryContext = {}) => {
+      const body: components['schemas']['PeerRepresentationGet'] = { max_conclusions: null };
+      const path = `/v3/workspaces/${workspaceId}/peers/${peerId}/representation`;
+      const raw = await (signal
+        ? client.post<components['schemas']['RepresentationResponse']>(path, body, undefined, { signal })
+        : client.post<components['schemas']['RepresentationResponse']>(path, body));
       return normalizeRepresentation(raw);
     },
   };

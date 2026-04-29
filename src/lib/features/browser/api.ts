@@ -1,45 +1,72 @@
 import type { ApiClient } from '$api/client';
 import { keys } from '$api/keys';
+import type { components } from '$lib/honcho/types';
 
-export interface WorkspaceSummary {
-  id: string;
-  name: string;
+export type WorkspaceSummary = components['schemas']['Workspace'];
+export type PeerSummary = components['schemas']['Peer'];
+export type SessionSummary = components['schemas']['Session'];
+
+const PAGE_SIZE = 50;
+const EMPTY_FILTER = { filters: null } as const;
+
+interface PageEnvelope<T> {
+  items: T[];
+  page: number;
+  pages: number;
 }
 
-export interface PeerSummary {
-  id: string;
-  name: string;
+interface QueryContext {
+  signal?: AbortSignal;
 }
 
-export interface SessionSummary {
-  id: string;
-  /** ISO timestamp of last activity, if available. */
-  updatedAt?: string;
-  messageCount?: number;
+async function fetchAllPages<T>(
+  client: ApiClient,
+  path: string,
+  body: typeof EMPTY_FILTER,
+  signal?: AbortSignal,
+): Promise<T[]> {
+  const items: T[] = [];
+  let pageNumber = 1;
+  let totalPages = 1;
+
+  do {
+    const params = { page: pageNumber, size: PAGE_SIZE };
+    const page = await (signal
+      ? client.post<PageEnvelope<T>>(path, body, params, { signal })
+      : client.post<PageEnvelope<T>>(path, body, params));
+    items.push(...page.items);
+    totalPages = page.pages;
+    pageNumber = page.page + 1;
+  } while (pageNumber <= totalPages);
+
+  return items;
 }
 
-/**
- * Honcho v3 list endpoints are POST with a filter body. We pass an empty
- * filter to fetch all rows visible to the admin token. Pagination is deferred
- * to a later plan — v1 accepts whatever the server returns in one page.
- */
 export function buildWorkspacesQuery(client: ApiClient) {
   return {
     queryKey: keys.allWorkspaces(),
-    queryFn: () => client.post<WorkspaceSummary[]>('/v3/workspaces/list', {}),
+    queryFn: ({ signal }: QueryContext = {}) =>
+      fetchAllPages<WorkspaceSummary>(client, '/v3/workspaces/list', EMPTY_FILTER, signal),
   };
 }
 
 export function buildPeersQuery(client: ApiClient, workspaceId: string) {
   return {
     queryKey: [...keys.workspace(workspaceId), 'peers'] as const,
-    queryFn: () => client.post<PeerSummary[]>(`/v3/workspaces/${workspaceId}/peers/list`, {}),
+    queryFn: ({ signal }: QueryContext = {}) =>
+      fetchAllPages<PeerSummary>(client, `/v3/workspaces/${workspaceId}/peers/list`, EMPTY_FILTER, signal),
   };
 }
 
 export function buildSessionsQuery(client: ApiClient, workspaceId: string, peerId: string) {
   return {
     queryKey: [...keys.peer(workspaceId, peerId), 'sessions'] as const,
-    queryFn: () => client.post<SessionSummary[]>(`/v3/workspaces/${workspaceId}/peers/${peerId}/sessions`, {}),
+    queryFn: ({ signal }: QueryContext = {}) =>
+      fetchAllPages<SessionSummary>(
+        client,
+        `/v3/workspaces/${workspaceId}/peers/${peerId}/sessions`,
+        EMPTY_FILTER,
+        signal,
+      ),
   };
 }

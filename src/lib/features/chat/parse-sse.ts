@@ -1,4 +1,6 @@
-import { type ChatEvent, isChatEvent } from './events';
+import { type ChatEvent, normalizeChatEvent } from './events';
+
+const EVENT_BOUNDARY = /(\r?\n){2}|\r{2}/;
 
 interface SseParser {
   /** Push a string chunk; returns 0+ events parsed from the accumulated buffer. */
@@ -13,13 +15,14 @@ export function createSseParser(): SseParser {
   function drain(): ChatEvent[] {
     const events: ChatEvent[] = [];
 
-    let boundary = buffer.indexOf('\n\n');
-    while (boundary !== -1) {
+    let match = EVENT_BOUNDARY.exec(buffer);
+    while (match) {
+      const boundary = match.index;
       const block = buffer.slice(0, boundary);
-      buffer = buffer.slice(boundary + 2);
+      buffer = buffer.slice(boundary + match[0].length);
 
       const dataLines: string[] = [];
-      for (const line of block.split('\n')) {
+      for (const line of block.split(/\r\n|\r|\n/)) {
         if (line.startsWith(':')) continue;
         if (line.startsWith('data:')) {
           dataLines.push(line.slice(5).trimStart());
@@ -30,13 +33,14 @@ export function createSseParser(): SseParser {
         const raw = dataLines.join('\n');
         try {
           const parsed = JSON.parse(raw);
-          if (isChatEvent(parsed)) events.push(parsed);
+          const event = normalizeChatEvent(parsed);
+          if (event) events.push(event);
         } catch {
           // skip malformed JSON
         }
       }
 
-      boundary = buffer.indexOf('\n\n');
+      match = EVENT_BOUNDARY.exec(buffer);
     }
 
     return events;

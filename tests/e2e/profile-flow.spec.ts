@@ -15,19 +15,27 @@ test.describe('profile flow', () => {
     await stub?.stop();
   });
 
-  test('renders headings, lists, links, and updated-at', async ({ page }) => {
+  test('renders synthesized OSS representation markdown', async ({ page }) => {
     await page.goto(`${dashboard.url}/peers/peer-1/profile`);
 
-    await expect(page.getByRole('heading', { level: 1, name: 'hermes' })).toBeVisible();
-    await expect(page.getByRole('heading', { level: 2, name: 'habits' })).toBeVisible();
-    await expect(page.getByText('oat milk, medium roast')).toBeVisible();
-    await expect(page.getByRole('link', { name: 'Honcho project' })).toHaveAttribute('href', 'https://honcho.dev');
-    await expect(page.getByText(/2026-04-28 12:00:00/)).toBeVisible();
+    await expect(page.getByRole('heading', { level: 2, name: 'coffee' })).toBeVisible();
+    await expect(page.getByText('prefers oat milk')).toBeVisible();
+    await expect(page.getByRole('heading', { level: 2, name: 'work' })).toBeVisible();
+    await expect(page.getByText('prefers writing over calls')).toBeVisible();
+  });
+
+  test('keeps profile content in the pane scroll region', async ({ page }) => {
+    await page.goto(`${dashboard.url}/peers/peer-1/profile`);
+
+    const scrollRegion = page.locator('.pane.scrollable .pane-body');
+    await expect(scrollRegion).toBeVisible();
+    await expect(scrollRegion).toHaveCSS('overflow-y', 'auto');
   });
 
   test('strips inline scripts from rendered markdown', async ({ page }) => {
     await page.goto(`${dashboard.url}/peers/peer-1/profile`);
 
+    await expect(page.getByText('prefers oat milk')).toBeVisible();
     const html = await page.locator('.md').innerHTML();
     expect(html).not.toMatch(/<script[\s>]/);
     expect(html).not.toContain('javascript:');

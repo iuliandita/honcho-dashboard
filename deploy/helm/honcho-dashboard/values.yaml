@@ -1,5 +1,5 @@
 image:
-  repository: ghcr.io/REPLACE_ME/honcho-dashboard
+  repository: ghcr.io/iuliandita/honcho-dashboard
   tag: ''                             # defaults to .Chart.AppVersion when empty
   pullPolicy: IfNotPresent
 
@@ -45,8 +45,8 @@ resources:
 
 podSecurityContext:
   runAsNonRoot: true
-  runAsUser: 1000
-  fsGroup: 1000
+  runAsUser: 65532
+  fsGroup: 65532
   seccompProfile:
     type: RuntimeDefault
 

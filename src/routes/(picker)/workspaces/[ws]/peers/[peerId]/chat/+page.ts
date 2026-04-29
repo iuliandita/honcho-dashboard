@@ -1,6 +1,4 @@
+import { loadPeerChat } from '$lib/route-shared/peer-loads';
 import type { PageLoad } from './$types';
 
-export const load: PageLoad = async ({ parent }) => {
-  const { workspaceId, peerId } = await parent();
-  return { workspaceId, peerId };
-};
+export const load: PageLoad = ({ parent }) => loadPeerChat(parent);

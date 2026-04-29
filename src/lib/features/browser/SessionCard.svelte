@@ -1,4 +1,5 @@
 <script lang="ts">
+import { formatAbsolute } from '$features/messages/format';
 import type { SessionSummary } from './api';
 
 interface Props {
@@ -7,21 +8,12 @@ interface Props {
 }
 
 const { session, selected = false }: Props = $props();
-
-function formatTimestamp(iso: string | undefined): string {
-  if (!iso) return '—';
-  const d = new Date(iso);
-  return d.toISOString().slice(0, 19).replace('T', ' ');
-}
 </script>
 
 <article class="card" class:selected>
   <span class="id">{session.id}</span>
   <span class="meta">
-    {formatTimestamp(session.updatedAt)}
-    {#if session.messageCount !== undefined}
-      · {session.messageCount} msg
-    {/if}
+    {formatAbsolute(session.created_at)}
   </span>
 </article>
 

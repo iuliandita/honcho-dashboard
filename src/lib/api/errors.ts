@@ -25,10 +25,20 @@ export class HonchoApiError extends Error {
 
 interface ErrorBodyShape {
   error?: string;
-  detail?: string;
+  detail?: unknown;
   status?: number;
   traceId?: string;
   upstream?: Upstream;
+}
+
+function stringifyDetail(detail: unknown): string | undefined {
+  if (detail === undefined || detail === null) return undefined;
+  if (typeof detail === 'string') return detail;
+  try {
+    return JSON.stringify(detail);
+  } catch {
+    return String(detail);
+  }
 }
 
 export async function parseErrorBody(res: Response): Promise<HonchoApiError> {
@@ -38,23 +48,19 @@ export async function parseErrorBody(res: Response): Promise<HonchoApiError> {
   if (contentType.includes('application/json')) {
     try {
       const body = (await res.json()) as ErrorBodyShape;
-      return new HonchoApiError(body.error ?? `HTTP ${res.status}`, {
+      const detail = stringifyDetail(body.detail);
+      return new HonchoApiError(body.error ?? detail ?? `HTTP ${res.status}`, {
         status: body.status ?? res.status,
         traceId: body.traceId ?? fallbackTraceId,
         upstream: body.upstream ?? 'honcho',
-        detail: body.detail,
+        detail,
       });
     } catch {
       // Fall through to text path
     }
   }
 
-  let text = '';
-  try {
-    text = await res.text();
-  } catch {
-    // empty body
-  }
+  const text = await res.text().catch(() => '');
 
   return new HonchoApiError(text || `HTTP ${res.status}`, {
     status: res.status,

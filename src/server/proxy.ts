@@ -66,16 +66,21 @@ export function proxyRoute(config: ProxyConfig) {
       const status = isTimeout ? 504 : 502;
       const errBody: ProxyErrorBody = {
         error: isTimeout ? 'upstream timeout' : 'upstream unreachable',
-        detail: err instanceof Error ? err.message : String(err),
         status,
         traceId,
         upstream: 'proxy',
       };
+      if (process.env.LOG_LEVEL === 'debug') {
+        errBody.detail = err instanceof Error ? err.message : String(err);
+      }
       return c.json(errBody, status);
     }
 
-    // Pass response straight through. Preserve all headers including Content-Type for SSE.
+    // Fetch decodes compressed upstream bodies, so representation headers from the wire
+    // response must not be forwarded with the decoded body.
     const resHeaders = new Headers(upstreamRes.headers);
+    resHeaders.delete('Content-Encoding');
+    resHeaders.delete('Content-Length');
     resHeaders.set('X-Trace-Id', traceId);
 
     return new Response(upstreamRes.body, {

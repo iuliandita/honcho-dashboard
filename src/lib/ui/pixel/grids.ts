@@ -1,18 +1,3 @@
-/**
- * Pixel-icon grids — each icon is a 16×16 grid where `#` is a filled pixel
- * and `.` is empty. Strings are read top-down; index 0 of the array is the
- * top row.
- *
- * The grid format is the editable source of truth — the editor renders the
- * shape inline, so you can see (and edit) the actual icon rather than path-d
- * gibberish. `gridToPath()` compiles to an optimized SVG path at runtime.
- *
- * Conventions:
- *   - Pixels stay on integer coordinates. No half-pixels.
- *   - Aim for 8–12 columns of "ink" inside the 16-grid; leave breathing room.
- *   - One color per icon. Tinting happens via CSS (currentColor).
- */
-
 export type PixelGrid = readonly string[];
 
 export const grids = {

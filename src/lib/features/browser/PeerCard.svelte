@@ -7,10 +7,11 @@ interface Props {
 }
 
 const { peer, selected = false }: Props = $props();
+const name = $derived(typeof peer.metadata?.name === 'string' ? peer.metadata.name : peer.id);
 </script>
 
 <article class="card" class:selected>
-  <span class="name">{peer.name}</span>
+  <span class="name">{name}</span>
   <span class="id">{peer.id}</span>
 </article>
 
