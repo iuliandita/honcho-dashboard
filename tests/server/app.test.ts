@@ -47,7 +47,7 @@ describe('createApp', () => {
     const app = createApp();
     const config = await app.request('/api/runtime-config');
     expect(config.status).toBe(200);
-    expect(await config.json()).toEqual({ workspaceId: 'env-ws', version: '1.0.0' });
+    expect(await config.json()).toEqual({ workspaceId: 'env-ws', version: '1.5.0' });
   });
 
   it('throws if required env vars are missing', () => {

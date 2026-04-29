@@ -9,7 +9,7 @@ honcho:
   proxyTimeout: 15
 
 dashboardAuth:
-  mode: off                           # off or password
+  mode: 'off'                         # off or password
   password: ''                        # plaintext option for simple installs
   passwordHash: ''                    # preferred for production-like installs
   sessionSecret: ''                   # required when mode=password
