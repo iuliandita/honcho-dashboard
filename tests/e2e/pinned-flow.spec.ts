@@ -40,9 +40,9 @@ test.describe('pinned mode flow', () => {
     await page.goto(dashboard.url);
 
     await page.getByRole('button', { name: 'settings' }).click();
-    await page.getByLabel('theme').selectOption('dark');
+    await page.getByRole('group', { name: 'theme' }).getByRole('button', { name: 'dark' }).click();
     await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
-    await page.getByLabel('theme').selectOption('light');
+    await page.getByRole('group', { name: 'theme' }).getByRole('button', { name: 'light' }).click();
     await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
   });
 

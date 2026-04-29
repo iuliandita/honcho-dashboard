@@ -1,6 +1,11 @@
 import { Hono } from 'hono';
 
 export interface RuntimeConfig {
+  /**
+   * `null` means picker mode: HONCHO_WORKSPACE_ID is unset and the UI renders a workspace picker.
+   * A string means pinned mode: the UI skips the picker and goes straight to that workspace.
+   * Both are valid; see README "Workspace modes".
+   */
   workspaceId: string | null;
   version: string;
 }
