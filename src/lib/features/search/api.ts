@@ -1,5 +1,6 @@
 import type { ApiClient } from '$api/client';
 import { keys } from '$api/keys';
+import { DEFAULT_PAGE_SIZE, type QueryContext, postQuery } from '$api/query';
 import type { components } from '$lib/honcho/types';
 import { honchoApiPaths } from '$lib/routing/paths';
 
@@ -18,12 +19,6 @@ export interface SearchResponse {
   results: SearchResult[];
   topicFacets?: Record<string, number>;
 }
-
-interface QueryContext {
-  signal?: AbortSignal;
-}
-
-const PAGE_SIZE = 50;
 
 function metadataString(metadata: Record<string, unknown> | undefined, key: string): string | null {
   const value = metadata?.[key];
@@ -60,16 +55,14 @@ export function buildWorkspaceSearchQuery(client: ApiClient, workspaceId: string
   const body: components['schemas']['MessageSearchOptions'] = {
     query: trimmedQuery,
     filters: topic ? { topic } : null,
-    limit: PAGE_SIZE,
+    limit: DEFAULT_PAGE_SIZE,
   };
 
   return {
     queryKey: keys.workspaceSearch(workspaceId, trimmedQuery, topic),
     queryFn: async ({ signal }: QueryContext = {}) => {
       const path = honchoApiPaths.workspaceSearch(workspaceId);
-      const messages = await (signal
-        ? client.post<components['schemas']['Message'][]>(path, body, undefined, { signal })
-        : client.post<components['schemas']['Message'][]>(path, body));
+      const messages = await postQuery<components['schemas']['Message'][]>(client, path, body, undefined, signal);
       const results = messages.map(toSearchResult);
       return { results, topicFacets: topicFacets(results) };
     },

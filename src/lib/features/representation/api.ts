@@ -1,5 +1,6 @@
 import type { ApiClient } from '$api/client';
 import { keys } from '$api/keys';
+import { type QueryContext, postQuery } from '$api/query';
 import type { components } from '$lib/honcho/types';
 import { honchoApiPaths } from '$lib/routing/paths';
 
@@ -15,10 +16,6 @@ export interface RepresentationItem {
 export interface RepresentationResponse {
   items: RepresentationItem[];
   topics: string[];
-}
-
-interface QueryContext {
-  signal?: AbortSignal;
 }
 
 function cleanContent(line: string): string {
@@ -63,15 +60,17 @@ function normalizeRepresentation(raw: components['schemas']['RepresentationRespo
   return { items, topics };
 }
 
+export function fetchPeerRepresentation(client: ApiClient, workspaceId: string, peerId: string, signal?: AbortSignal) {
+  const body: components['schemas']['PeerRepresentationGet'] = { max_conclusions: null };
+  const path = honchoApiPaths.peerRepresentation(workspaceId, peerId);
+  return postQuery<components['schemas']['RepresentationResponse']>(client, path, body, undefined, signal);
+}
+
 export function buildPeerRepresentationQuery(client: ApiClient, workspaceId: string, peerId: string) {
   return {
     queryKey: keys.peerRepresentation(workspaceId, peerId),
     queryFn: async ({ signal }: QueryContext = {}) => {
-      const body: components['schemas']['PeerRepresentationGet'] = { max_conclusions: null };
-      const path = honchoApiPaths.peerRepresentation(workspaceId, peerId);
-      const raw = await (signal
-        ? client.post<components['schemas']['RepresentationResponse']>(path, body, undefined, { signal })
-        : client.post<components['schemas']['RepresentationResponse']>(path, body));
+      const raw = await fetchPeerRepresentation(client, workspaceId, peerId, signal);
       return normalizeRepresentation(raw);
     },
   };

@@ -1,47 +1,12 @@
 import type { ApiClient } from '$api/client';
 import { keys } from '$api/keys';
+import { EMPTY_FILTER, type QueryContext, fetchAllPages } from '$api/query';
 import type { components } from '$lib/honcho/types';
 import { honchoApiPaths } from '$lib/routing/paths';
 
 export type WorkspaceSummary = components['schemas']['Workspace'];
 export type PeerSummary = components['schemas']['Peer'];
 export type SessionSummary = components['schemas']['Session'];
-
-const PAGE_SIZE = 50;
-const EMPTY_FILTER = { filters: null } as const;
-
-interface PageEnvelope<T> {
-  items: T[];
-  page: number;
-  pages: number;
-}
-
-interface QueryContext {
-  signal?: AbortSignal;
-}
-
-async function fetchAllPages<T>(
-  client: ApiClient,
-  path: string,
-  body: typeof EMPTY_FILTER,
-  signal?: AbortSignal,
-): Promise<T[]> {
-  const items: T[] = [];
-  let pageNumber = 1;
-  let totalPages = 1;
-
-  do {
-    const params = { page: pageNumber, size: PAGE_SIZE };
-    const page = await (signal
-      ? client.post<PageEnvelope<T>>(path, body, params, { signal })
-      : client.post<PageEnvelope<T>>(path, body, params));
-    items.push(...page.items);
-    totalPages = page.pages;
-    pageNumber = page.page + 1;
-  } while (pageNumber <= totalPages);
-
-  return items;
-}
 
 export function buildWorkspacesQuery(client: ApiClient) {
   return {

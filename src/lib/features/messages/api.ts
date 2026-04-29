@@ -1,5 +1,6 @@
 import type { ApiClient } from '$api/client';
 import { keys } from '$api/keys';
+import { DEFAULT_PAGE_SIZE, EMPTY_FILTER, postQuery } from '$api/query';
 import type { components } from '$lib/honcho/types';
 import { honchoApiPaths } from '$lib/routing/paths';
 import type { QueryFunctionContext } from '@tanstack/query-core';
@@ -11,9 +12,6 @@ export interface MessagesPage {
   nextPage: number | null;
 }
 
-const PAGE_SIZE = 50;
-const EMPTY_FILTER: components['schemas']['MessageGet'] = { filters: null };
-
 export function buildSessionMessagesQuery(client: ApiClient, workspaceId: string, peerId: string, sessionId: string) {
   type QueryKey = ReturnType<typeof keys.sessionMessages>;
   type QueryContext = { pageParam?: number } & Partial<QueryFunctionContext<QueryKey, number>>;
@@ -22,10 +20,8 @@ export function buildSessionMessagesQuery(client: ApiClient, workspaceId: string
     queryKey: keys.sessionMessages(workspaceId, peerId, sessionId),
     queryFn: async ({ pageParam = 1, signal }: QueryContext = {}) => {
       const path = honchoApiPaths.sessionMessages(workspaceId, sessionId);
-      const params = { page: pageParam, size: PAGE_SIZE, reverse: true };
-      const page = await (signal
-        ? client.post<components['schemas']['Page_Message_']>(path, EMPTY_FILTER, params, { signal })
-        : client.post<components['schemas']['Page_Message_']>(path, EMPTY_FILTER, params));
+      const params = { page: pageParam, size: DEFAULT_PAGE_SIZE, reverse: true };
+      const page = await postQuery<components['schemas']['Page_Message_']>(client, path, EMPTY_FILTER, params, signal);
       return {
         messages: page.items,
         nextPage: page.page < page.pages ? page.page + 1 : null,
