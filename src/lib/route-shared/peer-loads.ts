@@ -1,4 +1,5 @@
 import { type ClientFetch, createApiClient } from '$api/client';
+import { buildPeersQuery, buildSessionsQuery } from '$features/browser/api';
 import { buildSessionMessagesQuery } from '$features/messages/api';
 import { buildPeerProfileQuery } from '$features/profile/api';
 import { buildPeerRepresentationQuery } from '$features/representation/api';
@@ -6,6 +7,24 @@ import { buildWorkspaceSearchQuery } from '$features/search/api';
 
 type PeerParent = () => Promise<{ workspaceId: string; peerId: string }>;
 type WorkspaceParent = () => Promise<{ workspaceId: string }>;
+
+export async function loadWorkspacePeers(fetch: ClientFetch, workspaceId: string) {
+  const client = createApiClient({ fetch });
+  const peers = await buildPeersQuery(client, workspaceId).queryFn();
+  return { peers };
+}
+
+export async function loadPinnedPeers(fetch: ClientFetch, parent: WorkspaceParent) {
+  const { workspaceId } = await parent();
+  return { ...(await loadWorkspacePeers(fetch, workspaceId)), workspaceId };
+}
+
+export async function loadPeerSessions(fetch: ClientFetch, parent: PeerParent) {
+  const { workspaceId, peerId } = await parent();
+  const client = createApiClient({ fetch });
+  const sessions = await buildSessionsQuery(client, workspaceId, peerId).queryFn();
+  return { sessions };
+}
 
 export async function loadPeerChat(parent: PeerParent) {
   const { workspaceId, peerId } = await parent();

@@ -1,10 +1,6 @@
-import { createApiClient } from '$api/client';
-import { buildPeersQuery } from '$features/browser/api';
+import { loadWorkspacePeers } from '$lib/route-shared/peer-loads';
 import type { PageLoad } from './$types';
 
 export const load: PageLoad = async ({ fetch, params }) => {
-  const client = createApiClient({ fetch });
-  const query = buildPeersQuery(client, params.ws);
-  const peers = await query.queryFn();
-  return { peers };
+  return loadWorkspacePeers(fetch, params.ws);
 };
