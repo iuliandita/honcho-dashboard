@@ -9,7 +9,7 @@ import { proxyRoute } from './proxy';
 import { runtimeConfigRoute } from './runtime-config';
 import { staticRoute } from './static';
 
-const VERSION = '1.0.0';
+const VERSION = '1.5.0';
 const SECURITY_HEADERS = {
   'Content-Security-Policy': [
     "default-src 'self'",
