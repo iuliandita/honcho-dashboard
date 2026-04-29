@@ -7,7 +7,7 @@ describe('formatAbsolute', () => {
   });
 
   it('returns em-dash for empty', () => {
-    expect(formatAbsolute('')).toBe('—');
+    expect(formatAbsolute('')).toBe('-');
   });
 });
 

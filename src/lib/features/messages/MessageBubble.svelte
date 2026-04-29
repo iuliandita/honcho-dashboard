@@ -26,19 +26,6 @@ const role = $derived(normalizeRole(message.peer_id === peerId ? 'user' : 'assis
     gap: 0.35rem;
     padding: 0.75rem 1rem;
     border-bottom: 1px solid var(--color-border);
-    border-left: 3px solid transparent;
-  }
-  .bubble[data-role='user'] {
-    border-left-color: var(--color-yellow-500);
-  }
-  .bubble[data-role='assistant'] {
-    border-left-color: var(--color-fg-muted);
-  }
-  .bubble[data-role='system'] {
-    border-left-color: var(--color-warn);
-  }
-  .bubble[data-role='other'] {
-    border-left-color: var(--color-fg-faint);
   }
   .meta {
     display: flex;
@@ -51,6 +38,15 @@ const role = $derived(normalizeRole(message.peer_id === peerId ? 'user' : 'assis
     text-transform: uppercase;
     letter-spacing: 0.04em;
     font-weight: 700;
+  }
+  .bubble[data-role='assistant'] .role {
+    color: var(--color-fg-muted);
+  }
+  .bubble[data-role='system'] .role {
+    color: var(--color-warn);
+  }
+  .bubble[data-role='other'] .role {
+    color: var(--color-fg-faint);
   }
   .ts {
     color: var(--color-fg-faint);

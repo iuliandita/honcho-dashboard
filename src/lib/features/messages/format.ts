@@ -1,7 +1,7 @@
 export type CanonicalRole = 'user' | 'assistant' | 'system' | 'other';
 
 export function formatAbsolute(iso: string): string {
-  if (!iso) return '—';
+  if (!iso) return '-';
   return iso.slice(0, 19).replace('T', ' ');
 }
 

@@ -41,7 +41,9 @@ function isActive(tabId: string): boolean {
 
   <nav class="tabs">
     {#each tabs as tab (tab.id)}
-      <a class="tab" class:active={isActive(tab.id)} href={hrefFor(tab.id)}>{tab.label}</a>
+      <a class="tab" class:active={isActive(tab.id)} href={hrefFor(tab.id)} aria-current={isActive(tab.id) ? 'page' : undefined}
+        >{tab.label}</a
+      >
     {/each}
   </nav>
 
@@ -60,6 +62,7 @@ function isActive(tabId: string): boolean {
     margin: 0;
     font-size: var(--text-sm);
     color: var(--color-fg-muted);
+    overflow-wrap: anywhere;
   }
   .trail a {
     color: var(--color-yellow-500);
@@ -76,9 +79,16 @@ function isActive(tabId: string): boolean {
     display: flex;
     gap: 0;
     border-bottom: 1px solid var(--color-border);
+    overflow-x: auto;
+    scrollbar-width: thin;
   }
   .tab {
+    display: inline-flex;
+    align-items: center;
     padding: 0.5rem 1rem;
+    min-width: 44px;
+    min-height: 44px;
+    box-sizing: border-box;
     color: var(--color-fg-muted);
     text-decoration: none;
     border-bottom: 2px solid transparent;
@@ -96,5 +106,19 @@ function isActive(tabId: string): boolean {
     min-height: 0;
     display: flex;
     flex-direction: column;
+  }
+
+  @media (max-width: 640px) {
+    .peer-chrome {
+      gap: 0.5rem;
+    }
+    .tabs {
+      margin-inline: -0.875rem;
+      padding-inline: 0.875rem;
+    }
+    .tab {
+      flex: 0 0 auto;
+      padding: 0.5rem 0.85rem;
+    }
   }
 </style>

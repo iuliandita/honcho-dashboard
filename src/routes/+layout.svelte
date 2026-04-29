@@ -57,7 +57,12 @@ function toggleTheme() {
       <span class="ws"><Icon name="user" size={12} /> {data.runtimeConfig.workspaceId}</span>
     {/if}
     <span class="spacer"></span>
-    <button type="button" class="theme-toggle" onclick={toggleTheme} aria-label="toggle theme">
+    <button
+      type="button"
+      class="theme-toggle"
+      onclick={toggleTheme}
+      aria-label={theme === 'dark' ? 'switch to light theme' : 'switch to dark theme'}
+    >
       <span class="theme-glyph" aria-hidden="true">{theme === 'dark' ? '◐' : '◑'}</span>
       <span class="theme-label">{theme === 'dark' ? 'light' : 'dark'}</span>
     </button>
@@ -117,6 +122,8 @@ function toggleTheme() {
     color: var(--color-fg);
     border: 1px solid var(--color-border);
     padding: 0.25rem 0.6rem;
+    min-width: 44px;
+    min-height: 44px;
     font-family: inherit;
     font-size: var(--text-xs);
     cursor: pointer;
@@ -161,11 +168,32 @@ function toggleTheme() {
   }
 
   @media (max-width: 640px) {
+    .chrome {
+      gap: 0.5rem;
+      padding: 0.35rem 0.875rem;
+    }
     .rule {
       display: none;
     }
     .ws {
       display: none;
+    }
+    .theme-toggle {
+      padding: 0.25rem;
+    }
+    .theme-label {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+    .main {
+      padding: 0.75rem 0.875rem;
     }
   }
 </style>

@@ -79,6 +79,29 @@ describe('ChatStream', () => {
     expect(mockInvalidate).toHaveBeenCalledWith('p');
   });
 
+  it('streams Honcho OpenAI-style delta events', async () => {
+    const fetchMock = vi.fn(async () =>
+      makeStreamingResponse([
+        'data: {"delta":{"content":"hello "},"done":false}\n\n',
+        'data: {"delta":{"content":"world"},"done":false}\n\n',
+        'data: {"done":true}\n\n',
+      ]),
+    );
+
+    const stream = new ChatStream({
+      workspaceId: 'ws',
+      peerId: 'p',
+      invalidatePeer: mockInvalidate,
+      fetch: fetchMock,
+    });
+    await stream.send('greet');
+
+    expect(stream.tokens).toBe('hello world');
+    expect(stream.expectedEnd).toBe(true);
+    expect(stream.error).toBeNull();
+    expect(mockInvalidate).toHaveBeenCalledWith('p');
+  });
+
   it('ignores tokens after done event', async () => {
     const fetchMock = vi.fn(async () =>
       makeStreamingResponse([
@@ -174,6 +197,7 @@ describe('ChatStream', () => {
     expect(stream.streamEnded).toBe(true);
     expect(stream.expectedEnd).toBe(false);
     expect(stream.error?.message).toMatch(/interrupted/i);
+    expect(stream.error?.upstream).toBe('honcho');
   });
 
   it('records HonchoApiError on non-200 response', async () => {

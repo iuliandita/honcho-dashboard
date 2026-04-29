@@ -43,7 +43,7 @@ export function staticRoute(config: StaticConfig) {
       return new Response(file, { headers });
     }
 
-    // SPA fallback — any unmatched path serves index.html so the client router takes over.
+    // SPA fallback - any unmatched path serves index.html so the client router takes over.
     const index = Bun.file(`${config.buildDir}/index.html`);
     if (await index.exists()) {
       return new Response(index, {

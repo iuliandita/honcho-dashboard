@@ -47,4 +47,11 @@ const { title, subtitle, actions }: Props = $props();
     display: flex;
     gap: 0.5rem;
   }
+
+  @media (max-width: 480px) {
+    .pane-header {
+      align-items: flex-start;
+      padding: 0.65rem 0.85rem;
+    }
+  }
 </style>

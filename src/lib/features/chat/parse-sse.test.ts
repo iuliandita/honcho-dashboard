@@ -69,6 +69,16 @@ describe('createSseParser', () => {
     expect(events).toEqual([{ type: 'done' }]);
   });
 
+  it('normalizes Honcho OpenAI-style delta and done events', () => {
+    const parser = createSseParser();
+    const events = pushAll(parser, [
+      'data: {"delta":{"content":"hello "},"done":false}\n\n',
+      'data: {"delta":{"content":"world"},"done":false}\n\n',
+      'data: {"done":true}\n\n',
+    ]);
+    expect(events).toEqual([{ type: 'token', data: 'hello ' }, { type: 'token', data: 'world' }, { type: 'done' }]);
+  });
+
   it('parses error events', () => {
     const parser = createSseParser();
     const events = pushAll(parser, ['data: {"type":"error","data":"upstream lost"}\n\n']);

@@ -52,17 +52,20 @@ function handleKeydown(e: KeyboardEvent) {
 </script>
 
 <label class="search-input">
+  <span class="sr-only">search this workspace</span>
   <span class="prompt" aria-hidden="true">&gt;</span>
   <input
     type="search"
     placeholder="search this workspace..."
+    aria-label="search this workspace"
+    aria-describedby="workspace-search-help"
     {value}
     oninput={handleInput}
     onkeydown={handleKeydown}
     autocomplete="off"
     spellcheck="false"
   />
-  <span class="hint">enter to commit / esc to clear</span>
+  <span id="workspace-search-help" class="hint">enter to commit / esc to clear</span>
 </label>
 
 <style>
@@ -78,6 +81,18 @@ function handleKeydown(e: KeyboardEvent) {
 
   .search-input:focus-within {
     border-color: var(--color-yellow-500);
+  }
+
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
   }
 
   .prompt {

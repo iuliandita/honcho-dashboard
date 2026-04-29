@@ -22,7 +22,7 @@ const isSearch = $derived(page.url.pathname.startsWith('/search'));
       <span class="sep" aria-hidden="true">·</span>
       <span class="ws-id">workspace <code>{data.workspaceId}</code></span>
     </p>
-    <a class="search-link" class:active={isSearch} href="/search">
+    <a class="search-link" class:active={isSearch} href="/search" aria-current={isSearch ? 'page' : undefined}>
       <Icon name="search" size={12} />
       <span>search</span>
     </a>
@@ -79,7 +79,8 @@ const isSearch = $derived(page.url.pathname.startsWith('/search'));
     align-items: center;
     justify-content: center;
     gap: 0.4rem;
-    min-height: 2.75rem;
+    min-width: 44px;
+    min-height: 44px;
     padding: 0.25rem 0.75rem;
     color: var(--color-fg-muted);
     border: 1px solid transparent;

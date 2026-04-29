@@ -173,4 +173,38 @@ describe('proxy /api/*', () => {
     expect(res.status).toBe(404);
     expect(res.headers.get('X-Trace-Id')).toBeTruthy();
   });
+
+  it('drops upstream encoding headers when fetch has decoded the body', async () => {
+    const encodedFetch = () =>
+      Promise.resolve(
+        new Response(JSON.stringify({ items: [] }), {
+          status: 200,
+          headers: {
+            'Content-Encoding': 'zstd',
+            'Content-Length': '99',
+            'Content-Type': 'application/json',
+            Vary: 'Accept-Encoding',
+          },
+        }),
+      );
+
+    const app = new Hono();
+    app.route(
+      '/',
+      proxyRoute({
+        apiBase: 'http://stub.local',
+        adminToken: 'test-token',
+        timeoutMs: 1000,
+        fetch: encodedFetch,
+      }),
+    );
+
+    const res = await app.request('/api/v3/workspaces/ws/peers/list');
+
+    expect(res.status).toBe(200);
+    expect(res.headers.get('Content-Encoding')).toBeNull();
+    expect(res.headers.get('Content-Length')).toBeNull();
+    expect(res.headers.get('Content-Type')).toBe('application/json');
+    expect(await res.json()).toEqual({ items: [] });
+  });
 });

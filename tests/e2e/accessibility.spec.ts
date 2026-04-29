@@ -34,5 +34,16 @@ test.describe('accessibility', () => {
       const results = await new AxeBuilder({ page }).analyze();
       expect(results.violations).toEqual([]);
     });
+
+    test(`has no detectable axe violations in light theme on ${route.path}`, async ({ page }) => {
+      await page.addInitScript(() => {
+        localStorage.setItem('theme', 'light');
+      });
+      await page.goto(`${dashboard.url}${route.path}`);
+      await expect(page.getByText(route.readyText).first()).toBeVisible();
+
+      const results = await new AxeBuilder({ page }).analyze();
+      expect(results.violations).toEqual([]);
+    });
   }
 });

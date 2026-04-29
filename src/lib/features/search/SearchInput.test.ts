@@ -26,6 +26,18 @@ describe('<SearchInput>', () => {
     expect(onCommit).toHaveBeenCalledWith('coffee');
   });
 
+  it('uses a purpose label and separates shortcut help text', () => {
+    const { getByRole } = render(SearchInput, {
+      props: { value: '', onCommit: vi.fn() },
+    });
+
+    const input = getByRole('searchbox', { name: 'search this workspace' });
+    const descriptionId = input.getAttribute('aria-describedby');
+
+    expect(descriptionId).toBeTruthy();
+    expect(document.getElementById(descriptionId as string)?.textContent).toContain('enter to commit');
+  });
+
   it('enter commits immediately', async () => {
     const onCommit = vi.fn();
     const { getByPlaceholderText } = render(SearchInput, {

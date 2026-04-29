@@ -13,7 +13,7 @@ set -euo pipefail
 SOURCE="${1:-}"
 if [ -z "$SOURCE" ]; then
   echo "usage: $0 <honcho-url-or-local-path>"
-  echo "example: $0 https://honcho.ditas.cc"
+  echo "example: $0 https://honcho.example.com"
   echo "example: $0 ./local-honcho-openapi.json"
   exit 1
 fi

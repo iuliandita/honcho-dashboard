@@ -123,12 +123,12 @@ export class ChatStream {
         this.error = new HonchoApiError('stream interrupted before completion', {
           status: 0,
           traceId,
-          upstream: 'proxy',
+          upstream: 'honcho',
         });
       }
     } catch (err) {
       if (err instanceof DOMException && err.name === 'AbortError') {
-        // cancelled deliberately — leave error null
+        // cancelled deliberately - leave error null
       } else {
         this.error = new HonchoApiError(err instanceof Error ? err.message : 'stream read failure', {
           status: 0,

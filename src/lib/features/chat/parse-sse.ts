@@ -1,4 +1,4 @@
-import { type ChatEvent, isChatEvent } from './events';
+import { type ChatEvent, normalizeChatEvent } from './events';
 
 const EVENT_BOUNDARY = /(\r?\n){2}|\r{2}/;
 
@@ -33,7 +33,8 @@ export function createSseParser(): SseParser {
         const raw = dataLines.join('\n');
         try {
           const parsed = JSON.parse(raw);
-          if (isChatEvent(parsed)) events.push(parsed);
+          const event = normalizeChatEvent(parsed);
+          if (event) events.push(event);
         } catch {
           // skip malformed JSON
         }

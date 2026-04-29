@@ -3,6 +3,7 @@ import TopicChip from '$features/representation/TopicChip.svelte';
 import EmptyArchive from '$ui/ascii/EmptyArchive.svelte';
 import EmptySearch from '$ui/ascii/EmptySearch.svelte';
 import EmptyState from '$ui/primitives/EmptyState.svelte';
+import ErrorState from '$ui/primitives/ErrorState.svelte';
 import type { CreateQueryResult } from '@tanstack/svelte-query';
 import ResultCard from './ResultCard.svelte';
 import type { SearchResponse, SearchResult } from './api';
@@ -27,7 +28,7 @@ const { hrefForResult, query, selectedTopic, onTopicChange, queryStore }: Props 
   {:else if $queryStore.isLoading}
     <p class="state">searching...</p>
   {:else if $queryStore.isError}
-    <p class="state error">error: {$queryStore.error?.message}</p>
+    <ErrorState error={$queryStore.error} title="search failed" context={query} onRetry={() => $queryStore.refetch()} />
   {:else if $queryStore.data}
     {#if $queryStore.data.topicFacets && Object.keys($queryStore.data.topicFacets).length > 0}
       <nav class="facets" aria-label="filter by topic">
@@ -91,7 +92,4 @@ const { hrefForResult, query, selectedTopic, onTopicChange, queryStore }: Props 
     color: var(--color-fg-muted);
   }
 
-  .state.error {
-    color: var(--color-error);
-  }
 </style>

@@ -1,6 +1,7 @@
 <script lang="ts">
 import EmptyArchive from '$ui/ascii/EmptyArchive.svelte';
 import EmptyState from '$ui/primitives/EmptyState.svelte';
+import ErrorState from '$ui/primitives/ErrorState.svelte';
 import type { InfiniteData } from '@tanstack/query-core';
 import type { CreateInfiniteQueryResult } from '@tanstack/svelte-query';
 import { onMount } from 'svelte';
@@ -67,7 +68,9 @@ onMount(() => {
   {#if $query.isLoading && messages.length === 0}
     <p class="state-row" role="status">loading messages…</p>
   {:else if $query.isError}
-    <p class="state-row error" role="alert">error: {$query.error?.message}</p>
+    <div class="state-block">
+      <ErrorState error={$query.error} title="messages failed" context={`peer ${peerId}`} onRetry={() => $query.refetch()} />
+    </div>
   {:else if messages.length === 0}
     <EmptyState title="no messages in this session">
       {#snippet art()}<EmptyArchive />{/snippet}
@@ -78,7 +81,7 @@ onMount(() => {
         <p class="state-row">loading older…</p>
       {/if}
       {#if !$query.hasNextPage}
-        <p class="state-row faint">— start of history —</p>
+        <p class="state-row faint">- start of history -</p>
       {/if}
     </div>
     {#each messages as message (message.id)}
@@ -104,8 +107,8 @@ onMount(() => {
     color: var(--color-fg-muted);
     text-align: center;
   }
-  .state-row.error {
-    color: var(--color-error);
+  .state-block {
+    padding: 1rem;
   }
   .state-row.faint {
     color: var(--color-fg-faint);

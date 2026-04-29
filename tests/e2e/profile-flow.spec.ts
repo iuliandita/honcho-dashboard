@@ -24,6 +24,14 @@ test.describe('profile flow', () => {
     await expect(page.getByText('prefers writing over calls')).toBeVisible();
   });
 
+  test('keeps profile content in the pane scroll region', async ({ page }) => {
+    await page.goto(`${dashboard.url}/peers/peer-1/profile`);
+
+    const scrollRegion = page.locator('.pane.scrollable .pane-body');
+    await expect(scrollRegion).toBeVisible();
+    await expect(scrollRegion).toHaveCSS('overflow-y', 'auto');
+  });
+
   test('strips inline scripts from rendered markdown', async ({ page }) => {
     await page.goto(`${dashboard.url}/peers/peer-1/profile`);
 

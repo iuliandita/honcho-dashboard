@@ -87,7 +87,8 @@ const trimmed = $derived(profile.markdown.trim());
   .md :global(blockquote) {
     margin: 1rem 0;
     padding: 0.5rem 1rem;
-    border-left: 3px solid var(--color-yellow-500);
+    border: 1px solid var(--color-border);
+    background: color-mix(in oklab, var(--color-yellow-500) 6%, transparent);
     color: var(--color-fg-muted);
   }
   .md :global(code) {

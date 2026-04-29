@@ -23,6 +23,8 @@ test.describe('chat flow', () => {
 
   test('renders empty state initially', async ({ page }) => {
     await page.goto(`${dashboard.url}/peers/peer-1/chat`);
+    await expect(page.getByRole('heading', { name: 'chat' })).toBeVisible();
+    await expect(page.getByText('peer peer-1')).toBeVisible();
     await expect(page.getByText('ask honcho about this peer')).toBeVisible();
     await expect(page.getByPlaceholder('ask about this peer')).toBeVisible();
   });
@@ -58,9 +60,10 @@ test.describe('chat flow', () => {
 
     await ask(page, 'force 4xx');
 
-    await expect(page.getByText('error · status 422')).toBeVisible();
+    await expect(page.getByText('chat failed')).toBeVisible();
+    await expect(page.getByText('422')).toBeVisible();
     await expect(page.getByText('dialectic denied')).toBeVisible();
-    await expect(page.getByText(/trace:/)).toBeVisible();
+    await expect(page.getByText('trace')).toBeVisible();
   });
 
   test('renders partial output and error state when the stream fails mid-flight', async ({ page }) => {
@@ -69,7 +72,8 @@ test.describe('chat flow', () => {
     await ask(page, 'midstream 5xx');
 
     await expect(page.getByText('partial before failure')).toBeVisible();
-    await expect(page.getByText('error · status 0')).toBeVisible();
+    await expect(page.getByText('chat failed')).toBeVisible();
+    await expect(page.locator('code').filter({ hasText: /^0$/ })).toBeVisible();
   });
 
   test('skips malformed SSE frames and keeps valid events', async ({ page }) => {

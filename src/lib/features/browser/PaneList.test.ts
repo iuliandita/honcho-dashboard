@@ -10,10 +10,27 @@ describe('<PaneList>', () => {
         empty: { title: 'no items' },
       },
     });
-    const rows = getAllByRole('option');
+    const rows = getAllByRole('listitem');
 
     expect(within(rows[0] as HTMLElement).getByText('a')).toBeTruthy();
     expect(within(rows[1] as HTMLElement).getByText('b')).toBeTruthy();
+  });
+
+  it('renders navigational rows as links when hrefFor is supplied', () => {
+    const { getByRole, queryByRole } = render(PaneList, {
+      props: {
+        items: [{ id: 'alpha' }],
+        selectedId: 'alpha',
+        empty: { title: 'items' },
+        hrefFor: (item: { id: string }) => `/items/${item.id}`,
+      },
+    });
+
+    const link = getByRole('link', { name: 'alpha' });
+    expect(link.getAttribute('href')).toBe('/items/alpha');
+    expect(link.getAttribute('aria-current')).toBe('page');
+    expect(queryByRole('listbox')).toBeNull();
+    expect(queryByRole('option')).toBeNull();
   });
 
   it('renders empty state when items.length === 0 and not loading', () => {
@@ -51,7 +68,28 @@ describe('<PaneList>', () => {
     expect(container.textContent).toContain('broken');
   });
 
-  it('activates a focused row with Enter or Space', async () => {
+  it('shows error recovery details and retries when requested', async () => {
+    const onRetry = vi.fn();
+    const { getByRole, getByText } = render(PaneList, {
+      props: {
+        items: [],
+        empty: { title: 'peers' },
+        error: { message: 'backend unavailable', status: 503, traceId: 'trace-123', upstream: 'honcho' },
+        onRetry,
+      },
+    });
+
+    expect(getByText('backend unavailable')).toBeTruthy();
+    expect(getByText('peers')).toBeTruthy();
+    expect(getByText('503')).toBeTruthy();
+    expect(getByText('trace-123')).toBeTruthy();
+
+    await fireEvent.click(getByRole('button', { name: 'retry' }));
+
+    expect(onRetry).toHaveBeenCalledOnce();
+  });
+
+  it('activates callback rows as native buttons', async () => {
     const onSelect = vi.fn();
     const { getByRole } = render(PaneList, {
       props: {
@@ -60,12 +98,10 @@ describe('<PaneList>', () => {
         onSelect,
       },
     });
-    const row = getByRole('option', { name: 'alpha' });
+    const row = getByRole('button', { name: 'alpha' });
 
-    await fireEvent.keyDown(row, { key: 'Enter' });
-    await fireEvent.keyDown(row, { key: ' ' });
+    await fireEvent.click(row);
 
     expect(onSelect).toHaveBeenNthCalledWith(1, { id: 'alpha' });
-    expect(onSelect).toHaveBeenNthCalledWith(2, { id: 'alpha' });
   });
 });

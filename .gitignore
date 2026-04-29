@@ -1,9 +1,11 @@
 # Agent harness context (private; references local infra paths and secrets)
 CLAUDE.md
 AGENTS.md
+PRODUCT.md
 .claude/
 
 # Local-only docs (scratch, briefs, screenshots)
+DESIGN.md
 docs/local/
 
 # Brainstorming visual companion sessions (mockups, server state)
@@ -28,3 +30,6 @@ playwright-report/
 # Environment
 .env
 .env.local
+
+# Audit artifacts (contain vulnerability detail)
+SECURITY-AUDIT.md

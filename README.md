@@ -1,14 +1,33 @@
 # honcho-dashboard
 
-Self-hosted web inspector for the OSS [Honcho](https://github.com/plastic-labs/honcho) server.
+Self-hosted web dashboard for the OSS [Honcho](https://github.com/plastic-labs/honcho) server.
 
 > Honcho ships an API-only OSS server. The first-party dashboard ("Honcho Chat") is closed-source and
-> cloud-only. This repo provides a self-hostable inspector for any Honcho deployment.
+> cloud-only. This repo provides a self-hostable inspector for operators running their own Honcho deployment.
+
+![Honcho Dashboard representation view with sample data](./docs/assets/honcho-dashboard-representation.png)
+
+The dashboard is an admin-facing inspection UI for Honcho's workspace, peer, session, representation, profile,
+chat, and search APIs. It runs a small server-side proxy so the Honcho admin token stays on the server and never
+lands in browser storage.
 
 ## Status
 
 v1 is usable for self-hosted Honcho inspection. The dashboard is admin-facing and expects a trusted operator
-network.
+network. It is mostly read-only: session messages, representation, profile, peers, workspaces, and search are
+inspection surfaces. The chat tab sends natural-language queries to Honcho's dialectic endpoint and can cause
+Honcho to derive updated peer context, but the dashboard does not edit or delete Honcho memories.
+
+## Features
+
+- Workspace picker mode, plus optional pinned-workspace mode via `HONCHO_WORKSPACE_ID`.
+- Peer and session browser for drilling into Honcho's `workspace -> peer -> session -> message` hierarchy.
+- Read-only message stream with older-page pagination.
+- Per-peer representation view with topic chips and markdown-derived cards.
+- Per-peer profile view with sanitized markdown rendering.
+- Dialectic chat panel over Honcho's streaming `/peers/{peer_id}/chat` endpoint.
+- Workspace semantic search with debounced query input and topic filtering.
+- Docker image, Docker Compose example, plain Kubernetes manifests, and Helm chart.
 
 ## Quickstart
 
