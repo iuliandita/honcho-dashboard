@@ -22,12 +22,7 @@ export default defineConfig({
         branches: 70,
       },
     },
-    // Component tests (anything touching DOM/Svelte mount) need jsdom.
-    // Pure logic tests stay on `node` for speed.
-    environmentMatchGlobs: [
-      ['src/lib/**/*.test.ts', 'jsdom'],
-      ['**/*', 'node'],
-    ],
+    environment: 'jsdom',
     globals: false,
   },
 });

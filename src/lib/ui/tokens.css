@@ -93,7 +93,7 @@
       opacity: 0.55;
     }
     50% {
-      opacity: 1.0;
+      opacity: 1;
     }
   }
   @keyframes fade-in {
@@ -203,7 +203,9 @@ pre.ascii,
   font-family: var(--font-mono);
   font-weight: 400;
   font-variant-ligatures: none;
-  font-feature-settings: "calt" off, "liga" off;
+  font-feature-settings:
+    "calt" off,
+    "liga" off;
   white-space: pre;
   letter-spacing: 0;
   line-height: 1.05;

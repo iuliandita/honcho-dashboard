@@ -27,7 +27,7 @@
     "bun": ">=1.1.0"
   },
   "dependencies": {
-    "@tanstack/svelte-query": "^6.1.25",
+    "@tanstack/svelte-query": "^5.90.2",
     "dompurify": "^3.2.0",
     "hono": "^4.6.0",
     "marked": "^18.0.2"
@@ -49,7 +49,7 @@
     "svelte": "^5.0.0",
     "svelte-check": "^4.0.0",
     "tailwindcss": "^4.0.0",
-    "typescript": "^6.0.3",
+    "typescript": "^5.9.3",
     "vite": "^8.0.10",
     "vitest": "^4.1.5"
   }
