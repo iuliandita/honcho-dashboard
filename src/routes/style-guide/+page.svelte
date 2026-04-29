@@ -29,6 +29,7 @@ const colorTokens = [
 const textTokens = ['text-2xs', 'text-xs', 'text-sm', 'text-base', 'text-lg', 'text-xl', 'text-2xl'];
 
 let resolved = $state<Record<string, string>>({});
+let activeFontScale = $state('normal');
 
 onMount(() => {
   const style = getComputedStyle(document.documentElement);
@@ -38,13 +39,17 @@ onMount(() => {
   }
   next['font-mono'] = style.getPropertyValue('--font-mono').trim();
   resolved = next;
+  activeFontScale = document.documentElement.dataset.fontScale ?? 'normal';
 });
 </script>
 
 <article class="guide">
   <header>
     <h1>style guide</h1>
-    <p class="subtitle">live token gallery; values resolve from rendered CSS custom properties.</p>
+    <p class="subtitle">
+      live token gallery; values resolve from rendered CSS custom properties. font scale:
+      <code>{activeFontScale}</code>
+    </p>
   </header>
 
   <section>
