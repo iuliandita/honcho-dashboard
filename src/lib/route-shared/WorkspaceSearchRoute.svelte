@@ -6,6 +6,7 @@ import SearchInput from '$features/search/SearchInput.svelte';
 import SearchResults from '$features/search/SearchResults.svelte';
 import { type SearchResponse, type SearchResult, buildWorkspaceSearchQuery } from '$features/search/api';
 import { t } from '$lib/i18n';
+import { segment } from '$lib/routing/paths';
 import type { AppSettings } from '$lib/settings/AppSettings.svelte';
 import Pane from '$ui/primitives/Pane.svelte';
 import PaneHeader from '$ui/primitives/PaneHeader.svelte';
@@ -62,7 +63,7 @@ function setInputValue(q: string) {
 }
 
 function hrefForResult(result: SearchResult): string {
-  return `${peerHrefPrefix}/${result.peerId}`;
+  return `${peerHrefPrefix}/${segment(result.peerId)}`;
 }
 </script>
 

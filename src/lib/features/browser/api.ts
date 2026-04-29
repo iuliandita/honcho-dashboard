@@ -1,6 +1,7 @@
 import type { ApiClient } from '$api/client';
 import { keys } from '$api/keys';
 import type { components } from '$lib/honcho/types';
+import { honchoApiPaths } from '$lib/routing/paths';
 
 export type WorkspaceSummary = components['schemas']['Workspace'];
 export type PeerSummary = components['schemas']['Peer'];
@@ -54,7 +55,7 @@ export function buildPeersQuery(client: ApiClient, workspaceId: string) {
   return {
     queryKey: [...keys.workspace(workspaceId), 'peers'] as const,
     queryFn: ({ signal }: QueryContext = {}) =>
-      fetchAllPages<PeerSummary>(client, `/v3/workspaces/${workspaceId}/peers/list`, EMPTY_FILTER, signal),
+      fetchAllPages<PeerSummary>(client, honchoApiPaths.peersList(workspaceId), EMPTY_FILTER, signal),
   };
 }
 
@@ -62,11 +63,6 @@ export function buildSessionsQuery(client: ApiClient, workspaceId: string, peerI
   return {
     queryKey: [...keys.peer(workspaceId, peerId), 'sessions'] as const,
     queryFn: ({ signal }: QueryContext = {}) =>
-      fetchAllPages<SessionSummary>(
-        client,
-        `/v3/workspaces/${workspaceId}/peers/${peerId}/sessions`,
-        EMPTY_FILTER,
-        signal,
-      ),
+      fetchAllPages<SessionSummary>(client, honchoApiPaths.sessionsForPeer(workspaceId, peerId), EMPTY_FILTER, signal),
   };
 }

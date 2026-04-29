@@ -1,6 +1,7 @@
 <script lang="ts">
 import { page } from '$app/state';
 import { t } from '$lib/i18n';
+import { searchPath } from '$lib/routing/paths';
 import type { AppSettings } from '$lib/settings/AppSettings.svelte';
 import Icon from '$ui/pixel/Icon.svelte';
 import { type Snippet, getContext } from 'svelte';
@@ -14,7 +15,7 @@ interface Props {
 const { data, children }: Props = $props();
 const settings = getContext<AppSettings>('app-settings');
 
-const searchHref = $derived(`/workspaces/${data.workspaceId}/search`);
+const searchHref = $derived(searchPath(data.workspaceId));
 const isSearch = $derived(page.url.pathname === searchHref);
 </script>
 

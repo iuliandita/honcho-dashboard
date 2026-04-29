@@ -4,7 +4,7 @@ import { authRoute } from '../../../src/server/auth/route';
 const config = {
   mode: 'password',
   password: 'secret',
-  sessionSecret: '0123456789abcdef0123456789abcdef',
+  sessionSecret: 'test-session-secret',
   sessionTtlSeconds: 60,
   cookieName: 'test_session',
 } as const;

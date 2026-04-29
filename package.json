@@ -1,6 +1,6 @@
 {
   "name": "honcho-dashboard",
-  "version": "1.5.0",
+  "version": "1.6.0",
   "description": "Self-hosted web inspector for the OSS Honcho server",
   "type": "module",
   "private": false,

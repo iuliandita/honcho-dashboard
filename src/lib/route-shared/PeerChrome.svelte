@@ -1,6 +1,7 @@
 <script lang="ts">
 import { page } from '$app/state';
 import { type MessageKey, t } from '$lib/i18n';
+import { peerPath, peerTabPath, workspacePath } from '$lib/routing/paths';
 import type { AppSettings } from '$lib/settings/AppSettings.svelte';
 import { type Snippet, getContext } from 'svelte';
 
@@ -13,7 +14,7 @@ interface Props {
 const { workspaceId, peerId, children }: Props = $props();
 const settings = getContext<AppSettings>('app-settings');
 
-const basePath = $derived(workspaceId ? `/workspaces/${workspaceId}/peers/${peerId}` : `/peers/${peerId}`);
+const basePath = $derived(peerPath(peerId, workspaceId));
 const tabs = [
   { id: 'sessions', labelKey: 'nav.sessions' },
   { id: 'representation', labelKey: 'nav.representation' },
@@ -22,7 +23,7 @@ const tabs = [
 ] as const;
 
 function hrefFor(tabId: string): string {
-  return tabId === 'sessions' ? basePath : `${basePath}/${tabId}`;
+  return peerTabPath(peerId, tabId as 'sessions' | 'representation' | 'profile' | 'chat', workspaceId);
 }
 
 function isActive(tabId: string): boolean {
@@ -36,7 +37,7 @@ function isActive(tabId: string): boolean {
   <p class="trail">
     {#if workspaceId}
       <a href="/workspaces">{t(settings.locale, 'nav.workspaces')}</a> ·
-      <a href={`/workspaces/${workspaceId}`}><code>{workspaceId}</code></a> · {t(settings.locale, 'nav.peers')} · <code>{peerId}</code>
+      <a href={workspacePath(workspaceId)}><code>{workspaceId}</code></a> · {t(settings.locale, 'nav.peers')} · <code>{peerId}</code>
     {:else}
       <a href="/peers">{t(settings.locale, 'nav.peers')}</a> · <code>{peerId}</code>
     {/if}

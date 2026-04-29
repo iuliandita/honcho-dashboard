@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { createApp } from '../../src/server/index';
+import packageJson from '../../package.json';
+import { createApp, readListenPort } from '../../src/server/index';
 import { createStubHoncho } from './stub-honcho';
 
 describe('createApp', () => {
@@ -21,7 +22,10 @@ describe('createApp', () => {
 
     const health = await app.request('/healthz');
     expect(health.status).toBe(200);
-    expect(health.headers.get('Content-Security-Policy')).toContain("default-src 'self'");
+    const csp = health.headers.get('Content-Security-Policy') ?? '';
+    expect(csp).toContain("default-src 'self'");
+    expect(csp).toMatch(/script-src 'self' 'nonce-[^']+'/);
+    expect(csp).not.toContain("script-src 'self' 'unsafe-inline'");
     expect(health.headers.get('Strict-Transport-Security')).toBe('max-age=31536000; includeSubDomains');
     expect(health.headers.get('X-Content-Type-Options')).toBe('nosniff');
     expect(health.headers.get('Referrer-Policy')).toBe('no-referrer');
@@ -47,7 +51,18 @@ describe('createApp', () => {
     const app = createApp();
     const config = await app.request('/api/runtime-config');
     expect(config.status).toBe(200);
-    expect(await config.json()).toEqual({ workspaceId: 'env-ws', version: '1.5.0' });
+    expect(await config.json()).toEqual({ workspaceId: 'env-ws', version: packageJson.version });
+  });
+
+  it('allows runtime version to be injected for container releases', async () => {
+    vi.stubEnv('HONCHO_API_BASE', 'http://env.test');
+    vi.stubEnv('HONCHO_ADMIN_TOKEN', 'env-token');
+    vi.stubEnv('HONCHO_DASHBOARD_VERSION', '1.6.0-build.7');
+
+    const app = createApp();
+    const config = await app.request('/api/runtime-config');
+    expect(config.status).toBe(200);
+    expect(await config.json()).toEqual({ workspaceId: null, version: '1.6.0-build.7' });
   });
 
   it('throws if required env vars are missing', () => {
@@ -55,6 +70,49 @@ describe('createApp', () => {
     vi.stubEnv('HONCHO_ADMIN_TOKEN', '');
 
     expect(() => createApp()).toThrow(/HONCHO_API_BASE/);
+  });
+
+  it('throws before serving when env config values are invalid', () => {
+    vi.stubEnv('HONCHO_API_BASE', 'ftp://honcho.test');
+    vi.stubEnv('HONCHO_ADMIN_TOKEN', 'env-token');
+    expect(() => createApp()).toThrow(/HONCHO_API_BASE must be an http\(s\) URL/);
+
+    vi.stubEnv('HONCHO_API_BASE', 'https://honcho.test');
+    vi.stubEnv('HONCHO_PROXY_TIMEOUT', 'nan');
+    expect(() => createApp()).toThrow(/HONCHO_PROXY_TIMEOUT must be an integer/);
+
+    vi.stubEnv('HONCHO_PROXY_TIMEOUT', '301');
+    expect(() => createApp()).toThrow(/HONCHO_PROXY_TIMEOUT must be between 1 and 300/);
+  });
+
+  it('throws before startup when PORT is invalid', () => {
+    vi.stubEnv('PORT', '70000');
+
+    expect(() => readListenPort()).toThrow(/PORT must be between 1 and 65535/);
+  });
+
+  it('validates explicit createApp overrides too', () => {
+    expect(() =>
+      createApp({
+        apiBase: 'http://stub.local',
+        adminToken: 'test-token',
+        workspaceId: null,
+        version: '0.1.0',
+        timeoutMs: 1000,
+        buildDir: './build',
+      }),
+    ).not.toThrow();
+
+    expect(() =>
+      createApp({
+        apiBase: 'not-a-url',
+        adminToken: 'test-token',
+        workspaceId: null,
+        version: '0.1.0',
+        timeoutMs: 1000,
+        buildDir: './build',
+      }),
+    ).toThrow(/apiBase must be an http\(s\) URL/);
   });
 
   it('protects proxied Honcho API routes when password auth is enabled', async () => {
@@ -69,7 +127,7 @@ describe('createApp', () => {
       authConfig: {
         mode: 'password',
         password: 'secret',
-        sessionSecret: '0123456789abcdef0123456789abcdef',
+        sessionSecret: 'test-session-secret',
         sessionTtlSeconds: 60,
         cookieName: 'test_session',
       },

@@ -1,6 +1,7 @@
 import type { ApiClient } from '$api/client';
 import { keys } from '$api/keys';
 import type { components } from '$lib/honcho/types';
+import { honchoApiPaths } from '$lib/routing/paths';
 import type { QueryFunctionContext } from '@tanstack/query-core';
 
 export type Message = components['schemas']['Message'];
@@ -20,7 +21,7 @@ export function buildSessionMessagesQuery(client: ApiClient, workspaceId: string
   return {
     queryKey: keys.sessionMessages(workspaceId, peerId, sessionId),
     queryFn: async ({ pageParam = 1, signal }: QueryContext = {}) => {
-      const path = `/v3/workspaces/${workspaceId}/sessions/${sessionId}/messages/list`;
+      const path = honchoApiPaths.sessionMessages(workspaceId, sessionId);
       const params = { page: pageParam, size: PAGE_SIZE, reverse: true };
       const page = await (signal
         ? client.post<components['schemas']['Page_Message_']>(path, EMPTY_FILTER, params, { signal })

@@ -1,11 +1,11 @@
-{{- if .Values.metrics.enabled -}}
+{{- if .Values.metrics.serviceMonitorScaffold.enabled -}}
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
   name: {{ include "honcho-dashboard.fullname" . }}
   labels:
     {{- include "honcho-dashboard.labels" . | nindent 4 }}
-    {{- with .Values.metrics.additionalLabels }}
+    {{- with .Values.metrics.serviceMonitorScaffold.additionalLabels }}
     {{- toYaml . | nindent 4 }}
     {{- end }}
 spec:
@@ -14,7 +14,7 @@ spec:
       {{- include "honcho-dashboard.selectorLabels" . | nindent 6 }}
   endpoints:
     - port: http
-      path: {{ .Values.metrics.path | quote }}
-      interval: {{ .Values.metrics.interval | quote }}
-      scrapeTimeout: {{ .Values.metrics.scrapeTimeout | quote }}
+      path: {{ .Values.metrics.serviceMonitorScaffold.path | quote }}
+      interval: {{ .Values.metrics.serviceMonitorScaffold.interval | quote }}
+      scrapeTimeout: {{ .Values.metrics.serviceMonitorScaffold.scrapeTimeout | quote }}
 {{- end }}

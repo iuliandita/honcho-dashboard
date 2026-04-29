@@ -1,6 +1,7 @@
 import type { ApiClient } from '$api/client';
 import { keys } from '$api/keys';
 import type { components } from '$lib/honcho/types';
+import { honchoApiPaths } from '$lib/routing/paths';
 
 export interface SearchResult {
   id: string;
@@ -65,7 +66,7 @@ export function buildWorkspaceSearchQuery(client: ApiClient, workspaceId: string
   return {
     queryKey: keys.workspaceSearch(workspaceId, trimmedQuery, topic),
     queryFn: async ({ signal }: QueryContext = {}) => {
-      const path = `/v3/workspaces/${workspaceId}/search`;
+      const path = honchoApiPaths.workspaceSearch(workspaceId);
       const messages = await (signal
         ? client.post<components['schemas']['Message'][]>(path, body, undefined, { signal })
         : client.post<components['schemas']['Message'][]>(path, body));

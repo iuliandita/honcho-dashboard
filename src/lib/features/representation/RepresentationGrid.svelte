@@ -26,6 +26,16 @@ const topicCounts = $derived.by((): Map<string, number> => {
 
 const topics = $derived(data.topics.length > 0 ? data.topics : [...topicCounts.keys()]);
 const filtered = $derived(filterByTopic(data.items, selectedTopic));
+const latestCreatedAt = $derived.by(() => {
+  const timestamps = filtered
+    .map((item) => item.createdAt)
+    .filter(Boolean)
+    .sort();
+  return timestamps.at(-1) ?? '';
+});
+const topicLabel = $derived(selectedTopic ?? 'all topics');
+const focusedCount = $derived(`${filtered.length} / ${data.items.length}`);
+const latestLabel = $derived(latestCreatedAt ? latestCreatedAt.slice(0, 16).replace('T', ' ') : '-');
 
 function setTopic(topic: string | null) {
   selectedTopic = topic;
@@ -50,10 +60,33 @@ function setTopic(topic: string | null) {
       {#snippet art()}<EmptyMemory />{/snippet}
     </EmptyState>
   {:else}
-    <div class="grid">
-      {#each filtered as item (item.id)}
-        <RepresentationCard {item} />
-      {/each}
+    <div class="content-layout">
+      <aside class="topic-context" aria-label="selected topic context">
+        <dl>
+          <div>
+            <dt>selected topic</dt>
+            <dd>{topicLabel}</dd>
+          </div>
+          <div>
+            <dt>visible cards</dt>
+            <dd>{focusedCount}</dd>
+          </div>
+          <div>
+            <dt>latest item</dt>
+            <dd>{latestLabel}</dd>
+          </div>
+          <div>
+            <dt>known topics</dt>
+            <dd>{topics.length}</dd>
+          </div>
+        </dl>
+      </aside>
+
+      <div class="grid">
+        {#each filtered as item (item.id)}
+          <RepresentationCard {item} />
+        {/each}
+      </div>
     </div>
   {/if}
 </div>
@@ -70,9 +103,56 @@ function setTopic(topic: string | null) {
     flex-wrap: wrap;
     gap: 0.4rem;
   }
+  .content-layout {
+    display: grid;
+    gap: 0.75rem;
+  }
+  .topic-context {
+    border-top: 1px solid var(--color-border);
+    border-bottom: 1px solid var(--color-border);
+    padding: 0.75rem 0;
+  }
+  .topic-context dl {
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem 1rem;
+  }
+  .topic-context div {
+    min-width: 0;
+  }
+  .topic-context dt {
+    color: var(--color-fg-faint);
+    font-size: var(--text-xs);
+    text-transform: uppercase;
+  }
+  .topic-context dd {
+    margin: 0.15rem 0 0 0;
+    color: var(--color-fg);
+    font-size: var(--text-sm);
+    overflow-wrap: anywhere;
+    font-variant-numeric: tabular-nums;
+  }
   .grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(min(28rem, 100%), 1fr));
     gap: 0.75rem;
+  }
+
+  @media (min-width: 72rem) {
+    .content-layout {
+      grid-template-columns: minmax(12rem, 16rem) minmax(0, 1fr);
+      align-items: start;
+    }
+    .topic-context {
+      position: sticky;
+      top: 1rem;
+    }
+    .topic-context dl {
+      grid-template-columns: 1fr;
+    }
+    .grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
   }
 </style>

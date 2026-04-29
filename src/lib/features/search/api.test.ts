@@ -40,6 +40,19 @@ describe('buildWorkspaceSearchQuery', () => {
     });
   });
 
+  it('encodes workspace IDs in search API paths', async () => {
+    const client = mockClient([]);
+    const opts = buildWorkspaceSearchQuery(client, 'ws /#?', 'coffee', null);
+
+    await opts.queryFn();
+
+    expect(client.post).toHaveBeenCalledWith('/v3/workspaces/ws%20%2F%23%3F/search', {
+      query: 'coffee',
+      filters: null,
+      limit: 50,
+    });
+  });
+
   it('omits filters when topic is null', async () => {
     const client = mockClient([]);
     const opts = buildWorkspaceSearchQuery(client, 'ws', 'coffee', null);

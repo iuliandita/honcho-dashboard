@@ -1,6 +1,7 @@
 import type { ClientFetch } from '$api/client';
 import { HonchoApiError, parseErrorBody } from '$api/errors';
 import type { components } from '$lib/honcho/types';
+import { honchoApiPaths } from '$lib/routing/paths';
 import type { ChatEvent } from './events';
 import { createSseParser } from './parse-sse';
 
@@ -50,7 +51,7 @@ export class ChatStream {
     this.abortController = new AbortController();
 
     const fetcher = this.config.fetch ?? globalThis.fetch;
-    const url = `/api/v3/workspaces/${this.config.workspaceId}/peers/${this.config.peerId}/chat`;
+    const url = `/api${honchoApiPaths.peerChat(this.config.workspaceId, this.config.peerId)}`;
     const body: components['schemas']['DialecticOptions'] = {
       query,
       stream: true,

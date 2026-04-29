@@ -8,7 +8,9 @@ Create the admin-token Secret outside Git, then apply the manifests:
 
 ```bash
 kubectl create secret generic honcho-dashboard-secret \
-  --from-literal=HONCHO_ADMIN_TOKEN="$HONCHO_ADMIN_TOKEN"
+  --from-literal=HONCHO_ADMIN_TOKEN="$HONCHO_ADMIN_TOKEN" \
+  --from-literal=DASHBOARD_AUTH_PASSWORD_HASH="$DASHBOARD_AUTH_PASSWORD_HASH" \
+  --from-literal=DASHBOARD_SESSION_SECRET="$DASHBOARD_SESSION_SECRET"
 
 kubectl apply -k deploy/k8s/
 ```
@@ -25,3 +27,5 @@ Optional shared-password auth is configured with `DASHBOARD_AUTH_MODE=password`.
 
 The dashboard is an admin-token BFF. Keep it on a trusted operator network. Shared-password auth protects the
 dashboard shell and proxied Honcho API requests, but it is intentionally not a multi-user or role-based system.
+Keep `/healthz` public for probes. Do not expose the dashboard outside a trusted operator network unless
+shared-password auth or reverse-proxy authentication is enabled.

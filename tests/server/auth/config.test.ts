@@ -15,7 +15,7 @@ describe('readAuthConfig', () => {
       readAuthConfig({
         DASHBOARD_AUTH_MODE: 'password',
         DASHBOARD_AUTH_PASSWORD: 'secret',
-        DASHBOARD_SESSION_SECRET: '0123456789abcdef0123456789abcdef',
+        DASHBOARD_SESSION_SECRET: 'test-session-secret',
       }),
     ).toMatchObject({ mode: 'password', password: 'secret' });
   });

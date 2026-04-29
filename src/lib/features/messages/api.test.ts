@@ -70,6 +70,24 @@ describe('buildSessionMessagesQuery', () => {
     );
   });
 
+  it('encodes workspace and session IDs in message API paths', async () => {
+    const client = mockClient({ items: [], total: 0, page: 1, size: 50, pages: 1 });
+    const opts = buildSessionMessagesQuery(client, 'ws /#?', 'peer /#?', 'session /#?');
+
+    await opts.queryFn({
+      pageParam: 1,
+      queryKey: opts.queryKey,
+      meta: undefined,
+      direction: 'forward',
+    });
+
+    expect(client.post).toHaveBeenCalledWith(
+      '/v3/workspaces/ws%20%2F%23%3F/sessions/session%20%2F%23%3F/messages/list',
+      { filters: null },
+      { page: 1, size: 50, reverse: true },
+    );
+  });
+
   it('getNextPageParam returns the next page number or undefined', () => {
     const client = mockClient({ items: [], total: 0, page: 1, size: 50, pages: 1 });
     const opts = buildSessionMessagesQuery(client, 'ws', 'p', 's');

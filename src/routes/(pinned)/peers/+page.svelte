@@ -4,6 +4,7 @@ import PaneList from '$features/browser/PaneList.svelte';
 import PeerCard from '$features/browser/PeerCard.svelte';
 import { type PeerSummary, buildPeersQuery } from '$features/browser/api';
 import { t } from '$lib/i18n';
+import { peerPath } from '$lib/routing/paths';
 import type { AppSettings } from '$lib/settings/AppSettings.svelte';
 import Pane from '$ui/primitives/Pane.svelte';
 import PaneHeader from '$ui/primitives/PaneHeader.svelte';
@@ -37,7 +38,7 @@ const query = createQuery({
     loading={$query.isLoading}
     error={$query.error}
     empty={{ title: t(settings.locale, 'browser.noPeers') }}
-    hrefFor={(peer) => `/peers/${peer.id}`}
+    hrefFor={(peer) => peerPath(peer.id)}
   >
     {#snippet row(item: PeerSummary)}
       <PeerCard peer={item} />

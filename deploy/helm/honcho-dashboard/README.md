@@ -7,25 +7,33 @@ Self-hosted Honcho inspector. Renders the same Deployment / Service / Ingress / 
 
 ```bash
 kubectl create secret generic honcho-dashboard-secret \
-  --from-literal=HONCHO_ADMIN_TOKEN="$HONCHO_ADMIN_TOKEN"
+  --from-literal=HONCHO_ADMIN_TOKEN="$HONCHO_ADMIN_TOKEN" \
+  --from-literal=DASHBOARD_AUTH_PASSWORD_HASH="$DASHBOARD_AUTH_PASSWORD_HASH" \
+  --from-literal=DASHBOARD_SESSION_SECRET="$DASHBOARD_SESSION_SECRET"
 
 helm install dashboard ./deploy/helm/honcho-dashboard \
   --set honcho.apiBase=https://honcho.example.com \
   --set secret.create=false \
   --set secret.existingSecretName=honcho-dashboard-secret \
+  --set ingress.enabled=true \
   --set ingress.hosts[0].host=dashboard.example.com
 ```
 
-If you want the chart to create the Secret, pass the token from a file instead of `--set` so the admin
-token does not appear in process argv:
+If you want the chart to create the Secret, pass sensitive values from files instead of `--set` so they do not
+appear in process argv:
 
 ```bash
 printf '%s' "$HONCHO_ADMIN_TOKEN" > /tmp/honcho-admin-token
+printf '%s' "$DASHBOARD_AUTH_PASSWORD_HASH" > /tmp/honcho-dashboard-password-hash
 helm install dashboard ./deploy/helm/honcho-dashboard \
   --set honcho.apiBase=https://honcho.example.com \
   --set-file secret.adminToken=/tmp/honcho-admin-token \
+  --set dashboardAuth.mode=password \
+  --set dashboardAuth.sessionSecret="$DASHBOARD_SESSION_SECRET" \
+  --set-file dashboardAuth.passwordHash=/tmp/honcho-dashboard-password-hash \
+  --set ingress.enabled=true \
   --set ingress.hosts[0].host=dashboard.example.com
-rm /tmp/honcho-admin-token
+rm /tmp/honcho-admin-token /tmp/honcho-dashboard-password-hash
 ```
 
 Enable shared-password auth by setting `dashboardAuth.mode=password` and providing
@@ -43,6 +51,8 @@ helm install dashboard ./deploy/helm/honcho-dashboard \
 
 The dashboard is an admin-token BFF. Keep it on a trusted operator network. Shared-password auth protects the
 dashboard shell and proxied Honcho API requests, but it is intentionally not a multi-user or role-based system.
+`ingress.enabled` defaults to `false`; enable ingress only after setting shared-password auth or equivalent
+reverse-proxy authentication. `/healthz` stays public for probes.
 
 ## Values reference
 
@@ -64,10 +74,10 @@ for validation.
 | `secret.create` | `true` | Create the admin-token secret in-chart |
 | `secret.adminToken` | `""` | Admin token (required when `create=true`) |
 | `secret.existingSecretName` | `""` | Reference an external secret instead |
-| `ingress.enabled` | `true` | Provision ingress |
-| `metrics.enabled` | `false` | Render a Prometheus Operator ServiceMonitor |
-| `metrics.path` | `/metrics` | Scrape path; scaffold only until the dashboard exposes metrics |
-| `metrics.interval` | `30s` | ServiceMonitor scrape interval |
-| `metrics.scrapeTimeout` | `10s` | ServiceMonitor scrape timeout |
-| `metrics.additionalLabels` | `{}` | Extra labels such as `release: kube-prometheus-stack` |
+| `ingress.enabled` | `false` | Provision ingress; enable only with dashboard or reverse-proxy auth |
+| `metrics.serviceMonitorScaffold.enabled` | `false` | Render scaffold-only ServiceMonitor; dashboard does not expose `/metrics` |
+| `metrics.serviceMonitorScaffold.path` | `/metrics` | Future scrape path; scaffold only until metrics exist |
+| `metrics.serviceMonitorScaffold.interval` | `30s` | ServiceMonitor scrape interval |
+| `metrics.serviceMonitorScaffold.scrapeTimeout` | `10s` | ServiceMonitor scrape timeout |
+| `metrics.serviceMonitorScaffold.additionalLabels` | `{}` | Extra labels such as `release: kube-prometheus-stack` |
 | `replicaCount` | `1` | Pod replicas |

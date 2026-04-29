@@ -1,5 +1,6 @@
 <script lang="ts">
 import WorkspaceSearchRoute from '$lib/route-shared/WorkspaceSearchRoute.svelte';
+import { peerCollectionPath } from '$lib/routing/paths';
 import type { PageData } from './$types';
 
 interface Props {
@@ -14,5 +15,5 @@ const { data }: Props = $props();
   initialQuery={data.initialQuery}
   initialTopic={data.initialTopic}
   initialResponse={data.initialResponse}
-  peerHrefPrefix={`/workspaces/${data.workspaceId}/peers`}
+  peerHrefPrefix={peerCollectionPath(data.workspaceId)}
 />

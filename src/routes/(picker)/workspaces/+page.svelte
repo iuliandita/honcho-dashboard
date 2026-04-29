@@ -4,6 +4,7 @@ import PaneList from '$features/browser/PaneList.svelte';
 import WorkspaceCard from '$features/browser/WorkspaceCard.svelte';
 import { type WorkspaceSummary, buildWorkspacesQuery } from '$features/browser/api';
 import { t } from '$lib/i18n';
+import { workspacePath } from '$lib/routing/paths';
 import type { AppSettings } from '$lib/settings/AppSettings.svelte';
 import Pane from '$ui/primitives/Pane.svelte';
 import PaneHeader from '$ui/primitives/PaneHeader.svelte';
@@ -37,7 +38,7 @@ const query = createQuery({
       title: t(settings.locale, 'browser.noWorkspaces'),
       description: t(settings.locale, 'browser.noWorkspaces.description'),
     }}
-    hrefFor={(workspace) => `/workspaces/${workspace.id}`}
+    hrefFor={(workspace) => workspacePath(workspace.id)}
   >
     {#snippet row(item: WorkspaceSummary)}
       <WorkspaceCard workspace={item} />

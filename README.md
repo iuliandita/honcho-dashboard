@@ -11,12 +11,17 @@ The dashboard is an admin-facing inspection UI for Honcho's workspace, peer, ses
 chat, and search APIs. It runs a small server-side proxy so the Honcho admin token stays on the server and never
 lands in browser storage.
 
+If `DASHBOARD_AUTH_MODE=password` is set, the dashboard uses a single-operator password gate backed by an
+HTTP-only, SameSite session cookie. Keep `/healthz` public for probes. If dashboard auth is off, put the
+service behind trusted network or reverse-proxy authentication before exposing it.
+
 ## Status
 
-v1 is usable for self-hosted Honcho inspection. The dashboard is admin-facing and expects a trusted operator
-network. It is mostly read-only: session messages, representation, profile, peers, workspaces, and search are
-inspection surfaces. The chat tab sends natural-language queries to Honcho's dialectic endpoint and can cause
-Honcho to derive updated peer context, but the dashboard does not edit or delete Honcho memories.
+v1.6 is usable for self-hosted Honcho inspection. The dashboard is admin-facing; enable dashboard auth or
+trusted reverse-proxy auth before exposing it outside an operator network. It is mostly read-only: session
+messages, representation, profile, peers, workspaces, and search are inspection surfaces. The chat tab sends
+natural-language queries to Honcho's dialectic endpoint and can cause Honcho to derive updated peer context,
+but the dashboard does not edit or delete Honcho memories.
 
 ## Features
 
@@ -38,6 +43,9 @@ Honcho to derive updated peer context, but the dashboard does not edit or delete
 docker run --rm -p 3000:3000 \
   -e HONCHO_API_BASE=https://your-honcho.example.com \
   -e HONCHO_ADMIN_TOKEN=your-admin-token \
+  -e DASHBOARD_AUTH_MODE=password \
+  -e DASHBOARD_AUTH_PASSWORD=choose-a-strong-operator-password \
+  -e DASHBOARD_SESSION_SECRET=choose-a-long-random-session-secret \
   ghcr.io/iuliandita/honcho-dashboard:latest
 ```
 
@@ -52,6 +60,18 @@ bun run dev
 ```
 
 Set `HONCHO_API_BASE` and `HONCHO_ADMIN_TOKEN` in `.env` or your shell before starting the app.
+
+## Testing
+
+Use the package scripts, not Bun's native `bun test` discovery. This repo's tests rely on Vitest, Svelte
+transforms, jsdom setup, and Playwright fixtures.
+
+```bash
+bun run check
+bun run lint
+bun run test
+bun run test:e2e
+```
 
 ## Configuration
 

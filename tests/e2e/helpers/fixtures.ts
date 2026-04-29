@@ -115,6 +115,11 @@ export const fixtureRepresentationMarkdown = fixtureRepresentation.topics
   })
   .join('\n\n');
 
+export const fixtureMaliciousRepresentationMarkdown = `${fixtureRepresentationMarkdown}
+
+<script>window.__profileXss = true</script>
+<img src=x onerror="window.__profileXss = true">`;
+
 export const fixtureSearchResults: components['schemas']['Message'][] = [
   {
     id: 's1',

@@ -6,8 +6,14 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [1.6.0] - 2026-04-29
+
 ### Added
 
+- Built-in single-operator dashboard password gate. When
+  `DASHBOARD_AUTH_MODE=password` is set, the dashboard shell and proxied
+  Honcho API routes require an HTTP-only, SameSite session cookie while
+  `/healthz` remains public.
 - Dialectic chat panel with SSE streaming against `/peers/{id}/chat`.
   Cancel mid-stream, reset between sends, surface mid-stream interruptions
   as typed errors, and invalidate the peer query on clean close so
@@ -16,13 +22,32 @@ All notable changes to this project are documented here. The format follows
 - Opt-in Prometheus `ServiceMonitor` for both plain Kubernetes
   (`deploy/k8s/servicemonitor.yaml`, excluded from kustomization base by
   default) and Helm (`templates/servicemonitor.yaml`, gated on
-  `metrics.enabled`). This is scaffolding for Prometheus Operator discovery;
-  the dashboard does not expose `/metrics` yet.
+  `metrics.serviceMonitorScaffold.enabled`). This is scaffolding for
+  Prometheus Operator discovery; the dashboard does not expose `/metrics` yet.
+- CI security gates for gitleaks, semgrep, Trivy filesystem scans, and release
+  image scans.
 
 ### Fixed
 
 - Corrected the 1.0.0 entry: dialectic chat was documented there too early
   and actually landed after 1.0.0.
+- Runtime version now comes from `package.json`, with
+  `HONCHO_DASHBOARD_VERSION` available for release overrides.
+- Runtime env parsing now fails fast for invalid Honcho API URLs, timeouts,
+  ports, and production build directories.
+- Dynamic app and Honcho API path segments are encoded consistently for
+  workspace, peer, and session IDs.
+- CSP no longer allows inline scripts.
+- Helm ingress now defaults to disabled so unauthenticated public exposure is
+  harder to create accidentally.
+- Tracked `docs/local` scratch files were removed from git.
+
+### Changed
+
+- GitHub Actions now pin Bun to the Dockerfile runtime version and avoid
+  floating `latest` tool downloads.
+- README testing docs call out Vitest/Playwright package scripts instead of
+  Bun's native `bun test`.
 
 ## [1.0.0] - 2026-04-28
 
