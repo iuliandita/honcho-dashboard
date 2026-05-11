@@ -20,11 +20,10 @@ const { workspaceId, peerId, sessionId, firstPage }: Props = $props();
 const settings = getContext<AppSettings>('app-settings');
 
 const client = createApiClient();
-// svelte-ignore state_referenced_locally
-const query = createInfiniteQuery({
+const query = createInfiniteQuery(() => ({
   ...buildSessionMessagesQuery(client, workspaceId, peerId, sessionId),
   initialData: { pages: [firstPage], pageParams: [1] },
-});
+}));
 </script>
 
 <Pane scrollable>
