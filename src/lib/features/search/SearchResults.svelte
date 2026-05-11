@@ -31,31 +31,31 @@ const settings = getLocaleContext();
     >
       {#snippet art()}<EmptySearch />{/snippet}
     </EmptyState>
-  {:else if $queryStore.isLoading}
+  {:else if queryStore.isLoading}
     <p class="state">{t(settings.locale, 'search.loading')}</p>
-  {:else if $queryStore.isError}
+  {:else if queryStore.isError}
     <ErrorState
-      error={$queryStore.error}
+      error={queryStore.error}
       title={t(settings.locale, 'search.failed')}
       context={query}
-      onRetry={() => $queryStore.refetch()}
+      onRetry={() => queryStore.refetch()}
     />
-  {:else if $queryStore.data}
-    {#if $queryStore.data.topicFacets && Object.keys($queryStore.data.topicFacets).length > 0}
+  {:else if queryStore.data}
+    {#if queryStore.data.topicFacets && Object.keys(queryStore.data.topicFacets).length > 0}
       <nav class="facets" aria-label={t(settings.locale, 'search.topicFilter')}>
         <TopicChip
           topic={null}
           selected={selectedTopic === null}
-          count={Object.values($queryStore.data.topicFacets).reduce((a, b) => a + b, 0)}
+          count={Object.values(queryStore.data.topicFacets).reduce((a, b) => a + b, 0)}
           onClick={onTopicChange}
         />
-        {#each Object.entries($queryStore.data.topicFacets) as [topic, count] (topic)}
+        {#each Object.entries(queryStore.data.topicFacets) as [topic, count] (topic)}
           <TopicChip {topic} selected={selectedTopic === topic} {count} onClick={onTopicChange} />
         {/each}
       </nav>
     {/if}
 
-    {#if $queryStore.data.results.length === 0}
+    {#if queryStore.data.results.length === 0}
       <EmptyState
         title={t(settings.locale, 'search.empty')}
         description={selectedTopic
@@ -66,7 +66,7 @@ const settings = getLocaleContext();
       </EmptyState>
     {:else}
       <ol class="results">
-        {#each $queryStore.data.results as result (result.id)}
+        {#each queryStore.data.results as result (result.id)}
           <li>
             <ResultCard {result} href={hrefForResult(result)} />
           </li>

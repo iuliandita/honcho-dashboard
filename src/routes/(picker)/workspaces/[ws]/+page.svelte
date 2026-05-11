@@ -22,22 +22,18 @@ const settings = getContext<AppSettings>('app-settings');
 const workspaceId = $derived(page.params.ws ?? '');
 
 const client = createApiClient();
-// initialData is a one-shot hydration value; the snapshot is intentional.
-// svelte-ignore state_referenced_locally
-const query = $derived.by(() =>
-  createQuery({
-    ...buildPeersQuery(client, workspaceId),
-    initialData: data.peers,
-  }),
-);
+const query = createQuery(() => ({
+  ...buildPeersQuery(client, workspaceId),
+  initialData: data.peers,
+}));
 </script>
 
 <Pane scrollable>
   <PaneHeader title={t(settings.locale, 'nav.peers')} subtitle={`${t(settings.locale, 'common.workspace')} ${workspaceId}`} />
   <PaneList
-    items={$query.data ?? []}
-    loading={$query.isLoading}
-    error={$query.error}
+    items={query.data ?? []}
+    loading={query.isLoading}
+    error={query.error}
     empty={{ title: t(settings.locale, 'browser.noPeers') }}
     hrefFor={(peer) => peerPath(peer.id, workspaceId)}
   >

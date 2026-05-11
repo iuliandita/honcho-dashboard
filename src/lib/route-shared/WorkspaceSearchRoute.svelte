@@ -35,13 +35,10 @@ const client = createApiClient();
 const hydratedInitialData = $derived(
   committedQuery === initialQuery && selectedTopic === initialTopic ? initialResponse : null,
 );
-// svelte-ignore state_referenced_locally
-const query = $derived.by(() =>
-  createQuery({
-    ...buildWorkspaceSearchQuery(client, workspaceId, committedQuery, selectedTopic),
-    initialData: hydratedInitialData ?? undefined,
-  }),
-);
+const query = createQuery(() => ({
+  ...buildWorkspaceSearchQuery(client, workspaceId, committedQuery, selectedTopic),
+  initialData: hydratedInitialData ?? undefined,
+}));
 
 function syncUrl(q: string, topic: string | null) {
   const params = new URLSearchParams();

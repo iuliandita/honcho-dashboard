@@ -20,12 +20,10 @@ const { data }: Props = $props();
 const settings = getContext<AppSettings>('app-settings');
 
 const client = createApiClient();
-// initialData is a one-shot hydration value; the snapshot is intentional.
-// svelte-ignore state_referenced_locally
-const query = createQuery({
+const query = createQuery(() => ({
   ...buildPeersQuery(client, data.workspaceId),
   initialData: data.peers,
-});
+}));
 </script>
 
 <Pane scrollable>
@@ -34,9 +32,9 @@ const query = createQuery({
     subtitle={`${t(settings.locale, 'common.pinnedWorkspace')} ${data.workspaceId}`}
   />
   <PaneList
-    items={$query.data ?? []}
-    loading={$query.isLoading}
-    error={$query.error}
+    items={query.data ?? []}
+    loading={query.isLoading}
+    error={query.error}
     empty={{ title: t(settings.locale, 'browser.noPeers') }}
     hrefFor={(peer) => peerPath(peer.id)}
   >

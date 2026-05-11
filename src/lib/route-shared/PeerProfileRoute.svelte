@@ -22,29 +22,28 @@ const { workspaceId, peerId, profile }: Props = $props();
 const settings = getContext<AppSettings>('app-settings');
 
 const client = createApiClient();
-// svelte-ignore state_referenced_locally
-const query = createQuery({
+const query = createQuery(() => ({
   ...buildPeerProfileQuery(client, workspaceId, peerId),
   initialData: profile,
-});
+}));
 </script>
 
 <Pane scrollable>
   <PaneHeader title={t(settings.locale, 'profile.title')} subtitle={`${t(settings.locale, 'common.peer')} ${peerId}`} />
   <div class="pane-body">
-    {#if $query.isLoading && !$query.data}
+    {#if query.isLoading && !query.data}
       <p class="state">{t(settings.locale, 'profile.loading')}</p>
-    {:else if $query.isError}
+    {:else if query.isError}
       <div class="state-block">
         <ErrorState
-          error={$query.error}
+          error={query.error}
           title={t(settings.locale, 'profile.failed')}
           context={`${t(settings.locale, 'common.peer')} ${peerId}`}
-          onRetry={() => $query.refetch()}
+          onRetry={() => query.refetch()}
         />
       </div>
-    {:else if $query.data}
-      <ProfileMarkdown profile={$query.data} />
+    {:else if query.data}
+      <ProfileMarkdown profile={query.data} />
     {:else}
       <EmptyState title={t(settings.locale, 'profile.empty')}>
         {#snippet art()}<EmptyProfile />{/snippet}

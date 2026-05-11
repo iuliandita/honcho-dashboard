@@ -1,7 +1,6 @@
 import type { InfiniteData } from '@tanstack/query-core';
 import type { CreateInfiniteQueryResult } from '@tanstack/svelte-query';
 import { fireEvent, render } from '@testing-library/svelte';
-import { writable } from 'svelte/store';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import MessageList from './MessageList.svelte';
 import type { Message, MessagesPage } from './api';
@@ -19,20 +18,21 @@ function message(id: string, content: string): Message {
   };
 }
 
-function queryStore(overrides: Record<string, unknown> = {}) {
-  return writable<Record<string, unknown>>({
-    data: undefined,
+function makeQuery(overrides: Record<string, unknown> = {}) {
+  return {
+    data: undefined as unknown,
     error: null,
     fetchNextPage: vi.fn(),
     hasNextPage: false,
     isError: false,
     isFetchingNextPage: false,
     isLoading: false,
+    refetch: vi.fn(),
     ...overrides,
-  });
+  };
 }
 
-function asQuery(query: ReturnType<typeof queryStore>): CreateInfiniteQueryResult<InfiniteData<MessagesPage>, Error> {
+function asQuery(query: ReturnType<typeof makeQuery>): CreateInfiniteQueryResult<InfiniteData<MessagesPage>, Error> {
   return query as unknown as CreateInfiniteQueryResult<InfiniteData<MessagesPage>, Error>;
 }
 
@@ -66,7 +66,7 @@ describe('<MessageList>', () => {
       messages: [message('m2', 'older'), message('m1', 'oldest')],
       nextPage: null,
     };
-    const query = queryStore({
+    const query = makeQuery({
       data: { pages: [newestPage, olderPage], pageParams: [1, 2] },
     });
 
@@ -80,7 +80,7 @@ describe('<MessageList>', () => {
 
   it('loads the next page when the user scrolls back to the top', async () => {
     const fetchNextPage = vi.fn();
-    const query = queryStore({
+    const query = makeQuery({
       data: { pages: [{ messages: [message('m1', 'hello')], nextPage: 2 }], pageParams: [1] },
       fetchNextPage,
       hasNextPage: true,
@@ -96,7 +96,7 @@ describe('<MessageList>', () => {
 
   it('gates intersection loading on user scroll and fetch state', async () => {
     const fetchNextPage = vi.fn();
-    const query = queryStore({
+    const query = makeQuery({
       data: { pages: [{ messages: [message('m1', 'hello')], nextPage: 2 }], pageParams: [1] },
       fetchNextPage,
       hasNextPage: true,
@@ -114,15 +114,7 @@ describe('<MessageList>', () => {
     observer.trigger();
     expect(fetchNextPage).toHaveBeenCalledOnce();
 
-    query.set({
-      data: { pages: [{ messages: [message('m1', 'hello')], nextPage: 2 }], pageParams: [1] },
-      error: null,
-      fetchNextPage,
-      hasNextPage: true,
-      isError: false,
-      isFetchingNextPage: true,
-      isLoading: false,
-    });
+    query.isFetchingNextPage = true;
     observer.trigger();
     expect(fetchNextPage).toHaveBeenCalledOnce();
   });
