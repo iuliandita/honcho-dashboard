@@ -20,20 +20,18 @@ const { data }: Props = $props();
 const settings = getContext<AppSettings>('app-settings');
 
 const client = createApiClient();
-// initialData is a one-shot hydration value; the snapshot is intentional.
-// svelte-ignore state_referenced_locally
-const query = createQuery({
+const query = createQuery(() => ({
   ...buildSessionsQuery(client, data.workspaceId, data.peerId),
   initialData: data.sessions,
-});
+}));
 </script>
 
 <Pane scrollable>
   <PaneHeader title={t(settings.locale, 'nav.sessions')} subtitle={`${t(settings.locale, 'common.peer')} ${data.peerId}`} />
   <PaneList
-    items={$query.data ?? []}
-    loading={$query.isLoading}
-    error={$query.error}
+    items={query.data ?? []}
+    loading={query.isLoading}
+    error={query.error}
     empty={{ title: t(settings.locale, 'browser.noSessions') }}
     hrefFor={(session) => sessionPath(data.peerId, session.id, data.workspaceId)}
   >

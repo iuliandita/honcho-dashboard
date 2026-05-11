@@ -20,20 +20,18 @@ const { data }: Props = $props();
 const settings = getContext<AppSettings>('app-settings');
 
 const client = createApiClient();
-// initialData is a one-shot hydration value; capturing data.workspaces here is the intended seed.
-// svelte-ignore state_referenced_locally
-const query = createQuery({
+const query = createQuery(() => ({
   ...buildWorkspacesQuery(client),
   initialData: data.workspaces,
-});
+}));
 </script>
 
 <Pane scrollable>
   <PaneHeader title={t(settings.locale, 'nav.workspaces')} subtitle={t(settings.locale, 'browser.selectWorkspace')} />
   <PaneList
-    items={$query.data ?? []}
-    loading={$query.isLoading}
-    error={$query.error}
+    items={query.data ?? []}
+    loading={query.isLoading}
+    error={query.error}
     empty={{
       title: t(settings.locale, 'browser.noWorkspaces'),
       description: t(settings.locale, 'browser.noWorkspaces.description'),

@@ -22,29 +22,28 @@ const { workspaceId, peerId, representation }: Props = $props();
 const settings = getContext<AppSettings>('app-settings');
 
 const client = createApiClient();
-// svelte-ignore state_referenced_locally
-const query = createQuery({
+const query = createQuery(() => ({
   ...buildPeerRepresentationQuery(client, workspaceId, peerId),
   initialData: representation,
-});
+}));
 </script>
 
 <Pane scrollable>
   <PaneHeader title={t(settings.locale, 'representation.title')} subtitle={`${t(settings.locale, 'common.peer')} ${peerId}`} />
   <div class="pane-body">
-    {#if $query.isLoading && !$query.data}
+    {#if query.isLoading && !query.data}
       <p class="state">{t(settings.locale, 'representation.loading')}</p>
-    {:else if $query.isError}
+    {:else if query.isError}
       <div class="state-block">
         <ErrorState
-          error={$query.error}
+          error={query.error}
           title={t(settings.locale, 'representation.failed')}
           context={`${t(settings.locale, 'common.peer')} ${peerId}`}
-          onRetry={() => $query.refetch()}
+          onRetry={() => query.refetch()}
         />
       </div>
-    {:else if $query.data}
-      <RepresentationGrid data={$query.data} />
+    {:else if query.data}
+      <RepresentationGrid data={query.data} />
     {:else}
       <EmptyState title={t(settings.locale, 'representation.empty')}>
         {#snippet art()}<EmptyMemory />{/snippet}

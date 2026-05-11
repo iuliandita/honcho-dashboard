@@ -11,7 +11,7 @@ import MessageBubble from './MessageBubble.svelte';
 import type { Message, MessagesPage } from './api';
 
 interface Props {
-  /** TanStack infinite query store. */
+  /** TanStack infinite query result. */
   query: CreateInfiniteQueryResult<InfiniteData<MessagesPage>, Error>;
   peerId: string;
 }
@@ -22,7 +22,7 @@ const settings = getLocaleContext();
 // Honcho returns newest-first pages; keep the first page's newest item visible
 // while prepending older pages above it as scrollback loads.
 const messages = $derived.by((): Message[] => {
-  const pages = $query.data?.pages ?? [];
+  const pages = query.data?.pages ?? [];
   return [...pages].reverse().flatMap((page) => [...page.messages].reverse());
 });
 
@@ -31,8 +31,8 @@ let topSentinel: HTMLDivElement | undefined = $state();
 let userScrolled = $state(false);
 
 function fetchOlderIfAvailable() {
-  if ($query.hasNextPage && !$query.isFetchingNextPage) {
-    $query.fetchNextPage();
+  if (query.hasNextPage && !query.isFetchingNextPage) {
+    query.fetchNextPage();
   }
 }
 
@@ -47,7 +47,7 @@ onMount(() => {
   const observer = new IntersectionObserver(
     (entries) => {
       for (const entry of entries) {
-        if (userScrolled && entry.isIntersecting && $query.hasNextPage && !$query.isFetchingNextPage) {
+        if (userScrolled && entry.isIntersecting && query.hasNextPage && !query.isFetchingNextPage) {
           fetchOlderIfAvailable();
         }
       }
@@ -68,15 +68,15 @@ onMount(() => {
   tabindex="0"
   onscroll={onScroll}
 >
-  {#if $query.isLoading && messages.length === 0}
+  {#if query.isLoading && messages.length === 0}
     <p class="state-row" role="status">{t(settings.locale, 'messages.loading')}</p>
-  {:else if $query.isError}
+  {:else if query.isError}
     <div class="state-block">
       <ErrorState
-        error={$query.error}
+        error={query.error}
         title={t(settings.locale, 'messages.failed')}
         context={`${t(settings.locale, 'common.peer')} ${peerId}`}
-        onRetry={() => $query.refetch()}
+        onRetry={() => query.refetch()}
       />
     </div>
   {:else if messages.length === 0}
@@ -85,10 +85,10 @@ onMount(() => {
     </EmptyState>
   {:else}
     <div bind:this={topSentinel} class="sentinel" aria-hidden="true">
-      {#if $query.isFetchingNextPage}
+      {#if query.isFetchingNextPage}
         <p class="state-row">{t(settings.locale, 'messages.loadingOlder')}</p>
       {/if}
-      {#if !$query.hasNextPage}
+      {#if !query.hasNextPage}
         <p class="state-row faint">{t(settings.locale, 'messages.startOfHistory')}</p>
       {/if}
     </div>
