@@ -169,7 +169,8 @@ export function createApp(overrides?: Partial<AppConfig>): Hono<AppBindings> {
   app.route('/', authRoute(config.authConfig));
   // Keep runtime config before the /api/* proxy so the dashboard's own bootstrap endpoint is never forwarded.
   app.route('/', runtimeConfigRoute({ workspaceId: config.workspaceId, version: config.version }));
-  app.use('/api/v3/*', authMiddleware(config.authConfig));
+  // Every proxied path needs a session: the proxy forwards any /api/* request with the admin token.
+  app.use('/api/*', authMiddleware(config.authConfig));
   app.route(
     '/',
     proxyRoute({

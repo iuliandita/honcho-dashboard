@@ -204,6 +204,14 @@ describe('createApp', () => {
     });
     expect(blocked.status).toBe(401);
 
+    // Paths outside /api/v3 reach Honcho with the admin token too, so they need a session as well.
+    for (const path of ['/api/v2/workspaces', '/api/openapi.json', '/api/docs']) {
+      const other = await app.request(path);
+      expect(other.status, path).toBe(401);
+    }
+    expect((await app.request('/api/auth/status')).status).toBe(200);
+    expect((await app.request('/api/runtime-config')).status).toBe(200);
+
     const login = await app.request('/api/auth/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

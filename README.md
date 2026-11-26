@@ -79,7 +79,7 @@ bun run test:e2e
 | Env var | Required | Description |
 |---|---|---|
 | `HONCHO_API_BASE` | yes | Base URL of the Honcho API (e.g. `https://honcho.example.com`) |
-| `HONCHO_ADMIN_TOKEN` | yes | Admin bearer token; never leaves the dashboard process |
+| `HONCHO_ADMIN_TOKEN` | yes | Admin bearer token, sent only to Honcho; never sent to the browser |
 | `HONCHO_WORKSPACE_ID` | no | If set, pins the dashboard to a single workspace |
 | `DASHBOARD_AUTH_MODE` | no | `off` (default) or `password` |
 | `DASHBOARD_AUTH_PASSWORD_HASH` | no | Preferred shared-password verifier for password mode |
